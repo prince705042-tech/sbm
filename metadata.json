@@ -1,0 +1,6 @@
+{
+  "name": "Swachh Campus - Waste Bin Locator",
+  "description": "Interactive campus dustbin locator for dry and wet waste segregation under the Swachh Bharat Mission, with live bin status, nearest bin finder, and waste guide.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
