@@ -246,8 +246,9 @@ export const CampusMap: React.FC<CampusMapProps> = ({
         </div>
 
         {/* SVG Campus Map Canvas */}
-        <div className="relative w-full max-w-3xl mx-auto rounded-xl overflow-hidden border-2 border-slate-900 bg-[#0c1f2e] shadow-xl select-none transition-all duration-300">
+        <div className="relative w-full max-w-3xl mx-auto rounded-xl overflow-x-auto overflow-y-hidden border-2 border-slate-900 bg-[#0c1f2e] shadow-xl select-none transition-all duration-300">
           <div 
+            className="min-w-[320px] sm:min-w-[480px] md:min-w-[600px] lg:min-w-[700px] w-full mx-auto"
             style={{ 
               transform: `scale(${zoomLevel})`,
               transformOrigin: 'top center',

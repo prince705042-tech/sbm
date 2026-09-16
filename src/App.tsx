@@ -8,19 +8,33 @@ import { WasteSegregationGuide } from './components/WasteSegregationGuide';
 import { CampusAlertsView } from './components/CampusAlertsView';
 import { ReportIssueModal } from './components/ReportIssueModal';
 import { AddBinModal } from './components/AddBinModal';
-import { CheckCircle2, Sparkles, Heart } from 'lucide-react';
+import { AdminLoginModal } from './components/AdminLoginModal';
+import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck } from 'lucide-react';
 
 export default function App() {
   // Persistence in localStorage
   // Version key to ensure updated campus locations load cleanly
-  const DATA_VERSION = 'v13_added_koshi_extension';
+  const DATA_VERSION = 'v16_fix_duplicate_bin_keys';
 
   const [bins, setBins] = useState<CampusBin[]>(() => {
     try {
       const savedVersion = localStorage.getItem('swachh_campus_version');
       if (savedVersion === DATA_VERSION) {
         const saved = localStorage.getItem('swachh_campus_bins');
-        if (saved) return JSON.parse(saved);
+        if (saved) {
+          const parsed: CampusBin[] = JSON.parse(saved);
+          // Deduplicate keys in case old data was saved
+          const seen = new Set<string>();
+          return parsed.map((b, idx) => {
+            if (seen.has(b.id)) {
+              const uniqueId = `${b.id}-${idx}`;
+              seen.add(uniqueId);
+              return { ...b, id: uniqueId };
+            }
+            seen.add(b.id);
+            return b;
+          });
+        }
       } else {
         localStorage.setItem('swachh_campus_version', DATA_VERSION);
       }
@@ -63,7 +77,30 @@ export default function App() {
         status: 'pending',
         reportedBy: 'Kunal (Student Council)',
       },
+      {
+        id: 't-3',
+        binId: 'bin-cse-1',
+        binName: 'CSE Dept Dual Bins',
+        locationName: 'CSE Department - Ground Floor Labs Corridor',
+        issueType: 'wrong_waste',
+        details: 'Plastic drink bottles found thrown into green wet waste bin.',
+        reportedAt: '1 hour ago',
+        status: 'pending',
+        reportedBy: 'Ananya (B.Tech 3rd Year)',
+      },
     ];
+  });
+
+  // Admin authentication state
+  // Admin credentials:
+  // Admin ID: SBM
+  // Password: SBM@2612047
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('swachh_campus_admin_auth') === 'true';
+    } catch {
+      return false;
+    }
   });
 
   const [activeTab, setActiveTab] = useState<'map' | 'finder' | 'guide' | 'alerts'>('map');
@@ -71,9 +108,11 @@ export default function App() {
   const [selectedBin, setSelectedBin] = useState<CampusBin | null>(INITIAL_BINS[0]);
   const [highlightedBinId, setHighlightedBinId] = useState<string | null>(null);
 
-  // Modals
+  // Modals & reason tracking
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isAddBinModalOpen, setIsAddBinModalOpen] = useState(false);
+  const [isAdminLoginModalOpen, setIsAdminLoginModalOpen] = useState(false);
+  const [adminLoginReason, setAdminLoginReason] = useState<'reports' | 'add_bin' | null>(null);
   const [targetBinForReport, setTargetBinForReport] = useState<CampusBin | null>(null);
 
   // Toast notification
@@ -99,6 +138,49 @@ export default function App() {
     } catch {}
   }, [tickets]);
 
+  // Admin Authentication Handlers
+  const handleAdminLogin = (id: string, pass: string): boolean => {
+    if (id.trim() === 'SBM' && pass.trim() === 'SBM@2612047') {
+      setIsAdmin(true);
+      try {
+        localStorage.setItem('swachh_campus_admin_auth', 'true');
+      } catch {}
+      showToast('🛡️ Welcome SBM Administrator! Admin privileges active.');
+      return true;
+    }
+    return false;
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdmin(false);
+    try {
+      localStorage.removeItem('swachh_campus_admin_auth');
+    } catch {}
+    showToast('🔒 Logged out from SBM Admin Portal.');
+  };
+
+  // Only Admin can open the Add Bin flow
+  const handleTriggerAddBin = () => {
+    if (isAdmin) {
+      setIsAddBinModalOpen(true);
+    } else {
+      setAdminLoginReason('add_bin');
+      setIsAdminLoginModalOpen(true);
+    }
+  };
+
+  // Callback on successful admin modal login
+  const handleAdminLoginSuccess = () => {
+    handleAdminLogin('SBM', 'SBM@2612047');
+    if (adminLoginReason === 'add_bin') {
+      setIsAddBinModalOpen(true);
+      showToast('🛡️ SBM Admin verified. You can now register a new dustbin station.');
+    } else {
+      setActiveTab('alerts');
+    }
+    setAdminLoginReason(null);
+  };
+
   // Handlers
   const handleSelectBinAndShowMap = (bin: CampusBin) => {
     setSelectedBin(bin);
@@ -113,6 +195,11 @@ export default function App() {
   };
 
   const handleAddNewBin = (newBinData: Omit<CampusBin, 'id' | 'reportedCount'>) => {
+    if (!isAdmin) {
+      showToast('⚠️ Unauthorized. Only SBM Administrators can add bins.');
+      return;
+    }
+
     const newBin: CampusBin = {
       ...newBinData,
       id: `bin-${Date.now()}`,
@@ -149,7 +236,7 @@ export default function App() {
       })
     );
 
-    showToast(`📢 Report submitted! Campus sanitation team has been notified.`);
+    showToast(`📢 Report submitted! SBM sanitation administration has been notified.`);
   };
 
   const handleDispatchCleaning = (ticketId: string) => {
@@ -177,6 +264,11 @@ export default function App() {
     showToast('✨ Bin emptied & ticket marked as resolved! Campus score updated.');
   };
 
+  const handleDeleteTicket = (ticketId: string) => {
+    setTickets((prev) => prev.filter((t) => t.id !== ticketId));
+    showToast('🗑️ Report ticket dismissed.');
+  };
+
   const activeAlertsCount = tickets.filter((t) => t.status !== 'resolved').length;
 
   return (
@@ -197,13 +289,19 @@ export default function App() {
           setTargetBinForReport(selectedBin);
           setIsReportModalOpen(true);
         }}
-        onOpenAddBinModal={() => setIsAddBinModalOpen(true)}
+        onOpenAddBinModal={handleTriggerAddBin}
         activeAlertsCount={activeAlertsCount}
         totalBinsCount={bins.length}
+        isAdmin={isAdmin}
+        onOpenAdminLoginModal={() => {
+          setAdminLoginReason('reports');
+          setIsAdminLoginModalOpen(true);
+        }}
+        onAdminLogout={handleAdminLogout}
       />
 
       {/* Main View Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 pb-20 md:pb-8">
         {activeTab === 'map' && (
           <CampusMap
             bins={bins}
@@ -235,15 +333,87 @@ export default function App() {
           <CampusAlertsView
             tickets={tickets}
             bins={bins}
+            isAdmin={isAdmin}
+            onAdminLogin={handleAdminLogin}
+            onAdminLogout={handleAdminLogout}
             onResolveTicket={handleResolveTicket}
             onDispatchCleaning={handleDispatchCleaning}
+            onDeleteTicket={handleDeleteTicket}
             onOpenReportModal={() => {
               setTargetBinForReport(selectedBin);
               setIsReportModalOpen(true);
             }}
+            onOpenAddBinModal={handleTriggerAddBin}
           />
         )}
       </main>
+
+      {/* Mobile Sticky Bottom Navigation Bar */}
+      <nav 
+        id="mobile-bottom-navbar" 
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1.5 shadow-lg flex items-center justify-around"
+      >
+        <button
+          id="btn-mobile-nav-map"
+          onClick={() => setActiveTab('map')}
+          className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all cursor-pointer ${
+            activeTab === 'map' ? 'text-emerald-700 font-bold' : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <div className={`p-1 rounded-lg ${activeTab === 'map' ? 'bg-emerald-50 text-emerald-600' : ''}`}>
+            <MapPin className="w-4 h-4" />
+          </div>
+          <span className="text-[10px] mt-0.5">Map</span>
+        </button>
+
+        <button
+          id="btn-mobile-nav-finder"
+          onClick={() => setActiveTab('finder')}
+          className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all cursor-pointer ${
+            activeTab === 'finder' ? 'text-emerald-700 font-bold' : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <div className={`p-1 rounded-lg ${activeTab === 'finder' ? 'bg-emerald-50 text-emerald-600' : ''}`}>
+            <Search className="w-4 h-4" />
+          </div>
+          <span className="text-[10px] mt-0.5">Nearest</span>
+        </button>
+
+        <button
+          id="btn-mobile-nav-guide"
+          onClick={() => setActiveTab('guide')}
+          className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all cursor-pointer ${
+            activeTab === 'guide' ? 'text-emerald-700 font-bold' : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <div className={`p-1 rounded-lg ${activeTab === 'guide' ? 'bg-emerald-50 text-emerald-600' : ''}`}>
+            <Sparkles className="w-4 h-4" />
+          </div>
+          <span className="text-[10px] mt-0.5">Waste Guide</span>
+        </button>
+
+        <button
+          id="btn-mobile-nav-alerts"
+          onClick={() => setActiveTab('alerts')}
+          className={`relative flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all cursor-pointer ${
+            activeTab === 'alerts' ? 'text-emerald-700 font-bold' : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <div className={`p-1 rounded-lg ${activeTab === 'alerts' ? 'bg-emerald-50 text-emerald-600' : ''}`}>
+            {isAdmin ? (
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            ) : (
+              <AlertCircle className="w-4 h-4" />
+            )}
+          </div>
+          <span className="text-[10px] mt-0.5">{isAdmin ? 'Admin' : 'Reports'}</span>
+          {activeAlertsCount > 0 && (
+            <span className="absolute top-1 right-2 w-3.5 h-3.5 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center">
+              {activeAlertsCount}
+            </span>
+          )}
+        </button>
+      </nav>
 
       {/* Modals */}
       <ReportIssueModal
@@ -258,6 +428,21 @@ export default function App() {
         isOpen={isAddBinModalOpen}
         onClose={() => setIsAddBinModalOpen(false)}
         onAddBin={handleAddNewBin}
+        isAdmin={isAdmin}
+        onRequestAdminLogin={() => {
+          setAdminLoginReason('add_bin');
+          setIsAdminLoginModalOpen(true);
+        }}
+      />
+
+      <AdminLoginModal
+        isOpen={isAdminLoginModalOpen}
+        onClose={() => {
+          setIsAdminLoginModalOpen(false);
+          setAdminLoginReason(null);
+        }}
+        reason={adminLoginReason}
+        onLoginSuccess={handleAdminLoginSuccess}
       />
 
       {/* Footer */}

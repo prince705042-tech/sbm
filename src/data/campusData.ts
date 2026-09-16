@@ -491,7 +491,7 @@ export const INITIAL_BINS: CampusBin[] = [
 
   // 8. Koshi Ext (Beside Chem Lab & Boundary Wall, just outside entrance, wet & dry paired together)
   {
-    id: 'bin-kosi-ext-1',
+    id: 'bin-kosi-ext-2',
     name: 'Koshi Ext Outside Entrance Twin Station',
     locationName: 'Koshi Ext (Beside Chem Lab & Boundary Wall) - Just Outside Main Gate',
     zone: 'kosi-ext',
