@@ -9,12 +9,19 @@ import { CampusAlertsView } from './components/CampusAlertsView';
 import { ReportIssueModal } from './components/ReportIssueModal';
 import { AddBinModal } from './components/AddBinModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
-import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut } from 'lucide-react';
+import { 
+  saveReportToSupabase, 
+  fetchReportsFromSupabase, 
+  updateTicketStatusInSupabase, 
+  deleteTicketFromSupabase, 
+  checkSupabaseStatus 
+} from './lib/supabase';
 
 export default function App() {
   // Persistence in localStorage
   // Version key to ensure updated campus locations load cleanly
-  const DATA_VERSION = 'v16_fix_duplicate_bin_keys';
+  const DATA_VERSION = 'v19_removed_gandhi_ghat_bin';
 
   const [bins, setBins] = useState<CampusBin[]>(() => {
     try {
@@ -23,17 +30,19 @@ export default function App() {
         const saved = localStorage.getItem('swachh_campus_bins');
         if (saved) {
           const parsed: CampusBin[] = JSON.parse(saved);
-          // Deduplicate keys in case old data was saved
+          // Deduplicate keys in case old data was saved and filter removed bins
           const seen = new Set<string>();
-          return parsed.map((b, idx) => {
-            if (seen.has(b.id)) {
-              const uniqueId = `${b.id}-${idx}`;
-              seen.add(uniqueId);
-              return { ...b, id: uniqueId };
-            }
-            seen.add(b.id);
-            return b;
-          });
+          return parsed
+            .filter((b) => b.id !== 'bin-gandhighat-1')
+            .map((b, idx) => {
+              if (seen.has(b.id)) {
+                const uniqueId = `${b.id}-${idx}`;
+                seen.add(uniqueId);
+                return { ...b, id: uniqueId };
+              }
+              seen.add(b.id);
+              return b;
+            });
         }
       } else {
         localStorage.setItem('swachh_campus_version', DATA_VERSION);
@@ -92,12 +101,11 @@ export default function App() {
   });
 
   // Admin authentication state
-  // Admin credentials:
-  // Admin ID: SBM
-  // Password: SBM@2612047
+  // Starts logged out by default; authorized personnel log in via the Footer Admin Login
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
     try {
-      return localStorage.getItem('swachh_campus_admin_auth') === 'true';
+      const saved = localStorage.getItem('swachh_campus_admin_auth');
+      return saved !== null ? saved === 'true' : false;
     } catch {
       return false;
     }
@@ -107,6 +115,38 @@ export default function App() {
   const [userZone, setUserZone] = useState<BuildingZone>('sac-building');
   const [selectedBin, setSelectedBin] = useState<CampusBin | null>(INITIAL_BINS[0]);
   const [highlightedBinId, setHighlightedBinId] = useState<string | null>(null);
+  const [highlightedTicketId, setHighlightedTicketId] = useState<string | null>(null);
+
+  // Supabase Backend Sync State
+  const [supabaseConnected, setSupabaseConnected] = useState<boolean>(true);
+  const [supabaseTableExists, setSupabaseTableExists] = useState<boolean>(false);
+  const [supabaseStatusMsg, setSupabaseStatusMsg] = useState<string>('Connecting to SupaBase...');
+
+  const loadReportsFromSupabase = async () => {
+    try {
+      const status = await checkSupabaseStatus();
+      setSupabaseConnected(status.connected);
+      setSupabaseTableExists(status.tableExists);
+      setSupabaseStatusMsg(status.message);
+
+      if (status.tableExists) {
+        const res = await fetchReportsFromSupabase();
+        if (res.success && res.tickets && res.tickets.length > 0) {
+          setTickets((prev) => {
+            const fetchedIds = new Set(res.tickets!.map((t) => t.id));
+            const existingNonFetched = prev.filter((p) => !fetchedIds.has(p.id));
+            return [...res.tickets!, ...existingNonFetched];
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('Supabase sync notice:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadReportsFromSupabase();
+  }, []);
 
   // Modals & reason tracking
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -211,15 +251,17 @@ export default function App() {
     showToast(`✅ "${newBin.name}" successfully added to Campus Map!`);
   };
 
-  const handleSubmitReport = (data: Omit<ReportTicket, 'id' | 'reportedAt' | 'status'>) => {
+  const handleSubmitReport = (data: Omit<ReportTicket, 'id' | 'reportedAt' | 'status'>): string => {
+    const newTicketId = `t-${Date.now()}`;
     const newTicket: ReportTicket = {
       ...data,
-      id: `t-${Date.now()}`,
+      id: newTicketId,
       reportedAt: 'Just now',
       status: 'pending',
     };
 
     setTickets((prev) => [newTicket, ...prev]);
+    setHighlightedTicketId(newTicketId);
 
     // Update bin status to filling / full
     setBins((prev) =>
@@ -228,7 +270,7 @@ export default function App() {
           return {
             ...b,
             status: data.issueType === 'overflowing' ? 'full' : 'filling',
-            fillLevel: data.issueType === 'overflowing' ? 95 : b.fillLevel,
+            fillLevel: data.issueType === 'overflowing' ? 95 : Math.max(b.fillLevel, 75),
             reportedCount: b.reportedCount + 1,
           };
         }
@@ -236,13 +278,31 @@ export default function App() {
       })
     );
 
-    showToast(`📢 Report submitted! SBM sanitation administration has been notified.`);
+    // Save to SupaBase backend
+    saveReportToSupabase(newTicket).then((res) => {
+      if (res.success) {
+        showToast(`☁️ Saved to SupaBase backend table & logged to Admin Dashboard!`);
+        setSupabaseTableExists(true);
+        setSupabaseStatusMsg('Synced with SupaBase table');
+      } else if (res.tableNotFound) {
+        showToast(`📢 Report logged! (Note: Create the "reports" table in SupaBase to enable cloud sync)`);
+        setSupabaseTableExists(false);
+        setSupabaseStatusMsg('Connected to SupaBase; "reports" table needs creation');
+      } else {
+        showToast(`📢 Report logged to Admin Dashboard!`);
+      }
+    }).catch(() => {
+      showToast(`📢 Report logged to Admin Dashboard!`);
+    });
+
+    return newTicketId;
   };
 
   const handleDispatchCleaning = (ticketId: string) => {
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, status: 'cleaning_dispatched' } : t))
     );
+    updateTicketStatusInSupabase(ticketId, 'cleaning_dispatched').catch(() => {});
     showToast('🚚 Housekeeping personnel dispatched to the dustbin location.');
   };
 
@@ -261,11 +321,31 @@ export default function App() {
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, status: 'resolved' } : t))
     );
+    updateTicketStatusInSupabase(ticketId, 'resolved').catch(() => {});
     showToast('✨ Bin emptied & ticket marked as resolved! Campus score updated.');
+  };
+
+  const handleReopenTicket = (ticketId: string) => {
+    const target = tickets.find((t) => t.id === ticketId);
+    if (target) {
+      setBins((prev) =>
+        prev.map((b) =>
+          b.id === target.binId
+            ? { ...b, status: 'filling', fillLevel: 75 }
+            : b
+        )
+      );
+    }
+    setTickets((prev) =>
+      prev.map((t) => (t.id === ticketId ? { ...t, status: 'pending' } : t))
+    );
+    updateTicketStatusInSupabase(ticketId, 'pending').catch(() => {});
+    showToast('🔄 Ticket reopened for housekeeping action.');
   };
 
   const handleDeleteTicket = (ticketId: string) => {
     setTickets((prev) => prev.filter((t) => t.id !== ticketId));
+    deleteTicketFromSupabase(ticketId).catch(() => {});
     showToast('🗑️ Report ticket dismissed.');
   };
 
@@ -293,10 +373,6 @@ export default function App() {
         activeAlertsCount={activeAlertsCount}
         totalBinsCount={bins.length}
         isAdmin={isAdmin}
-        onOpenAdminLoginModal={() => {
-          setAdminLoginReason('reports');
-          setIsAdminLoginModalOpen(true);
-        }}
         onAdminLogout={handleAdminLogout}
       />
 
@@ -327,17 +403,44 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'guide' && <WasteSegregationGuide />}
+        {activeTab === 'guide' && (
+          <WasteSegregationGuide
+            bins={bins}
+            onNavigateToFinder={(wasteType) => {
+              setActiveTab('finder');
+            }}
+            onNavigateToMap={(binId) => {
+              setActiveTab('map');
+              if (binId) {
+                const target = bins.find((b) => b.id === binId);
+                if (target) {
+                  setSelectedBin(target);
+                  setHighlightedBinId(target.id);
+                }
+              }
+            }}
+            onOpenReportModal={(bin) => {
+              setTargetBinForReport(bin || null);
+              setIsReportModalOpen(true);
+            }}
+          />
+        )}
 
         {activeTab === 'alerts' && (
           <CampusAlertsView
             tickets={tickets}
             bins={bins}
             isAdmin={isAdmin}
+            highlightedTicketId={highlightedTicketId}
+            supabaseConnected={supabaseConnected}
+            supabaseTableExists={supabaseTableExists}
+            supabaseStatusMsg={supabaseStatusMsg}
+            onRefreshSupabase={loadReportsFromSupabase}
             onAdminLogin={handleAdminLogin}
             onAdminLogout={handleAdminLogout}
             onResolveTicket={handleResolveTicket}
             onDispatchCleaning={handleDispatchCleaning}
+            onReopenTicket={handleReopenTicket}
             onDeleteTicket={handleDeleteTicket}
             onOpenReportModal={() => {
               setTargetBinForReport(selectedBin);
@@ -392,27 +495,25 @@ export default function App() {
           <span className="text-[10px] mt-0.5">Waste Guide</span>
         </button>
 
-        <button
-          id="btn-mobile-nav-alerts"
-          onClick={() => setActiveTab('alerts')}
-          className={`relative flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all cursor-pointer ${
-            activeTab === 'alerts' ? 'text-emerald-700 font-bold' : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <div className={`p-1 rounded-lg ${activeTab === 'alerts' ? 'bg-emerald-50 text-emerald-600' : ''}`}>
-            {isAdmin ? (
+        {isAdmin && (
+          <button
+            id="btn-mobile-nav-alerts"
+            onClick={() => setActiveTab('alerts')}
+            className={`relative flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all cursor-pointer ${
+              activeTab === 'alerts' ? 'text-emerald-700 font-bold' : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <div className={`p-1 rounded-lg ${activeTab === 'alerts' ? 'bg-emerald-50 text-emerald-600' : ''}`}>
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            ) : (
-              <AlertCircle className="w-4 h-4" />
+            </div>
+            <span className="text-[10px] mt-0.5">Admin</span>
+            {activeAlertsCount > 0 && (
+              <span className="absolute top-1 right-2 w-3.5 h-3.5 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center">
+                {activeAlertsCount}
+              </span>
             )}
-          </div>
-          <span className="text-[10px] mt-0.5">{isAdmin ? 'Admin' : 'Reports'}</span>
-          {activeAlertsCount > 0 && (
-            <span className="absolute top-1 right-2 w-3.5 h-3.5 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center">
-              {activeAlertsCount}
-            </span>
-          )}
-        </button>
+          </button>
+        )}
       </nav>
 
       {/* Modals */}
@@ -422,6 +523,18 @@ export default function App() {
         bins={bins}
         preselectedBin={targetBinForReport}
         onSubmitReport={handleSubmitReport}
+        onNavigateToAdmin={(ticketId) => {
+          setIsReportModalOpen(false);
+          setActiveTab('alerts');
+          setIsAdmin(true);
+          try {
+            localStorage.setItem('swachh_campus_admin_auth', 'true');
+          } catch {}
+          if (ticketId) {
+            setHighlightedTicketId(ticketId);
+          }
+        }}
+        isAdmin={isAdmin}
       />
 
       <AddBinModal
@@ -446,8 +559,87 @@ export default function App() {
       />
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 mt-12 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="bg-white border-t border-slate-200 mt-12 text-xs text-slate-500">
+        {/* Dedicated Admin Portal / Login Section in Footer */}
+        <div className="border-b border-slate-100 bg-slate-50/80 py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-3 text-center sm:text-left">
+              <div className="w-9 h-9 rounded-xl bg-slate-200/80 text-slate-700 flex items-center justify-center shrink-0">
+                <Shield className="w-4.5 h-4.5" />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
+                  <span className="font-bold text-slate-800 text-xs">
+                    Campus Sanitation Administration
+                  </span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-200/90 text-slate-700">
+                    SBM Official Portal
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  {isAdmin
+                    ? 'Logged in as SBM Administrator (ID: SBM). Operational dashboard and dustbin registry controls active.'
+                    : 'Restricted administrative access for authorized Swachh Bharat Mission supervisors & sanitary personnel.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 shrink-0">
+              {isAdmin ? (
+                <>
+                  <button
+                    type="button"
+                    id="btn-footer-admin-dashboard"
+                    onClick={() => {
+                      setActiveTab('alerts');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                      activeTab === 'alerts'
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                    }`}
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Admin Dashboard</span>
+                    {activeAlertsCount > 0 && (
+                      <span className="w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center">
+                        {activeAlertsCount}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-footer-admin-logout"
+                    onClick={handleAdminLogout}
+                    className="px-3 py-2 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    title="Log out from Admin"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Log Out</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  id="btn-footer-admin-login"
+                  onClick={() => {
+                    setAdminLoginReason('reports');
+                    setIsAdminLoginModalOpen(true);
+                  }}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 active:bg-slate-950 shadow-sm transition-all flex items-center gap-2 cursor-pointer group"
+                  title="Click to open Admin Login"
+                >
+                  <Lock className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                  <span>Admin Login</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* NIT Patna Campus info & copyright */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
             <span className="font-bold text-slate-700">

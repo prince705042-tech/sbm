@@ -8,11 +8,8 @@ import {
   PlusCircle, 
   CheckCircle2, 
   ShieldCheck, 
-  Shield, 
-  LogOut,
-  Lock,
-  Menu,
-  X
+  Menu, 
+  X 
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -23,7 +20,6 @@ interface NavbarProps {
   activeAlertsCount: number;
   totalBinsCount: number;
   isAdmin: boolean;
-  onOpenAdminLoginModal: () => void;
   onAdminLogout: () => void;
 }
 
@@ -35,7 +31,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeAlertsCount,
   totalBinsCount,
   isAdmin,
-  onOpenAdminLoginModal,
   onAdminLogout,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -140,31 +135,29 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Waste Guide</span>
             </button>
 
-            <button
-              id="tab-campus-alerts"
-              onClick={() => handleTabClick('alerts')}
-              className={`relative flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                activeTab === 'alerts'
-                  ? 'bg-white text-emerald-800 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-              }`}
-            >
-              {isAdmin ? (
+            {isAdmin && (
+              <button
+                id="tab-campus-alerts"
+                onClick={() => handleTabClick('alerts')}
+                className={`relative flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  activeTab === 'alerts'
+                    ? 'bg-white text-emerald-800 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                }`}
+              >
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              ) : (
-                <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
-              )}
-              <span className="hidden xl:inline">{isAdmin ? 'Admin Reports' : 'Reports & Alerts'}</span>
-              <span className="xl:hidden">Reports</span>
-              {activeAlertsCount > 0 && (
-                <span className="w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center">
-                  {activeAlertsCount}
-                </span>
-              )}
-            </button>
+                <span className="hidden xl:inline">Admin Dashboard</span>
+                <span className="xl:hidden">Admin</span>
+                {activeAlertsCount > 0 && (
+                  <span className="w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center">
+                    {activeAlertsCount}
+                  </span>
+                )}
+              </button>
+            )}
           </nav>
 
-          {/* Action Buttons & Admin Controls */}
+          {/* Action Buttons */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             {/* Report Button */}
             <button
@@ -179,60 +172,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             {/* Add Bin Button */}
-            {isAdmin ? (
-              <button
-                id="btn-add-bin"
-                onClick={onOpenAddBinModal}
-                className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-bold rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs shadow-emerald-600/30 transition-colors cursor-pointer shrink-0"
-                title="Add New Campus Dustbin Station (Admin Verified)"
-              >
-                <PlusCircle className="w-3.5 h-3.5 shrink-0" />
-                <span className="hidden sm:inline">Add Bin</span>
-              </button>
-            ) : (
-              <button
-                id="btn-add-bin"
-                onClick={onOpenAddBinModal}
-                className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80 transition-colors cursor-pointer shrink-0"
-                title="Add Bin (Admin Only — requires SBM login)"
-              >
-                <Lock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                <span className="hidden sm:inline">Add Bin</span>
-              </button>
-            )}
-
-            {/* Admin Login / Session Status */}
-            {isAdmin ? (
-              <div className="flex items-center gap-1 pl-0.5">
-                <button
-                  id="btn-admin-portal-shortcut"
-                  onClick={() => handleTabClick('alerts')}
-                  className="inline-flex items-center gap-1 px-2 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold hover:bg-emerald-100 transition-colors cursor-pointer shrink-0"
-                  title="View Submitted Reports Dashboard"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span className="hidden lg:inline text-[11px]">Admin</span>
-                </button>
-                <button
-                  id="btn-admin-header-logout"
-                  onClick={onAdminLogout}
-                  className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
-                  title="Log out from Admin"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ) : (
-              <button
-                id="btn-open-admin-login"
-                onClick={onOpenAdminLoginModal}
-                className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 transition-colors cursor-pointer shrink-0"
-                title="Admin login for authorized SBM personnel"
-              >
-                <Shield className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                <span className="hidden lg:inline">Admin Login</span>
-              </button>
-            )}
+            <button
+              id="btn-add-bin"
+              onClick={onOpenAddBinModal}
+              className={`inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl transition-colors cursor-pointer shrink-0 ${
+                isAdmin
+                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs shadow-emerald-600/30 font-bold'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80'
+              }`}
+              title={isAdmin ? "Add New Campus Dustbin Station (Admin Verified)" : "Add Bin"}
+            >
+              <PlusCircle className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">Add Bin</span>
+            </button>
 
             {/* Mobile Menu Hamburger Toggle */}
             <button
@@ -299,27 +251,25 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             </button>
 
-            <button
-              id="mobile-nav-alerts"
-              onClick={() => handleTabClick('alerts')}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${
-                activeTab === 'alerts' ? 'bg-emerald-50 text-emerald-800' : 'text-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                {isAdmin ? (
+            {isAdmin && (
+              <button
+                id="mobile-nav-alerts"
+                onClick={() => handleTabClick('alerts')}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${
+                  activeTab === 'alerts' ? 'bg-emerald-50 text-emerald-800' : 'text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                ) : (
-                  <AlertCircle className="w-4 h-4 text-rose-500" />
+                  <span>Admin Reports Dashboard</span>
+                </div>
+                {activeAlertsCount > 0 && (
+                  <span className="bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    {activeAlertsCount}
+                  </span>
                 )}
-                <span>{isAdmin ? 'Admin Reports Portal' : 'Reports & Alerts'}</span>
-              </div>
-              {activeAlertsCount > 0 && (
-                <span className="bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  {activeAlertsCount}
-                </span>
-              )}
-            </button>
+              </button>
+            )}
           </div>
 
           <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
@@ -330,15 +280,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Admin Active
               </span>
             ) : (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenAdminLoginModal();
-                }}
-                className="text-emerald-600 font-bold hover:underline"
-              >
-                Admin Login
-              </button>
+              <span className="text-slate-400">Clean Campus Mission</span>
             )}
           </div>
         </div>

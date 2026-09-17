@@ -514,19 +514,42 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 )}
               </g>
 
-              {/* Bhagmati Hostel (Top Hostel Block) */}
+              {/* Koshi Hostel (Interchanged to West side along Common Road) */}
+              <g 
+                id="zone-kosi"
+                onClick={() => setUserZone('kosi-hostel')}
+                className="cursor-pointer transition-transform hover:opacity-95"
+              >
+                <rect x="280" y="64" width="180" height="60" rx="5" fill="#fff1f2" stroke="#e11d48" strokeWidth="2.5" />
+                <rect x="290" y="72" width="160" height="14" rx="2" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
+                <rect x="290" y="94" width="160" height="14" rx="2" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
+                <rect x="340" y="86" width="60" height="14" rx="2" fill="#16a34a" stroke="#15803d" strokeWidth="1" />
+                {showLabels && (
+                  <g filter="url(#badgeShadow)">
+                    <rect x="318" y="80" width="105" height="20" rx="4" fill="#1e40af" stroke="#60a5fa" strokeWidth="1" />
+                    <text x="370" y="94" fill="#ffffff" textAnchor="middle" className="text-[10px] font-black tracking-wide">
+                      Koshi Hostel
+                    </text>
+                  </g>
+                )}
+              </g>
+
+              {/* Connecting Courtyard Walkway between Koshi & Bhagmati */}
+              <rect x="460" y="78" width="15" height="32" rx="2" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+
+              {/* Bhagmati Hostel (Interchanged to East side along Common Road) */}
               <g 
                 id="zone-bhagmati"
                 onClick={() => setUserZone('bhagmati-hostel')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="300" y="64" width="200" height="60" rx="5" fill="#ffe4e6" stroke="#e11d48" strokeWidth="2" />
-                <rect x="310" y="72" width="180" height="14" rx="2" fill="#f43f5e" opacity="0.25" />
-                <rect x="310" y="94" width="180" height="14" rx="2" fill="#f43f5e" opacity="0.25" />
+                <rect x="475" y="64" width="180" height="60" rx="5" fill="#ffe4e6" stroke="#e11d48" strokeWidth="2" />
+                <rect x="485" y="72" width="160" height="14" rx="2" fill="#f43f5e" opacity="0.25" />
+                <rect x="485" y="94" width="160" height="14" rx="2" fill="#f43f5e" opacity="0.25" />
                 {showLabels && (
                   <g filter="url(#badgeShadow)">
-                    <rect x="350" y="80" width="105" height="20" rx="4" fill="#1e40af" />
-                    <text x="402" y="94" fill="#ffffff" textAnchor="middle" className="text-[10px] font-black">
+                    <rect x="512" y="80" width="105" height="20" rx="4" fill="#1e40af" />
+                    <text x="564" y="94" fill="#ffffff" textAnchor="middle" className="text-[10px] font-black">
                       Bhagmati Hostel
                     </text>
                   </g>
@@ -736,25 +759,16 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 )}
               </g>
 
-              {/* Koshi Hostel (Beside Basketball Court) */}
-              <g 
-                id="zone-kosi"
-                onClick={() => setUserZone('kosi-hostel')}
-                className="cursor-pointer transition-transform hover:opacity-95"
-              >
-                {/* Main Hostel outer structural block */}
-                <rect x="232" y="450" width="84" height="54" rx="5" fill="#fff1f2" stroke="#e11d48" strokeWidth="2.5" />
-                <rect x="238" y="456" width="72" height="12" rx="2" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
-                <rect x="238" y="486" width="72" height="12" rx="2" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
-                <rect x="254" y="471" width="40" height="12" rx="2" fill="#16a34a" stroke="#15803d" strokeWidth="1" />
-                {showLabels && (
-                  <g filter="url(#badgeShadow)">
-                    <rect x="234" y="466" width="80" height="22" rx="4" fill="#1e40af" stroke="#60a5fa" strokeWidth="1" />
-                    <text x="274" y="481" fill="#ffffff" textAnchor="middle" className="text-[9.5px] font-black tracking-wide">
-                      KOSHI HOSTEL
-                    </text>
-                  </g>
-                )}
+              {/* Open Sports Lawn & Seating Plaza (Replacing old Koshi Hostel block) */}
+              <g id="zone-sports-plaza" className="opacity-90">
+                <rect x="232" y="440" width="84" height="64" rx="6" fill="#16a34a" fillOpacity="0.15" stroke="#15803d" strokeWidth="1.5" strokeDasharray="4 3" />
+                <rect x="240" y="448" width="68" height="6" rx="2" fill="#94a3b8" />
+                <rect x="240" y="460" width="68" height="6" rx="2" fill="#94a3b8" />
+                <use href="#campusTree" x="248" y="484" />
+                <use href="#campusTree" x="300" y="484" />
+                <text x="274" y="482" fill="#166534" textAnchor="middle" className="text-[8px] font-black tracking-wide">
+                  Open Sports Lawn
+                </text>
               </g>
 
               {/* PLAY GROUND (Center Athletic Grounds) */}
