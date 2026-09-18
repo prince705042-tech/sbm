@@ -10,6 +10,13 @@ import { ReportIssueModal } from './components/ReportIssueModal';
 import { AddBinModal } from './components/AddBinModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut } from 'lucide-react';
+import { 
+  fetchReportsFromSupabase, 
+  insertReportToSupabase, 
+  updateReportStatusInSupabase, 
+  deleteReportFromSupabase,
+  supabase 
+} from './lib/supabase';
 
 export default function App() {
   // Persistence in localStorage
@@ -387,6 +394,7 @@ export default function App() {
             onOpenAddBinModal={handleTriggerAddBin}
           />
         )}
+
       </main>
 
       {/* Mobile Sticky Bottom Navigation Bar */}
@@ -430,7 +438,7 @@ export default function App() {
           <div className={`p-1 rounded-lg ${activeTab === 'guide' ? 'bg-emerald-50 text-emerald-600' : ''}`}>
             <Sparkles className="w-4 h-4" />
           </div>
-          <span className="text-[10px] mt-0.5">Waste Guide</span>
+          <span className="text-[10px] mt-0.5">Guide</span>
         </button>
 
         {isAdmin && (

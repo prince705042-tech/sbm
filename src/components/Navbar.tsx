@@ -9,7 +9,7 @@ import {
   CheckCircle2, 
   ShieldCheck, 
   Menu, 
-  X 
+  X
 } from 'lucide-react';
 
 interface NavbarProps {
