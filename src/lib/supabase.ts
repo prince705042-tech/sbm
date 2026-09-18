@@ -1,15 +1,108 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { ReportTicket } from '../types';
 
 // Default Supabase project configuration provided by user
 export const SUPABASE_PROJECT_ID = 'kpxcidewzqaecxbkyeai';
-export const SUPABASE_URL = 
-  ((import.meta as unknown as { env?: Record<string, string> }).env?.VITE_SUPABASE_URL) || `https://${SUPABASE_PROJECT_ID}.supabase.co`;
-export const SUPABASE_ANON_KEY = 
-  ((import.meta as unknown as { env?: Record<string, string> }).env?.VITE_SUPABASE_ANON_KEY) || 'sb_publishable_6f1YBrN8Ooqwg8j1m2Fcvg_YzA4gBs6';
 
-// Initialize the Supabase Client
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+/**
+ * Safely resolves and validates the Supabase URL, guaranteeing a valid HTTP/HTTPS URL
+ */
+export function resolveSupabaseUrl(): string {
+  let raw: unknown = '';
+  try {
+    raw = (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_SUPABASE_URL;
+  } catch {
+    raw = '';
+  }
+
+  const str = String(raw ?? '').trim();
+  if (!str || str === 'undefined' || str === 'null') {
+    return `https://${SUPABASE_PROJECT_ID}.supabase.co`;
+  }
+
+  const normalized = str.startsWith('http://') || str.startsWith('https://') ? str : `https://${str}`;
+  try {
+    const parsed = new URL(normalized);
+    return parsed.origin;
+  } catch {
+    return `https://${SUPABASE_PROJECT_ID}.supabase.co`;
+  }
+}
+
+/**
+ * Safely resolves the Supabase anon/publishable key
+ */
+export function resolveSupabaseAnonKey(): string {
+  let raw: unknown = '';
+  try {
+    raw = (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_SUPABASE_ANON_KEY;
+  } catch {
+    raw = '';
+  }
+
+  const str = String(raw ?? '').trim();
+  if (!str || str === 'undefined' || str === 'null') {
+    return 'sb_publishable_6f1YBrN8Ooqwg8j1m2Fcvg_YzA4gBs6';
+  }
+  return str;
+}
+
+export const SUPABASE_URL = resolveSupabaseUrl();
+export const SUPABASE_ANON_KEY = resolveSupabaseAnonKey();
+
+// Lazy safe Supabase client singleton
+let _clientInstance: SupabaseClient | null = null;
+
+export function getSupabaseClient(): SupabaseClient | null {
+  if (!_clientInstance) {
+    try {
+      const url = resolveSupabaseUrl();
+      const key = resolveSupabaseAnonKey();
+      _clientInstance = createClient(url, key);
+    } catch (err) {
+      console.warn('Supabase client initialization warning:', err);
+      return null;
+    }
+  }
+  return _clientInstance;
+}
+
+// Proxy wrapper for backward compatibility with `supabase.from(...)`
+// Ensures that even if credentials or network fail, the app never crashes with an unhandled exception
+export const supabase = new Proxy({} as SupabaseClient, {
+  get(_target, prop) {
+    const client = getSupabaseClient();
+    if (!client) {
+      if (prop === 'from') {
+        return () => ({
+          insert: async () => ({ data: null, error: { message: 'Supabase client not initialized', code: 'INIT_ERROR' } }),
+          select: () => {
+            const chain: any = {
+              order: () => chain,
+              limit: () => chain,
+              then: (onfulfilled: (res: any) => any) =>
+                Promise.resolve(onfulfilled({ data: [], error: { message: 'Supabase client not initialized' } })),
+            };
+            return chain;
+          },
+          update: () => ({
+            eq: async () => ({ data: null, error: { message: 'Supabase client not initialized' } }),
+          }),
+          delete: () => ({
+            eq: async () => ({ data: null, error: { message: 'Supabase client not initialized' } }),
+          }),
+        });
+      }
+      return undefined;
+    }
+
+    const value = (client as any)[prop];
+    if (typeof value === 'function') {
+      return value.bind(client);
+    }
+    return value;
+  },
+});
 
 export interface SupabaseSyncResult {
   success: boolean;
