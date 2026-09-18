@@ -2,7 +2,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { ReportTicket } from '../types';
 
 // Default Supabase project configuration provided by user
-export const SUPABASE_PROJECT_ID = 'kpxcidewzqaecxbkyeai';
+export const SUPABASE_PROJECT_ID = 'rykzqskclfrgrpeouusx';
 
 /**
  * Safely resolves and validates the Supabase URL, guaranteeing a valid HTTP/HTTPS URL
@@ -42,7 +42,7 @@ export function resolveSupabaseAnonKey(): string {
 
   const str = String(raw ?? '').trim();
   if (!str || str === 'undefined' || str === 'null') {
-    return 'sb_publishable_6f1YBrN8Ooqwg8j1m2Fcvg_YzA4gBs6';
+    return 'sb_publishable_42ToB6zXK7zh1uimo4sTNA_0HxN54JW';
   }
   return str;
 }
