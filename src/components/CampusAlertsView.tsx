@@ -20,23 +20,13 @@ import {
   Sparkles,
   AlertCircle,
   PlusCircle,
-  Database,
-  RefreshCw,
-  Copy,
-  Check,
-  Code
 } from 'lucide-react';
-import { SUPABASE_PROJECT_ID, SUPABASE_TABLE_SQL } from '../lib/supabase';
 
 interface CampusAlertsViewProps {
   tickets: ReportTicket[];
   bins: CampusBin[];
   isAdmin: boolean;
   highlightedTicketId?: string | null;
-  supabaseConnected?: boolean;
-  supabaseTableExists?: boolean;
-  supabaseStatusMsg?: string;
-  onRefreshSupabase?: () => Promise<void> | void;
   onAdminLogin: (id: string, pass: string) => boolean;
   onAdminLogout: () => void;
   onResolveTicket: (ticketId: string) => void;
@@ -52,10 +42,6 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
   bins,
   isAdmin,
   highlightedTicketId,
-  supabaseConnected = true,
-  supabaseTableExists = false,
-  supabaseStatusMsg = 'Connected',
-  onRefreshSupabase,
   onAdminLogin,
   onAdminLogout,
   onResolveTicket,
@@ -70,11 +56,6 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
   const [passwordInput, setPasswordInput] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
-
-  // Supabase UI state
-  const [showSqlSetup, setShowSqlSetup] = useState(false);
-  const [copiedSql, setCopiedSql] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Filter and search state for logged-in admin
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'cleaning_dispatched' | 'resolved'>('all');
@@ -250,28 +231,6 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
     return true;
   });
 
-  const handleCopySql = () => {
-    try {
-      navigator.clipboard.writeText(SUPABASE_TABLE_SQL);
-      setCopiedSql(true);
-      setTimeout(() => setCopiedSql(false), 3000);
-    } catch {
-      setCopiedSql(true);
-      setTimeout(() => setCopiedSql(false), 3000);
-    }
-  };
-
-  const handleRefreshClick = async () => {
-    if (onRefreshSupabase) {
-      setIsRefreshing(true);
-      try {
-        await onRefreshSupabase();
-      } finally {
-        setIsRefreshing(false);
-      }
-    }
-  };
-
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Top Admin Status & Banner */}
@@ -404,90 +363,6 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
           </div>
           <p className="text-xs text-slate-400 mt-1">Bins emptied & verified</p>
         </div>
-      </div>
-
-      {/* SupaBase Backend Sync Card */}
-      <div className="bg-slate-900 text-white rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-md">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex items-start sm:items-center gap-3.5">
-            <div className="w-11 h-11 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
-              <Database className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-base font-bold font-['Outfit',sans-serif]">
-                  SupaBase Cloud Backend Connected
-                </h3>
-                <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Active Backend
-                </span>
-              </div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-slate-400">
-                <span>Project ID: <strong className="text-emerald-400 font-mono">{SUPABASE_PROJECT_ID}</strong></span>
-                <span>•</span>
-                <span>Database Table: <code className="text-slate-200 bg-slate-800 px-1.5 py-0.5 rounded font-mono">public.reports</code></span>
-                <span>•</span>
-                <span>Sync: <span className={supabaseTableExists ? "text-emerald-300 font-semibold" : "text-amber-300 font-semibold"}>{supabaseStatusMsg}</span></span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto">
-            {onRefreshSupabase && (
-              <button
-                type="button"
-                id="btn-refresh-supabase"
-                onClick={handleRefreshClick}
-                disabled={isRefreshing}
-                className="px-3.5 py-2 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-emerald-400' : ''}`} />
-                <span>{isRefreshing ? 'Syncing...' : 'Sync from SupaBase'}</span>
-              </button>
-            )}
-
-            <button
-              type="button"
-              id="btn-toggle-sql-setup"
-              onClick={() => setShowSqlSetup(!showSqlSetup)}
-              className="px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
-            >
-              <Code className="w-3.5 h-3.5" />
-              <span>{showSqlSetup ? 'Hide SQL DDL' : 'View SQL Table Setup'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Collapsible Supabase SQL Setup instructions */}
-        {showSqlSetup && (
-          <div className="mt-5 pt-5 border-t border-slate-800 space-y-3 animate-in fade-in duration-200">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <h4 className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                  <Database className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>SupaBase PostgreSQL Table DDL (reports)</span>
-                </h4>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  Copy and run this query in your SupaBase dashboard (<strong>SQL Editor → New Query</strong>) to ensure the table and RLS permissions are created.
-                </p>
-              </div>
-              <button
-                type="button"
-                id="btn-copy-sql-ddl"
-                onClick={handleCopySql}
-                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-colors flex items-center gap-1.5 self-start cursor-pointer"
-              >
-                {copiedSql ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedSql ? 'Copied to Clipboard!' : 'Copy SQL Schema'}</span>
-              </button>
-            </div>
-
-            <pre className="p-3.5 bg-slate-950 rounded-xl text-[11px] font-mono text-emerald-300 overflow-x-auto border border-slate-800/80 max-h-56 leading-relaxed">
-              {SUPABASE_TABLE_SQL}
-            </pre>
-          </div>
-        )}
       </div>
 
       {/* Reports Management Table / List */}

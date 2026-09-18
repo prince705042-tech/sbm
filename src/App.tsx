@@ -10,13 +10,6 @@ import { ReportIssueModal } from './components/ReportIssueModal';
 import { AddBinModal } from './components/AddBinModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut } from 'lucide-react';
-import { 
-  saveReportToSupabase, 
-  fetchReportsFromSupabase, 
-  updateTicketStatusInSupabase, 
-  deleteTicketFromSupabase, 
-  checkSupabaseStatus 
-} from './lib/supabase';
 
 export default function App() {
   // Persistence in localStorage
@@ -116,50 +109,6 @@ export default function App() {
   const [selectedBin, setSelectedBin] = useState<CampusBin | null>(INITIAL_BINS[0]);
   const [highlightedBinId, setHighlightedBinId] = useState<string | null>(null);
   const [highlightedTicketId, setHighlightedTicketId] = useState<string | null>(null);
-
-  // Supabase Backend Sync State
-  const [supabaseConnected, setSupabaseConnected] = useState<boolean>(true);
-  const [supabaseTableExists, setSupabaseTableExists] = useState<boolean>(false);
-  const [supabaseStatusMsg, setSupabaseStatusMsg] = useState<string>('Connecting to SupaBase...');
-
-  const loadReportsFromSupabase = async (showFeedback = false) => {
-    try {
-      if (showFeedback) {
-        setSupabaseStatusMsg('Connecting and syncing with SupaBase...');
-      }
-      const status = await checkSupabaseStatus();
-      setSupabaseConnected(status.connected);
-      setSupabaseTableExists(status.tableExists);
-      setSupabaseStatusMsg(status.message);
-
-      if (status.tableExists) {
-        const res = await fetchReportsFromSupabase();
-        if (res.success && res.tickets) {
-          setTickets((prev) => {
-            const fetchedIds = new Set(res.tickets!.map((t) => t.id));
-            const existingNonFetched = prev.filter((p) => !fetchedIds.has(p.id));
-            return [...res.tickets!, ...existingNonFetched];
-          });
-          if (showFeedback) {
-            showToast(`✅ Synced ${res.tickets.length} reports from SupaBase successfully!`);
-          }
-        } else if (showFeedback) {
-          showToast(`ℹ️ SupaBase connected (${res.error?.message || 'ready'})`);
-        }
-      } else if (showFeedback) {
-        showToast(`⚠️ SupaBase connected, but "reports" table was not found`);
-      }
-    } catch (err: any) {
-      console.warn('Supabase sync notice:', err);
-      if (showFeedback) {
-        showToast(`⚠️ SupaBase sync notice: ${err?.message || 'Network error'}`);
-      }
-    }
-  };
-
-  useEffect(() => {
-    loadReportsFromSupabase(false);
-  }, []);
 
   // Modals & reason tracking
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -291,23 +240,7 @@ export default function App() {
       })
     );
 
-    // Save to SupaBase backend
-    saveReportToSupabase(newTicket).then((res) => {
-      if (res.success) {
-        showToast(`☁️ Saved to SupaBase backend table & logged to Admin Dashboard!`);
-        setSupabaseTableExists(true);
-        setSupabaseStatusMsg('Synced with SupaBase table');
-      } else if (res.tableNotFound) {
-        showToast(`📢 Report logged! (Note: Create the "reports" table in SupaBase to enable cloud sync)`);
-        setSupabaseTableExists(false);
-        setSupabaseStatusMsg('Connected to SupaBase; "reports" table needs creation');
-      } else {
-        showToast(`📢 Report logged to Admin Dashboard!`);
-      }
-    }).catch(() => {
-      showToast(`📢 Report logged to Admin Dashboard!`);
-    });
-
+    showToast(`📢 Report logged to SBM Admin Dashboard!`);
     return newTicketId;
   };
 
@@ -315,7 +248,6 @@ export default function App() {
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, status: 'cleaning_dispatched' } : t))
     );
-    updateTicketStatusInSupabase(ticketId, 'cleaning_dispatched').catch(() => {});
     showToast('🚚 Housekeeping personnel dispatched to the dustbin location.');
   };
 
@@ -334,7 +266,6 @@ export default function App() {
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, status: 'resolved' } : t))
     );
-    updateTicketStatusInSupabase(ticketId, 'resolved').catch(() => {});
     showToast('✨ Bin emptied & ticket marked as resolved! Campus score updated.');
   };
 
@@ -352,13 +283,11 @@ export default function App() {
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, status: 'pending' } : t))
     );
-    updateTicketStatusInSupabase(ticketId, 'pending').catch(() => {});
     showToast('🔄 Ticket reopened for housekeeping action.');
   };
 
   const handleDeleteTicket = (ticketId: string) => {
     setTickets((prev) => prev.filter((t) => t.id !== ticketId));
-    deleteTicketFromSupabase(ticketId).catch(() => {});
     showToast('🗑️ Report ticket dismissed.');
   };
 
@@ -445,10 +374,6 @@ export default function App() {
             bins={bins}
             isAdmin={isAdmin}
             highlightedTicketId={highlightedTicketId}
-            supabaseConnected={supabaseConnected}
-            supabaseTableExists={supabaseTableExists}
-            supabaseStatusMsg={supabaseStatusMsg}
-            onRefreshSupabase={() => loadReportsFromSupabase(true)}
             onAdminLogin={handleAdminLogin}
             onAdminLogout={handleAdminLogout}
             onResolveTicket={handleResolveTicket}
@@ -536,17 +461,6 @@ export default function App() {
         bins={bins}
         preselectedBin={targetBinForReport}
         onSubmitReport={handleSubmitReport}
-        onNavigateToAdmin={(ticketId) => {
-          setIsReportModalOpen(false);
-          setActiveTab('alerts');
-          setIsAdmin(true);
-          try {
-            localStorage.setItem('swachh_campus_admin_auth', 'true');
-          } catch {}
-          if (ticketId) {
-            setHighlightedTicketId(ticketId);
-          }
-        }}
         isAdmin={isAdmin}
       />
 

@@ -7,14 +7,12 @@ import {
   Lock,
   ShieldCheck,
   CheckCircle2,
-  Database,
   Sparkles,
-  CloudUpload,
   Radio,
   ArrowRight,
+  Check,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { SUPABASE_PROJECT_ID } from '../lib/supabase';
 
 interface ReportIssueModalProps {
   isOpen: boolean;
@@ -22,7 +20,6 @@ interface ReportIssueModalProps {
   bins: CampusBin[];
   preselectedBin?: CampusBin | null;
   onSubmitReport: (ticket: Omit<ReportTicket, 'id' | 'reportedAt' | 'status'>) => string | void;
-  onNavigateToAdmin?: (ticketId?: string) => void;
   isAdmin?: boolean;
 }
 
@@ -32,7 +29,6 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
   bins,
   preselectedBin,
   onSubmitReport,
-  onNavigateToAdmin,
   isAdmin = false,
 }) => {
   const [binId, setBinId] = useState(preselectedBin?.id || bins[0]?.id || '');
@@ -123,7 +119,7 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
               {isSubmitted ? (
                 <CheckCircle2 className="w-5 h-5" />
               ) : isSubmitting ? (
-                <CloudUpload className="w-5 h-5 animate-bounce" />
+                <Sparkles className="w-5 h-5 animate-spin text-amber-500" />
               ) : (
                 <AlertTriangle className="w-5 h-5" />
               )}
@@ -131,16 +127,16 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
             <div>
               <h3 className="text-base sm:text-lg font-bold text-slate-900 font-['Outfit',sans-serif]">
                 {isSubmitted
-                  ? 'Report Dispatched & Confirmed'
+                  ? 'Report Received & Confirmed'
                   : isSubmitting
                   ? 'Dispatching Campus Report...'
                   : 'Report Dustbin Issue'}
               </h3>
               <p className="text-xs text-slate-500">
                 {isSubmitted
-                  ? 'Logged in SBM Admin Dashboard & SupaBase'
+                  ? 'Housekeeping notified for clearance'
                   : isSubmitting
-                  ? 'Syncing with SupaBase cloud & notifying housekeeping'
+                  ? 'Alerting campus housekeeping crew...'
                   : 'Help housekeeping keep our campus 100% clean'}
               </p>
             </div>
@@ -210,7 +206,7 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
                       animate={{ y: [-3, 3, -3] }}
                       transition={{ repeat: Infinity, duration: 0.8 }}
                     >
-                      <CloudUpload className="w-10 h-10" />
+                      <ShieldCheck className="w-10 h-10" />
                     </motion.div>
                   ) : (
                     <motion.div
@@ -234,15 +230,15 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase bg-slate-100 text-slate-700">
                     <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                     {submissionStep === 1 && 'Transmitting Ticket...'}
-                    {submissionStep === 2 && 'Syncing to SupaBase Backend...'}
+                    {submissionStep === 2 && 'Alerting Housekeeping Crew...'}
                     {submissionStep >= 3 && 'Confirmed by Housekeeping!'}
                   </span>
                 </motion.div>
 
                 <h4 className="text-base sm:text-lg font-black text-slate-800 font-['Outfit',sans-serif]">
                   {submissionStep === 1 && `Registering issue for ${targetBin.name}`}
-                  {submissionStep === 2 && `Writing record to cloud database (public.reports)`}
-                  {submissionStep >= 3 && `Report successfully saved!`}
+                  {submissionStep === 2 && `Alerting campus housekeeping crew`}
+                  {submissionStep >= 3 && `Report successfully logged!`}
                 </h4>
 
                 <p className="text-xs text-slate-500">
@@ -268,8 +264,8 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
               </div>
 
               <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                <Database className="w-3.5 h-3.5 text-emerald-500" />
-                <span>Supabase: {SUPABASE_PROJECT_ID}</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Swachh Campus SBM Portal</span>
               </div>
             </motion.div>
           ) : isSubmitted ? (
@@ -307,19 +303,19 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-                    Dispatched to Admin Dashboard
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                    Report Confirmed
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <Database className="w-3 h-3 text-emerald-600" />
-                    SupaBase: {SUPABASE_PROJECT_ID}
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                    <Check className="w-3 h-3 text-emerald-600" />
+                    Saved Successfully
                   </span>
                 </div>
                 <h4 className="text-xl font-extrabold text-slate-900 font-['Outfit',sans-serif] mt-2">
-                  Report Successfully Filed!
+                  Thank You for Your Report!
                 </h4>
                 <p className="text-xs text-slate-600 max-w-sm mx-auto leading-relaxed">
-                  Thank you! Your report for <strong className="text-slate-800">{submittedBinName}</strong> has been logged to the SBM Administrator Dashboard and saved to your SupaBase backend.
+                  Your report for <strong className="text-slate-800">{submittedBinName}</strong> has been received. Campus housekeeping staff have been notified to address this bin.
                 </p>
                 {createdTicketId && (
                   <p className="text-[11px] font-mono font-bold text-slate-500 bg-slate-100 inline-block px-2.5 py-0.5 rounded-md">
@@ -328,38 +324,15 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
                 )}
               </div>
 
-              <div className="max-w-md mx-auto p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-left text-xs text-slate-600 space-y-1.5">
-                <div className="flex items-center gap-1.5 font-bold text-slate-800">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Immediate Housekeeping Action Available</span>
-                </div>
-                <p className="text-[11px] text-slate-500 leading-normal">
-                  Housekeeping staff have been flagged. You can open the SBM Admin Dashboard to view, dispatch cleaning personnel, or mark this ticket resolved.
-                </p>
-              </div>
-
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
-                {onNavigateToAdmin && (
-                  <button
-                    type="button"
-                    id="btn-open-admin-dashboard-to-resolve"
-                    onClick={() => {
-                      handleClose();
-                      onNavigateToAdmin(createdTicketId || undefined);
-                    }}
-                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold shadow-md shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>Open Admin Dashboard to Resolve It</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                )}
+              <div className="pt-3 flex items-center justify-center">
                 <button
                   type="button"
+                  id="btn-close-report-modal"
                   onClick={handleClose}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
-                  Close & Return to Campus Map
+                  <Check className="w-4 h-4" />
+                  <span>Done & Return to Campus Map</span>
                 </button>
               </div>
             </motion.div>
@@ -456,8 +429,8 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
 
               <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
                 <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-                  <Database className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Connected to SupaBase backend</span>
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>Immediate Housekeeping Dispatch</span>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                   <button
