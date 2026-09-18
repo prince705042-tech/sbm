@@ -122,8 +122,11 @@ export default function App() {
   const [supabaseTableExists, setSupabaseTableExists] = useState<boolean>(false);
   const [supabaseStatusMsg, setSupabaseStatusMsg] = useState<string>('Connecting to SupaBase...');
 
-  const loadReportsFromSupabase = async () => {
+  const loadReportsFromSupabase = async (showFeedback = false) => {
     try {
+      if (showFeedback) {
+        setSupabaseStatusMsg('Connecting and syncing with SupaBase...');
+      }
       const status = await checkSupabaseStatus();
       setSupabaseConnected(status.connected);
       setSupabaseTableExists(status.tableExists);
@@ -131,21 +134,31 @@ export default function App() {
 
       if (status.tableExists) {
         const res = await fetchReportsFromSupabase();
-        if (res.success && res.tickets && res.tickets.length > 0) {
+        if (res.success && res.tickets) {
           setTickets((prev) => {
             const fetchedIds = new Set(res.tickets!.map((t) => t.id));
             const existingNonFetched = prev.filter((p) => !fetchedIds.has(p.id));
             return [...res.tickets!, ...existingNonFetched];
           });
+          if (showFeedback) {
+            showToast(`✅ Synced ${res.tickets.length} reports from SupaBase successfully!`);
+          }
+        } else if (showFeedback) {
+          showToast(`ℹ️ SupaBase connected (${res.error?.message || 'ready'})`);
         }
+      } else if (showFeedback) {
+        showToast(`⚠️ SupaBase connected, but "reports" table was not found`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn('Supabase sync notice:', err);
+      if (showFeedback) {
+        showToast(`⚠️ SupaBase sync notice: ${err?.message || 'Network error'}`);
+      }
     }
   };
 
   useEffect(() => {
-    loadReportsFromSupabase();
+    loadReportsFromSupabase(false);
   }, []);
 
   // Modals & reason tracking
@@ -435,7 +448,7 @@ export default function App() {
             supabaseConnected={supabaseConnected}
             supabaseTableExists={supabaseTableExists}
             supabaseStatusMsg={supabaseStatusMsg}
-            onRefreshSupabase={loadReportsFromSupabase}
+            onRefreshSupabase={() => loadReportsFromSupabase(true)}
             onAdminLogin={handleAdminLogin}
             onAdminLogout={handleAdminLogout}
             onResolveTicket={handleResolveTicket}
