@@ -200,69 +200,69 @@ export const WasteQuiz: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+    <div className="bg-white rounded-lg p-5 sm:p-7 border border-stone-200 shadow-2xs space-y-5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 mb-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            <span>Interactive Knowledge Check</span>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10px] font-bold bg-stone-100 text-stone-800 border border-stone-200 mb-1.5 font-mono-code uppercase tracking-wider">
+            <Sparkles className="w-3 h-3 text-[#134E3A]" />
+            <span>Interactive Protocol Assessment</span>
           </div>
-          <h3 className="text-xl sm:text-2xl font-black text-slate-900 font-['Outfit',sans-serif]">
-            Campus Waste Segregation Challenge
+          <h3 className="text-xl sm:text-2xl font-bold text-stone-900 font-editorial">
+            Campus Segregation Competency Evaluation
           </h3>
-          <p className="text-xs text-slate-500">
-            Real campus situations: test your judgment on proper dustbin disposal under Swachh Bharat Mission guidelines.
+          <p className="text-xs text-stone-500">
+            Real campus situations: test your judgment against Swachh Bharat Mission and CPWD environmental norms.
           </p>
         </div>
 
         {!quizCompleted && (
-          <div className="flex items-center gap-2 self-start sm:self-auto bg-slate-50 px-3.5 py-1.5 rounded-2xl border border-slate-200">
-            <span className="text-xs font-bold text-slate-500">Question</span>
-            <span className="text-sm font-black text-emerald-600">
+          <div className="flex items-center gap-2 self-start sm:self-auto bg-stone-50 px-3 py-1 rounded border border-stone-200 font-mono-code">
+            <span className="text-xs text-stone-500">Item</span>
+            <span className="text-xs font-bold text-[#134E3A]">
               {currentIndex + 1}
             </span>
-            <span className="text-xs text-slate-400">/ {QUIZ_QUESTIONS.length}</span>
+            <span className="text-xs text-stone-400">/ {QUIZ_QUESTIONS.length}</span>
           </div>
         )}
       </div>
 
       {!quizCompleted ? (
-        <div className="space-y-6">
+        <div className="space-y-5">
           {/* Progress bar */}
-          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+          <div className="w-full bg-stone-100 h-1.5 rounded-full overflow-hidden border border-stone-200">
             <div
-              className="bg-emerald-500 h-full transition-all duration-300 rounded-full"
+              className="bg-[#134E3A] h-full transition-all duration-300"
               style={{ width: `${((currentIndex + (isAnswered ? 1 : 0)) / QUIZ_QUESTIONS.length) * 100}%` }}
             />
           </div>
 
           {/* Scenario Card */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-md space-y-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-              📍 Scenario • {currentQ.context}
+          <div className="p-4 sm:p-5 rounded bg-stone-900 text-stone-100 border border-stone-800 shadow-2xs space-y-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 font-mono-code block">
+              Case Study &bull; {currentQ.context}
             </span>
-            <h4 className="text-base sm:text-lg font-bold font-['Outfit',sans-serif] leading-snug">
-              "{currentQ.scenario}"
+            <h4 className="text-base sm:text-lg font-bold font-editorial text-white leading-snug">
+              &ldquo;{currentQ.scenario}&rdquo;
             </h4>
-            <p className="text-xs text-slate-300">
-              What is the correct dustbin disposal method?
+            <p className="text-xs text-stone-400">
+              Select the compliant waste management protocol:
             </p>
           </div>
 
           {/* Options */}
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {currentQ.options.map((option, idx) => {
               const isSelected = selectedOption === idx;
-              let btnStyle = 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800';
+              let btnStyle = 'bg-stone-50 hover:bg-stone-100 border-stone-200 text-stone-800';
 
               if (isAnswered) {
                 if (option.isCorrect) {
-                  btnStyle = 'bg-emerald-50 border-emerald-500 text-emerald-950 font-bold shadow-xs';
+                  btnStyle = 'bg-emerald-50/70 border-[#134E3A] text-stone-900 font-semibold shadow-2xs';
                 } else if (isSelected) {
-                  btnStyle = 'bg-rose-50 border-rose-400 text-rose-950';
+                  btnStyle = 'bg-rose-50 border-rose-300 text-rose-950 font-medium';
                 } else {
-                  btnStyle = 'bg-slate-50/50 border-slate-100 text-slate-400 opacity-60';
+                  btnStyle = 'bg-stone-50/40 border-stone-200 text-stone-400 opacity-60';
                 }
               }
 
@@ -271,27 +271,27 @@ export const WasteQuiz: React.FC = () => {
                   key={idx}
                   onClick={() => handleSelectOption(idx)}
                   disabled={isAnswered}
-                  className={`w-full text-left p-4 rounded-2xl border-2 transition-all text-xs sm:text-sm font-medium flex items-start gap-3 cursor-pointer ${btnStyle}`}
+                  className={`w-full text-left p-3.5 rounded border transition-colors text-xs sm:text-sm font-medium flex items-start gap-3 cursor-pointer ${btnStyle}`}
                 >
-                  <span className="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-2xs">
+                  <span className="w-5 h-5 rounded bg-white border border-stone-300 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 font-mono-code text-stone-700">
                     {String.fromCharCode(65 + idx)}
                   </span>
                   <div className="flex-1">
                     <span>{option.text}</span>
                     {isAnswered && (option.isCorrect || isSelected) && (
-                      <div className="mt-2 pt-2 border-t border-current/10 text-xs font-normal">
-                        <span className="font-bold block mb-0.5">
-                          {option.isCorrect ? '✅ Why this is right:' : '❌ Why this is incorrect:'}
+                      <div className="mt-2 pt-2 border-t border-stone-200/60 text-xs font-normal">
+                        <span className="font-semibold block mb-0.5 text-stone-900 font-editorial">
+                          {option.isCorrect ? 'Institutional Rationalization:' : 'Regulatory Conflict:'}
                         </span>
-                        <span>{option.explanation}</span>
+                        <span className="text-stone-700">{option.explanation}</span>
                       </div>
                     )}
                   </div>
                   {isAnswered && option.isCorrect && (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#134E3A] shrink-0 mt-0.5" />
                   )}
                   {isAnswered && isSelected && !option.isCorrect && (
-                    <XCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                    <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                   )}
                 </button>
               );
@@ -300,78 +300,78 @@ export const WasteQuiz: React.FC = () => {
 
           {/* Next button */}
           {isAnswered && (
-            <div className="flex items-center justify-between pt-2">
-              <span className="text-xs font-semibold text-slate-500">
+            <div className="flex items-center justify-between pt-2 border-t border-stone-100">
+              <span className="text-xs font-medium text-stone-500 font-mono-code">
                 {currentQ.options[selectedOption!].isCorrect ? (
-                  <span className="text-emerald-700 font-bold flex items-center gap-1">
-                    <CheckCircle2 className="w-4 h-4" /> Correct Answer! (+1 pt)
+                  <span className="text-[#134E3A] font-semibold flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Correct Assessment (+1)
                   </span>
                 ) : (
-                  <span className="text-rose-600 font-bold flex items-center gap-1">
-                    <XCircle className="w-4 h-4" /> Review the tip above
+                  <span className="text-rose-700 font-semibold flex items-center gap-1">
+                    <XCircle className="w-3.5 h-3.5" /> Non-Compliant Selection
                   </span>
                 )}
               </span>
 
               <button
                 onClick={handleNext}
-                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-600/20 flex items-center gap-2 cursor-pointer transition-all"
+                className="px-4 py-1.5 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white text-xs font-semibold shadow-2xs flex items-center gap-1.5 cursor-pointer transition-colors"
               >
-                <span>{currentIndex < QUIZ_QUESTIONS.length - 1 ? 'Next Scenario' : 'View Results'}</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>{currentIndex < QUIZ_QUESTIONS.length - 1 ? 'Proceed to Next Case' : 'View Final Evaluation'}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           )}
         </div>
       ) : (
         /* Completion screen */
-        <div className="py-8 px-4 text-center space-y-5 animate-in fade-in zoom-in-95 duration-200">
-          <div className="w-16 h-16 rounded-3xl bg-amber-100 text-amber-600 mx-auto flex items-center justify-center shadow-md shadow-amber-500/10">
-            <Award className="w-9 h-9" />
+        <div className="py-6 px-4 text-center space-y-4 animate-in fade-in duration-150">
+          <div className="w-12 h-12 rounded bg-amber-50 text-amber-800 border border-amber-200 mx-auto flex items-center justify-center">
+            <Award className="w-7 h-7" />
           </div>
 
           <div className="space-y-1">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              Quiz Completed!
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-900 border border-emerald-200 font-mono-code">
+              <Sparkles className="w-3 h-3 text-[#134E3A]" />
+              Assessment Complete
             </span>
-            <h4 className="text-2xl font-black text-slate-900 font-['Outfit',sans-serif] mt-2">
-              Your Score: {score} out of {QUIZ_QUESTIONS.length}
+            <h4 className="text-2xl font-bold text-stone-900 font-editorial mt-2">
+              Score: {score} / {QUIZ_QUESTIONS.length}
             </h4>
-            <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto leading-relaxed">
               {score === 5
-                ? '🌟 Flawless! You are a certified Swachh Campus Champion. You understand every nuance of dry, wet, and e-waste segregation.'
+                ? 'Distinguished! Full compliance with Swachh Bharat campus protocols and municipal standards.'
                 : score >= 3
-                ? '👏 Great job! You have solid segregation habits and know where campus waste belongs. Keep leading by example!'
-                : '💡 Good effort! Review the waste catalog cards below to sharpen your dry vs. wet knowledge.'}
+                ? 'Proficient! You exhibit a strong grasp of campus waste streams and appropriate disposal channels.'
+                : 'Review Recommended! Familiarize yourself with the waste classification guidelines provided below.'}
             </p>
           </div>
 
           {/* Quick summary metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-md mx-auto text-xs">
-            <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200">
-              <span className="text-[10px] uppercase font-bold text-emerald-700 block">Accuracy</span>
-              <span className="text-lg font-black text-emerald-950">{Math.round((score / QUIZ_QUESTIONS.length) * 100)}%</span>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-w-md mx-auto text-xs">
+            <div className="p-2.5 rounded bg-stone-50 border border-stone-200">
+              <span className="text-[10px] uppercase font-bold text-stone-500 block font-mono-code">Accuracy</span>
+              <span className="text-base font-bold text-stone-900 font-editorial">{Math.round((score / QUIZ_QUESTIONS.length) * 100)}%</span>
             </div>
-            <div className="p-3 rounded-2xl bg-sky-50 border border-sky-200">
-              <span className="text-[10px] uppercase font-bold text-sky-700 block">Status</span>
-              <span className="text-lg font-black text-sky-950">
-                {score >= 4 ? 'Champion' : score >= 3 ? 'Practitioner' : 'Learner'}
+            <div className="p-2.5 rounded bg-stone-50 border border-stone-200">
+              <span className="text-[10px] uppercase font-bold text-stone-500 block font-mono-code">Proficiency</span>
+              <span className="text-base font-bold text-[#134E3A] font-editorial">
+                {score >= 4 ? 'Exemplary' : score >= 3 ? 'Compliant' : 'Foundational'}
               </span>
             </div>
-            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 col-span-2 sm:col-span-1">
-              <span className="text-[10px] uppercase font-bold text-slate-500 block">Impact</span>
-              <span className="text-lg font-black text-slate-900">+50 Pts</span>
+            <div className="p-2.5 rounded bg-stone-50 border border-stone-200 col-span-2 sm:col-span-1">
+              <span className="text-[10px] uppercase font-bold text-stone-500 block font-mono-code">Credits</span>
+              <span className="text-base font-bold text-stone-900 font-editorial">+50 SBM Pts</span>
             </div>
           </div>
 
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
             <button
               onClick={handleRestart}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all"
+              className="px-4 py-1.5 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors border border-stone-200"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Retry Challenge</span>
+              <span>Retake Evaluation</span>
             </button>
           </div>
         </div>

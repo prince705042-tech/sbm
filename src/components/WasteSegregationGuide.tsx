@@ -335,45 +335,45 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* Top Hero Banner */}
-      <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-sky-800 rounded-3xl p-6 sm:p-10 text-white shadow-md relative overflow-hidden">
-        <div className="relative z-10 max-w-3xl">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-emerald-100 text-xs font-bold mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>Swachh Bharat Abhiyan • 2-Bin Source Segregation</span>
+    <div className="max-w-6xl mx-auto space-y-7">
+      {/* Institutional Top Header Banner */}
+      <div className="bg-[#134E3A] rounded-lg p-6 sm:p-8 text-stone-100 border border-[#0F3E2E] shadow-2xs relative">
+        <div className="max-w-3xl">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/15 text-stone-200 text-xs font-medium mb-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span>Swachh Bharat Abhiyan • Source Segregation Standard</span>
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-['Outfit',sans-serif]">
-            Campus Waste Segregation Portal
+          <h2 className="text-2xl sm:text-3xl font-bold font-editorial text-white tracking-tight">
+            Campus Waste Classification &amp; Segregation Manual
           </h2>
-          <p className="text-slate-100/90 text-sm sm:text-base mt-2 leading-relaxed">
-            Waste segregated at the source is 90% recyclable. Explore dustbin color codes, search items, and test your knowledge.
+          <p className="text-stone-300 text-xs sm:text-sm mt-2 leading-relaxed">
+            Waste segregated at the source enables 90% direct recycling and vermicomposting on campus. Review dustbin color codes, search catalog items, or take the cleanliness assessment.
           </p>
 
           {/* Sub-Navigation Tabs */}
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="mt-5 flex flex-wrap gap-2">
             <button
               onClick={() => setGuideSubView('catalog')}
-              className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition-all cursor-pointer shadow-xs ${
+              className={`px-3.5 py-2 rounded-md font-semibold text-xs flex items-center gap-2 transition-colors cursor-pointer ${
                 guideSubView === 'catalog'
-                  ? 'bg-white text-emerald-950 scale-102'
-                  : 'bg-white/15 text-white hover:bg-white/25'
+                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200'
+                  : 'bg-white/10 text-stone-200 hover:bg-white/20'
               }`}
             >
-              <BookOpen className="w-4 h-4" />
-              <span>Waste Catalog & Search</span>
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Waste Classification Index</span>
             </button>
 
             <button
               onClick={() => setGuideSubView('quiz')}
-              className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition-all cursor-pointer shadow-xs ${
+              className={`px-3.5 py-2 rounded-md font-semibold text-xs flex items-center gap-2 transition-colors cursor-pointer ${
                 guideSubView === 'quiz'
-                  ? 'bg-white text-emerald-950 scale-102'
-                  : 'bg-white/15 text-white hover:bg-white/25'
+                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200'
+                  : 'bg-white/10 text-stone-200 hover:bg-white/20'
               }`}
             >
-              <HelpCircle className="w-4 h-4 text-amber-500" />
-              <span>Segregation Challenge Quiz</span>
+              <HelpCircle className="w-3.5 h-3.5 text-amber-300" />
+              <span>Sanitation Knowledge Quiz</span>
             </button>
           </div>
         </div>
@@ -385,13 +385,13 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
       {guideSubView === 'catalog' && (
         <>
           {/* Quick Search Bar & Keyword Chips */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-4">
+          <div className="bg-white rounded-lg p-5 border border-stone-200 shadow-2xs space-y-3.5">
             <div className="relative flex items-center">
-              <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 id="input-waste-search"
                 type="text"
-                placeholder="Search any waste item (e.g. banana peel, plastic bottle, tea bag, chips wrapper, batteries)..."
+                placeholder="Search catalog (e.g. plastic bottle, mess rice, banana peel, tea bag, battery)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -399,16 +399,16 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
                     handleOptionSelect(searchQuery);
                   }
                 }}
-                className="w-full bg-slate-50 text-slate-900 rounded-2xl pl-12 pr-28 py-3.5 text-sm sm:text-base font-medium border border-slate-200 focus:bg-white focus:border-emerald-500 focus:outline-hidden transition-all"
+                className="w-full bg-stone-50 text-stone-900 rounded-md pl-10 pr-28 py-2.5 text-xs sm:text-sm font-medium border border-stone-300 focus:bg-white focus:border-[#134E3A] focus:outline-hidden transition-colors"
               />
-              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                 {searchQuery && (
                   <button
                     onClick={() => {
                       setSearchQuery('');
                       setHighlightedItemId(null);
                     }}
-                    className="text-xs font-bold text-slate-500 hover:text-slate-800 bg-slate-200/80 hover:bg-slate-200 px-2.5 py-1.5 rounded-xl transition-all cursor-pointer"
+                    className="text-xs font-medium text-stone-500 hover:text-stone-800 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded transition-colors cursor-pointer"
                   >
                     Clear
                   </button>
@@ -420,27 +420,26 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
                       handleOptionSelect(searchQuery);
                     }
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+                  className="px-3 py-1 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white text-xs font-semibold transition-colors cursor-pointer"
                 >
-                  Find
+                  Lookup
                 </button>
               </div>
             </div>
 
             {/* Quick Keyword Chips */}
             <div className="flex flex-wrap items-center gap-1.5 text-xs">
-              <span className="text-slate-400 font-bold mr-1 flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Try searching:</span>
+              <span className="text-stone-500 font-semibold mr-1">
+                Common searches:
               </span>
               {popularChips.map((chip) => (
                 <button
                   key={chip}
                   onClick={() => handleOptionSelect(chip)}
-                  className={`px-3 py-1 rounded-xl font-medium border transition-all cursor-pointer ${
+                  className={`px-2.5 py-0.5 rounded text-xs transition-colors cursor-pointer ${
                     searchQuery.toLowerCase() === chip.toLowerCase()
-                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs scale-105'
-                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200 hover:border-emerald-300'
+                      ? 'bg-[#134E3A] text-white'
+                      : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'
                   }`}
                 >
                   {chip}
@@ -450,50 +449,50 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
           </div>
 
           {/* Interactive 3 Master Color Bin Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* GREEN BIN - WET WASTE */}
             <div 
               onClick={() => handleCategorySelectWithScroll('wet')}
-              className={`rounded-3xl p-6 border-2 transition-all cursor-pointer flex flex-col justify-between ${
+              className={`rounded-lg p-5 border transition-all cursor-pointer flex flex-col justify-between ${
                 activeCategory === 'wet'
-                  ? 'bg-emerald-50 border-emerald-500 ring-4 ring-emerald-400/20 shadow-md'
-                  : 'bg-emerald-50/60 hover:bg-emerald-50 border-emerald-300'
+                  ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-600/30 shadow-xs'
+                  : 'bg-white hover:bg-emerald-50/40 border-stone-200'
               }`}
             >
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/20">
-                    <Leaf className="w-6 h-6" />
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-9 h-9 rounded bg-[#134E3A] text-white flex items-center justify-center">
+                    <Leaf className="w-5 h-5 text-emerald-300" />
                   </div>
-                  <span className="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-200/80 text-emerald-900">
-                    Biodegradable
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 font-mono-code">
+                    Compostable
                   </span>
                 </div>
 
-                <h3 className="text-xl font-bold text-emerald-950 font-['Outfit',sans-serif]">
-                  🟢 Green Dustbin
+                <h3 className="text-lg font-bold text-stone-900 font-editorial">
+                  Green Dustbin
                 </h3>
-                <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-2">
-                  Wet Waste / Gila Kachra
+                <div className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider mb-1.5">
+                  Wet Waste • Organic
                 </div>
 
-                <p className="text-xs text-emerald-900/80 leading-relaxed mb-4">
-                  All organic food scraps, canteen leftovers, and leaves that decompose into vermicompost.
+                <p className="text-xs text-stone-600 leading-relaxed mb-3">
+                  All biodegradable food remnants, mess leftovers, and horticulture cuttings routed to the campus vermicomposting pit.
                 </p>
 
-                <div className="space-y-2 bg-white/80 p-3 rounded-2xl border border-emerald-200">
-                  <div className="text-xs font-bold text-emerald-950">✅ Common examples:</div>
-                  <ul className="text-xs text-emerald-900 space-y-1">
-                    <li>• Canteen food scraps, roti & mess rice</li>
-                    <li>• Fruit peels, tea bags & coffee grounds</li>
-                    <li>• Lawn clippings & flower petals</li>
+                <div className="space-y-1.5 bg-stone-50 p-2.5 rounded border border-stone-200 text-xs">
+                  <div className="text-[11px] font-bold text-stone-800">Standard items:</div>
+                  <ul className="text-[11px] text-stone-600 space-y-0.5">
+                    <li>• Canteen &amp; hostel mess rice, bread, scraps</li>
+                    <li>• Fruit peels, tea bags, coffee grinds</li>
+                    <li>• Lawn leaves and campus botanical waste</li>
                   </ul>
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-emerald-200 flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-700 flex items-center gap-1">
-                  <span>{activeCategory === 'wet' ? '✓ Showing Wet' : 'Filter Wet'}</span>
+              <div className="mt-4 pt-3 border-t border-stone-200 flex items-center justify-between">
+                <span className="text-xs font-medium text-emerald-800 flex items-center gap-1">
+                  <span>{activeCategory === 'wet' ? '✓ Showing Wet' : 'Filter Category'}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </span>
 
@@ -504,10 +503,10 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
                       e.stopPropagation();
                       onNavigateToFinder('wet');
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-2xs transition-all"
+                    className="px-2 py-1 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white text-[11px] font-medium flex items-center gap-1"
                   >
                     <MapPin className="w-3 h-3" />
-                    <span>Find Green Bin</span>
+                    <span>Locate Green</span>
                   </button>
                 )}
               </div>
@@ -516,46 +515,46 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
             {/* BLUE BIN - DRY WASTE */}
             <div 
               onClick={() => handleCategorySelectWithScroll('dry')}
-              className={`rounded-3xl p-6 border-2 transition-all cursor-pointer flex flex-col justify-between ${
+              className={`rounded-lg p-5 border transition-all cursor-pointer flex flex-col justify-between ${
                 activeCategory === 'dry'
-                  ? 'bg-sky-50 border-sky-500 ring-4 ring-sky-400/20 shadow-md'
-                  : 'bg-sky-50/60 hover:bg-sky-50 border-sky-300'
+                  ? 'bg-sky-50/90 border-sky-600 ring-2 ring-sky-600/30 shadow-xs'
+                  : 'bg-white hover:bg-sky-50/40 border-stone-200'
               }`}
             >
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-sky-600 text-white flex items-center justify-center shadow-md shadow-sky-600/20">
-                    <Recycle className="w-6 h-6" />
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-9 h-9 rounded bg-sky-700 text-white flex items-center justify-center">
+                    <Recycle className="w-5 h-5 text-sky-200" />
                   </div>
-                  <span className="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-sky-200/80 text-sky-900">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-sky-100 text-sky-900 font-mono-code">
                     Recyclable
                   </span>
                 </div>
 
-                <h3 className="text-xl font-bold text-sky-950 font-['Outfit',sans-serif]">
-                  🔵 Blue Dustbin
+                <h3 className="text-lg font-bold text-stone-900 font-editorial">
+                  Blue Dustbin
                 </h3>
-                <div className="text-xs font-bold text-sky-800 uppercase tracking-wider mb-2">
-                  Dry Waste / Sookha Kachra
+                <div className="text-[11px] font-bold text-sky-800 uppercase tracking-wider mb-1.5">
+                  Dry Waste • Packaging
                 </div>
 
-                <p className="text-xs text-sky-900/80 leading-relaxed mb-4">
-                  Clean packaging, paper, plastic bottles, boxes, and metal cans processed by city recycling mills.
+                <p className="text-xs text-stone-600 leading-relaxed mb-3">
+                  Clean packaging materials, printouts, plastic bottles, boxes, and beverage cans processed by authorized recyclers.
                 </p>
 
-                <div className="space-y-2 bg-white/80 p-3 rounded-2xl border border-sky-200">
-                  <div className="text-xs font-bold text-sky-950">✅ Common examples:</div>
-                  <ul className="text-xs text-sky-900 space-y-1">
-                    <li>• Plastic water bottles (crushed)</li>
-                    <li>• Notebook paper, printouts & cartons</li>
-                    <li>• Snack wrappers & cold drink cans</li>
+                <div className="space-y-1.5 bg-stone-50 p-2.5 rounded border border-stone-200 text-xs">
+                  <div className="text-[11px] font-bold text-stone-800">Standard items:</div>
+                  <ul className="text-[11px] text-stone-600 space-y-0.5">
+                    <li>• Plastic water bottles (flattened)</li>
+                    <li>• Notebook paper, exam booklets, cartons</li>
+                    <li>• Clean beverage cans &amp; snack cartons</li>
                   </ul>
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-sky-200 flex items-center justify-between">
-                <span className="text-xs font-bold text-sky-700 flex items-center gap-1">
-                  <span>{activeCategory === 'dry' ? '✓ Showing Dry' : 'Filter Dry'}</span>
+              <div className="mt-4 pt-3 border-t border-stone-200 flex items-center justify-between">
+                <span className="text-xs font-medium text-sky-800 flex items-center gap-1">
+                  <span>{activeCategory === 'dry' ? '✓ Showing Dry' : 'Filter Category'}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </span>
 
@@ -566,10 +565,10 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
                       e.stopPropagation();
                       onNavigateToFinder('dry');
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-2xs transition-all"
+                    className="px-2 py-1 rounded bg-sky-700 hover:bg-sky-800 text-white text-[11px] font-medium flex items-center gap-1"
                   >
                     <MapPin className="w-3 h-3" />
-                    <span>Find Blue Bin</span>
+                    <span>Locate Blue</span>
                   </button>
                 )}
               </div>
@@ -578,46 +577,46 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
             {/* SPECIAL E-WASTE & HAZARDOUS */}
             <div 
               onClick={() => handleCategorySelectWithScroll('e-waste')}
-              className={`rounded-3xl p-6 border-2 transition-all cursor-pointer flex flex-col justify-between ${
+              className={`rounded-lg p-5 border transition-all cursor-pointer flex flex-col justify-between ${
                 activeCategory === 'e-waste' || activeCategory === 'hazardous'
-                  ? 'bg-slate-100 border-slate-700 ring-4 ring-slate-400/20 shadow-md'
-                  : 'bg-slate-50 hover:bg-slate-100 border-slate-300'
+                  ? 'bg-stone-100 border-stone-800 ring-2 ring-stone-800/30 shadow-xs'
+                  : 'bg-white hover:bg-stone-50 border-stone-200'
               }`}
             >
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-800 text-amber-400 flex items-center justify-center shadow-md">
-                    <Zap className="w-6 h-6" />
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-9 h-9 rounded bg-stone-800 text-amber-300 flex items-center justify-center">
+                    <Zap className="w-5 h-5" />
                   </div>
-                  <span className="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-100 text-amber-900">
-                    Special Care
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-stone-200 text-stone-800 font-mono-code">
+                    Specialized
                   </span>
                 </div>
 
-                <h3 className="text-xl font-bold text-slate-900 font-['Outfit',sans-serif]">
-                  ⚡ E-Waste & Red Bins
+                <h3 className="text-lg font-bold text-stone-900 font-editorial">
+                  E-Waste &amp; Hazardous
                 </h3>
-                <div className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-                  IT Wing Drop & Health Centre
+                <div className="text-[11px] font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                  Designated Drop Boxes
                 </div>
 
-                <p className="text-xs text-slate-600 leading-relaxed mb-4">
-                  Electronic hardware, dead batteries, CFL tubes, and sealed sanitary/biomedical materials.
+                <p className="text-xs text-stone-600 leading-relaxed mb-3">
+                  Electronic hardware, dead battery cells, light fixtures, and biomedical waste requiring segregated isolation.
                 </p>
 
-                <div className="space-y-2 bg-white/80 p-3 rounded-2xl border border-slate-200">
-                  <div className="text-xs font-bold text-slate-800">✅ Deposit here:</div>
-                  <ul className="text-xs text-slate-700 space-y-1">
-                    <li>• Dead AA/AAA & button batteries</li>
-                    <li>• Broken USB cables & earphones</li>
-                    <li>• Medical bandages & wrapped sanitary pads</li>
+                <div className="space-y-1.5 bg-stone-50 p-2.5 rounded border border-stone-200 text-xs">
+                  <div className="text-[11px] font-bold text-stone-800">Drop locations:</div>
+                  <ul className="text-[11px] text-stone-600 space-y-0.5">
+                    <li>• Dead batteries &rarr; Computer Center Lab Box</li>
+                    <li>• Broken peripherals &rarr; Hardware Lab</li>
+                    <li>• Medical waste &rarr; Campus Health Centre Red Bin</li>
                   </ul>
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                  <span>{activeCategory === 'e-waste' ? '✓ Showing E-Waste' : 'Filter Special'}</span>
+              <div className="mt-4 pt-3 border-t border-stone-200 flex items-center justify-between">
+                <span className="text-xs font-medium text-stone-700 flex items-center gap-1">
+                  <span>{activeCategory === 'e-waste' ? '✓ Showing Special' : 'Filter Category'}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </span>
 
@@ -628,10 +627,10 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
                       e.stopPropagation();
                       onNavigateToFinder('e-waste');
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-900 text-amber-300 text-[11px] font-bold flex items-center gap-1 shadow-2xs transition-all"
+                    className="px-2 py-1 rounded bg-stone-800 hover:bg-stone-900 text-white text-[11px] font-medium flex items-center gap-1"
                   >
                     <MapPin className="w-3 h-3" />
-                    <span>Find Drop Box</span>
+                    <span>Locate Drop</span>
                   </button>
                 )}
               </div>
@@ -640,26 +639,26 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
 
           {/* Catalog Filter Controls Bar */}
           <div className="space-y-4">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/90 shadow-sm">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-4 rounded-lg border border-stone-200 shadow-2xs">
               {/* Category Pills (Includes Hazardous) */}
               <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                <span className="font-bold text-slate-500 mr-1 text-[11px] uppercase tracking-wider">
+                <span className="font-semibold text-stone-500 mr-1 text-[11px] uppercase tracking-wider">
                   Category:
                 </span>
                 {[
                   { id: 'all', label: 'All Items' },
-                  { id: 'wet', label: '🟢 Wet (Green)' },
-                  { id: 'dry', label: '🔵 Dry (Blue)' },
-                  { id: 'e-waste', label: '⚡ E-Waste' },
-                  { id: 'hazardous', label: '🔴 Hazardous / Red' },
+                  { id: 'wet', label: 'Wet (Green)' },
+                  { id: 'dry', label: 'Dry (Blue)' },
+                  { id: 'e-waste', label: 'E-Waste' },
+                  { id: 'hazardous', label: 'Hazardous / Medical' },
                 ].map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.id as any)}
-                    className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-md font-medium text-xs transition-colors cursor-pointer ${
                       activeCategory === cat.id
-                        ? 'bg-slate-900 text-white shadow-xs scale-102'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                        ? 'bg-[#134E3A] text-white shadow-2xs'
+                        : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
                     }`}
                   >
                     {cat.label}
@@ -669,38 +668,38 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
 
               {/* Trait & Sort Filters */}
               <div className="flex flex-wrap items-center gap-2 text-xs">
-                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-[11px] font-semibold">
+                <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-md border border-stone-200 text-[11px] font-medium">
                   <button
                     onClick={() => setTraitFilter('all')}
-                    className={`px-2.5 py-1 rounded-lg cursor-pointer transition-all ${
-                      traitFilter === 'all' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'
+                    className={`px-2.5 py-1 rounded cursor-pointer transition-colors ${
+                      traitFilter === 'all' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600'
                     }`}
                   >
                     All Traits
                   </button>
                   <button
                     onClick={() => setTraitFilter('popular')}
-                    className={`px-2.5 py-1 rounded-lg cursor-pointer transition-all ${
-                      traitFilter === 'popular' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'
+                    className={`px-2.5 py-1 rounded cursor-pointer transition-colors ${
+                      traitFilter === 'popular' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600'
                     }`}
                   >
-                    ⭐ Common
+                    Common
                   </button>
                   <button
                     onClick={() => setTraitFilter('recyclable')}
-                    className={`px-2.5 py-1 rounded-lg cursor-pointer transition-all ${
-                      traitFilter === 'recyclable' ? 'bg-white text-sky-800 shadow-2xs' : 'text-slate-600'
+                    className={`px-2.5 py-1 rounded cursor-pointer transition-colors ${
+                      traitFilter === 'recyclable' ? 'bg-white text-sky-900 shadow-2xs' : 'text-stone-600'
                     }`}
                   >
-                    ♻️ Recyclable
+                    Recyclable
                   </button>
                   <button
                     onClick={() => setTraitFilter('biodegradable')}
-                    className={`px-2.5 py-1 rounded-lg cursor-pointer transition-all ${
-                      traitFilter === 'biodegradable' ? 'bg-white text-emerald-800 shadow-2xs' : 'text-slate-600'
+                    className={`px-2.5 py-1 rounded cursor-pointer transition-colors ${
+                      traitFilter === 'biodegradable' ? 'bg-white text-emerald-900 shadow-2xs' : 'text-stone-600'
                     }`}
                   >
-                    🌱 Compostable
+                    Compostable
                   </button>
                 </div>
 
@@ -708,9 +707,9 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
-                  className="bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:outline-hidden"
+                  className="bg-stone-50 border border-stone-300 rounded-md px-2.5 py-1.5 text-xs font-medium text-stone-700 focus:outline-hidden focus:border-[#134E3A]"
                 >
-                  <option value="recommended">Sort: Recommended</option>
+                  <option value="recommended">Sort: Priority</option>
                   <option value="name">Sort: Name (A-Z)</option>
                   <option value="category">Sort: Category</option>
                 </select>
@@ -719,36 +718,36 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
 
             {/* Smart Classifier Result (When custom search returns no direct catalog matches) */}
             {smartClassification && (
-              <div className="p-5 rounded-3xl bg-amber-50/80 border-2 border-amber-300 text-slate-900 shadow-sm space-y-3 animate-in fade-in">
+              <div className="p-4 rounded-lg bg-amber-50/90 border border-amber-300 text-stone-900 shadow-2xs space-y-2.5 animate-in fade-in">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-xl bg-white shadow-xs flex items-center justify-center border border-amber-300">
+                    <div className="w-8 h-8 rounded bg-white flex items-center justify-center border border-amber-300 shrink-0">
                       {smartClassification.icon}
                     </div>
                     <div>
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-800">
-                        Instant SBM Segregation Recommendation
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-900 font-mono-code">
+                        Recommended Classification
                       </span>
-                      <h4 className="text-base sm:text-lg font-black font-['Outfit',sans-serif]">
-                        "{searchQuery}" belongs in: {smartClassification.bin}
+                      <h4 className="text-base font-bold font-editorial">
+                        "{searchQuery}" &rarr; {smartClassification.bin}
                       </h4>
                     </div>
                   </div>
 
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="text-xs font-bold text-amber-800 hover:text-amber-950 bg-amber-200/70 hover:bg-amber-200 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
+                    className="text-xs font-medium text-amber-900 hover:text-stone-900 bg-amber-200/60 hover:bg-amber-200 px-2.5 py-1 rounded transition-colors cursor-pointer"
                   >
-                    Clear Search
+                    Clear
                   </button>
                 </div>
 
-                <div className="p-3 bg-white/90 rounded-2xl border border-amber-200 text-xs space-y-1">
-                  <p className="text-slate-700 font-medium leading-relaxed">
-                    <strong>Rule:</strong> {smartClassification.reason}
+                <div className="p-2.5 bg-white rounded border border-amber-200 text-xs space-y-1">
+                  <p className="text-stone-700 leading-relaxed">
+                    <strong>Standard Rule:</strong> {smartClassification.reason}
                   </p>
-                  <p className="text-emerald-800 font-semibold leading-relaxed">
-                    💡 <strong>Proper Handling:</strong> {smartClassification.tip}
+                  <p className="text-emerald-900 font-medium leading-relaxed">
+                    <strong>Campus Protocol:</strong> {smartClassification.tip}
                   </p>
                 </div>
               </div>
@@ -756,9 +755,9 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
 
             {/* Active Query Waste Classification Callout */}
             {searchQuery.trim() && filteredItems.length > 0 && (
-              <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-emerald-50 via-teal-50 to-sky-50 border-2 border-emerald-500/80 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-in fade-in">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-xl shadow-md shrink-0">
+              <div className="p-4 rounded-lg bg-stone-50 border border-stone-300 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-3 animate-in fade-in">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded bg-white border border-stone-300 flex items-center justify-center font-bold text-lg shrink-0">
                     {filteredItems[0].category === 'wet' && '🟢'}
                     {filteredItems[0].category === 'dry' && '🔵'}
                     {filteredItems[0].category === 'e-waste' && '⚡'}
@@ -766,24 +765,24 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-md">
-                        What Kind of Waste Is It?
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-900 bg-emerald-100/90 px-1.5 py-0.5 rounded font-mono-code">
+                        Item Classification
                       </span>
-                      <span className="text-xs font-semibold text-slate-500">
-                        {filteredItems.length} {filteredItems.length === 1 ? 'match' : 'matches'} found
+                      <span className="text-xs text-stone-500 font-mono-code">
+                        {filteredItems.length} {filteredItems.length === 1 ? 'record' : 'records'} found
                       </span>
                     </div>
-                    <h4 className="text-base sm:text-lg font-bold text-slate-900 font-['Outfit',sans-serif] mt-0.5">
-                      "{searchQuery}" is classified as{' '}
-                      <span className="text-emerald-700 underline underline-offset-2">
-                        {filteredItems[0].category === 'wet' && 'Wet Waste / Gila Kachra (Green Bin)'}
-                        {filteredItems[0].category === 'dry' && 'Dry Waste / Sookha Kachra (Blue Bin)'}
-                        {filteredItems[0].category === 'e-waste' && 'E-Waste / IT Hardware (Special Drop)'}
-                        {filteredItems[0].category === 'hazardous' && 'Hazardous / Medical Waste (Red Bin)'}
+                    <h4 className="text-base font-bold text-stone-900 font-editorial mt-0.5">
+                      "{searchQuery}" is classified under{' '}
+                      <span className="text-[#134E3A] underline underline-offset-2">
+                        {filteredItems[0].category === 'wet' && 'Wet Waste (Green Dustbin)'}
+                        {filteredItems[0].category === 'dry' && 'Dry Waste (Blue Dustbin)'}
+                        {filteredItems[0].category === 'e-waste' && 'E-Waste (Special Drop Box)'}
+                        {filteredItems[0].category === 'hazardous' && 'Hazardous / Medical (Red Bin)'}
                       </span>
                     </h4>
-                    <p className="text-xs text-slate-600 mt-0.5">
-                      Recommended disposal: <strong>{filteredItems[0].binName}</strong> &bull; {filteredItems[0].recyclable ? '♻️ 100% Recyclable' : filteredItems[0].biodegradable ? '🌱 Biodegradable Compost' : '⚠️ Special handling protocol'}
+                    <p className="text-xs text-stone-600 mt-0.5">
+                      Assigned Container: <strong>{filteredItems[0].binName}</strong> &bull; {filteredItems[0].recyclable ? 'Recyclable' : filteredItems[0].biodegradable ? 'Compostable Organic' : 'Special Protocol'}
                     </p>
                   </div>
                 </div>
@@ -791,19 +790,19 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
                 <div className="flex items-center gap-2 shrink-0 w-full md:w-auto justify-end">
                   <button
                     onClick={() => handleItemClick(filteredItems[0])}
-                    className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer transition-all flex items-center gap-1.5"
+                    className="px-3 py-1.5 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
                   >
-                    <span>Inspect Full Guide</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>View Guidelines</span>
+                    <ExternalLink className="w-3 h-3" />
                   </button>
                   <button
                     onClick={() => {
                       setSearchQuery('');
                       setHighlightedItemId(null);
                     }}
-                    className="px-3 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold cursor-pointer transition-all"
+                    className="px-2.5 py-1.5 rounded bg-stone-200 hover:bg-stone-300 text-stone-700 text-xs font-medium cursor-pointer transition-colors"
                   >
-                    Clear Filter
+                    Reset Filter
                   </button>
                 </div>
               </div>
@@ -811,16 +810,16 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
 
             {/* Zero Results fallback when no match and no classification */}
             {filteredItems.length === 0 && !smartClassification && (
-              <div className="text-center py-12 px-4 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4">
-                <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
-                  <Search className="w-7 h-7" />
+              <div className="text-center py-12 px-4 bg-white rounded-lg border border-stone-200 shadow-2xs space-y-3">
+                <div className="w-10 h-10 rounded bg-stone-100 text-stone-400 mx-auto flex items-center justify-center border border-stone-200">
+                  <Search className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-slate-800 font-['Outfit',sans-serif]">
-                    No specific catalog item found for "{searchQuery}"
+                  <h4 className="text-sm font-bold text-stone-900 font-editorial">
+                    No catalog entry found for "{searchQuery}"
                   </h4>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
-                    Try searching for common terms like "plastic", "paper", "food", "cup", or reset your category filter.
+                  <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1">
+                    Try searching for common campus items like "plastic", "paper", "mess food", "tea cup", or clear the category filter.
                   </p>
                 </div>
                 <button
@@ -830,9 +829,9 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
                     setTraitFilter('all');
                     setHighlightedItemId(null);
                   }}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer transition-all"
+                  className="px-4 py-2 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white text-xs font-medium cursor-pointer transition-colors"
                 >
-                  Reset Filters & View All
+                  Reset Filters &amp; View All
                 </button>
               </div>
             )}
@@ -846,95 +845,94 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
                     key={item.id}
                     id={`waste-item-${item.id}`}
                     onClick={() => handleItemClick(item)}
-                    className={`bg-white rounded-2xl p-4 border transition-all cursor-pointer flex flex-col justify-between group relative overflow-hidden ${
+                    className={`bg-white rounded-lg p-4 border transition-all cursor-pointer flex flex-col justify-between group relative ${
                       isHighlighted
-                        ? 'border-emerald-500 ring-4 ring-emerald-500/40 shadow-xl scale-[1.02] bg-emerald-50/40'
-                        : 'border-slate-200/90 shadow-2xs hover:shadow-md hover:border-emerald-400/60'
+                        ? 'border-[#134E3A] ring-2 ring-[#134E3A]/40 shadow-xs bg-emerald-50/20'
+                        : 'border-stone-200 shadow-2xs hover:border-stone-400'
                     }`}
                   >
                     <div>
                       {/* Highlighted Banner Callout */}
                       {isHighlighted && (
-                        <div className="mb-2.5 py-1 px-2.5 rounded-lg bg-emerald-600 text-white text-[11px] font-black flex items-center justify-between animate-pulse">
-                          <span>🎯 Selected Waste Item</span>
+                        <div className="mb-2 py-0.5 px-2 rounded bg-[#134E3A] text-white text-[10px] font-bold font-mono-code flex items-center justify-between">
+                          <span>MATCHED ITEM</span>
                           <span className="uppercase tracking-wider">
-                            {item.category === 'wet' && '🟢 Wet Waste'}
-                            {item.category === 'dry' && '🔵 Dry Waste'}
-                            {item.category === 'e-waste' && '⚡ E-Waste'}
-                            {item.category === 'hazardous' && '🔴 Hazardous'}
+                            {item.category === 'wet' && 'Wet Waste'}
+                            {item.category === 'dry' && 'Dry Waste'}
+                            {item.category === 'e-waste' && 'E-Waste'}
+                            {item.category === 'hazardous' && 'Hazardous'}
                           </span>
                         </div>
                       )}
 
                       {/* Header Badge: Exactly What Kind of Waste It Is */}
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-0.5">
                           <span
-                            className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-lg inline-flex items-center gap-1 shadow-2xs ${
+                            className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded inline-flex items-center gap-1 font-mono-code ${
                               item.category === 'wet'
-                                ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                                ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
                                 : item.category === 'dry'
-                                ? 'bg-sky-100 text-sky-900 border border-sky-300'
+                                ? 'bg-sky-50 text-sky-900 border border-sky-200'
                                 : item.category === 'e-waste'
-                                ? 'bg-slate-800 text-amber-300 border border-slate-700'
-                                : 'bg-rose-100 text-rose-900 border border-rose-300'
+                                ? 'bg-stone-100 text-stone-800 border border-stone-300'
+                                : 'bg-rose-50 text-rose-900 border border-rose-200'
                             }`}
                           >
-                            {item.category === 'wet' && '🟢 WET WASTE (GILA KACHRA)'}
-                            {item.category === 'dry' && '🔵 DRY WASTE (SOOKHA KACHRA)'}
-                            {item.category === 'e-waste' && '⚡ E-WASTE & ELECTRONIC'}
-                            {item.category === 'hazardous' && '🔴 HAZARDOUS / MEDICAL'}
+                            {item.category === 'wet' && 'Wet Waste (Green)'}
+                            {item.category === 'dry' && 'Dry Waste (Blue)'}
+                            {item.category === 'e-waste' && 'E-Waste (Drop Box)'}
+                            {item.category === 'hazardous' && 'Hazardous (Red)'}
                           </span>
-                          <span className="text-[11px] font-bold text-slate-700">
-                            Disposal: {item.binName}
+                          <span className="text-[10px] font-mono-code text-stone-500">
+                            {item.binName}
                           </span>
                         </div>
 
                         {item.popular && (
-                          <span className="text-[10px] font-bold text-amber-700 bg-amber-100/70 px-2 py-0.5 rounded-md shrink-0">
-                            ⭐ Common
+                          <span className="text-[10px] font-medium text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded border border-stone-200 shrink-0">
+                            Frequent
                           </span>
                         )}
                       </div>
 
-                      <h4 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors font-['Outfit',sans-serif]">
+                      <h4 className="text-sm font-bold text-stone-900 group-hover:text-[#134E3A] transition-colors font-editorial">
                         {item.name}
                       </h4>
-                      <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
+                      <p className="text-xs text-stone-600 mt-1 leading-relaxed line-clamp-2">
                         {item.description}
                       </p>
 
                       {/* Recyclability & Material Trait Chips */}
                       <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
                         {item.recyclable && (
-                          <span className="text-[10px] font-bold bg-sky-50 text-sky-700 px-2 py-0.5 rounded-md border border-sky-200 flex items-center gap-1">
-                            <Recycle className="w-3 h-3 text-sky-600" />
+                          <span className="text-[10px] font-medium bg-sky-50 text-sky-800 px-1.5 py-0.5 rounded border border-sky-200 flex items-center gap-1">
+                            <Recycle className="w-3 h-3 text-sky-700" />
                             <span>Recyclable</span>
                           </span>
                         )}
                         {item.biodegradable && (
-                          <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
-                            <Leaf className="w-3 h-3 text-emerald-600" />
+                          <span className="text-[10px] font-medium bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
+                            <Leaf className="w-3 h-3 text-emerald-700" />
                             <span>Compostable</span>
                           </span>
                         )}
                         {!item.recyclable && !item.biodegradable && (
-                          <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3 text-amber-600" />
-                            <span>Special Handling</span>
+                          <span className="text-[10px] font-medium bg-stone-100 text-stone-700 px-1.5 py-0.5 rounded border border-stone-200 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3 text-stone-600" />
+                            <span>Controlled Protocol</span>
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <div className="mt-3.5 pt-3 border-t border-slate-100 text-xs bg-slate-50/80 -mx-4 -mb-4 p-3 rounded-b-2xl flex items-center justify-between">
-                      <p className="text-[11px] text-slate-600 truncate pr-2">
-                        <span className="font-bold text-slate-700">Rule: </span>
+                    <div className="mt-3 pt-2.5 border-t border-stone-100 text-xs flex items-center justify-between">
+                      <p className="text-[11px] text-stone-500 truncate pr-2">
+                        <span className="font-semibold text-stone-700">Rule: </span>
                         {item.tip}
                       </p>
-                      <span className="text-[11px] font-bold text-emerald-600 group-hover:translate-x-0.5 transition-transform shrink-0 flex items-center">
-                        View Details
-                        <ChevronRight className="w-3 h-3 ml-0.5" />
+                      <span className="text-[11px] font-medium text-stone-700 group-hover:text-[#134E3A] transition-colors shrink-0 flex items-center">
+                        Details &rarr;
                       </span>
                     </div>
                   </div>
@@ -946,31 +944,31 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
       )}
 
       {/* Swachhata Campus Pledge Banner */}
-      <div className="bg-gradient-to-br from-emerald-700 to-teal-800 rounded-3xl p-6 sm:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-md">
-        <div className="space-y-2">
+      <div className="bg-[#134E3A] rounded-lg p-6 sm:p-7 text-stone-100 border border-[#0F3E2E] flex flex-col md:flex-row items-center justify-between gap-5 shadow-2xs">
+        <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <Award className="w-5 h-5 text-amber-300" />
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-100">
-              National Clean Campus Commitment
+            <Award className="w-4 h-4 text-emerald-300" />
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-200 font-mono-code">
+              Campus Environmental Commitment
             </span>
           </div>
-          <h3 className="text-xl sm:text-2xl font-black font-['Outfit',sans-serif]">
-            "I pledge to never litter and always segregate waste into Dry & Wet dustbins."
+          <h3 className="text-lg sm:text-xl font-bold font-editorial text-white leading-snug">
+            "I pledge to never litter and always segregate waste into Dry and Wet dustbins."
           </h3>
-          <p className="text-xs sm:text-sm text-emerald-100 max-w-xl leading-relaxed">
-            Join <strong>{pledgeCount}</strong> students, faculty, and sanitation staff at NIT Patna who have committed to source segregation discipline under the Swachh Bharat Mission.
+          <p className="text-xs text-stone-300 max-w-xl leading-relaxed">
+            Join <strong>{pledgeCount}</strong> students, faculty, and sanitation stewards at NIT Patna who have signed the institutional source segregation charter.
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+        <div className="flex flex-col sm:flex-row items-center gap-2.5 shrink-0">
           {pledgeTaken ? (
             <>
               <button
                 onClick={() => setIsCertificateOpen(true)}
-                className="px-6 py-3.5 rounded-2xl bg-white text-emerald-950 hover:bg-emerald-50 font-black text-xs sm:text-sm tracking-wide transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-102 active:scale-98"
+                className="px-4 py-2.5 rounded bg-white text-stone-900 hover:bg-stone-100 font-semibold text-xs tracking-wide transition-colors shadow-2xs flex items-center gap-1.5 cursor-pointer"
               >
-                <Award className="w-4 h-4 text-emerald-600" />
-                <span>View Official Certificate</span>
+                <Award className="w-4 h-4 text-[#134E3A]" />
+                <span>View Certificate</span>
               </button>
 
               <button
@@ -979,7 +977,7 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
                     setIsPledgeFormOpen(true);
                   }
                 }}
-                className="px-3.5 py-3 rounded-2xl bg-emerald-800/80 hover:bg-emerald-800 text-emerald-200 text-xs font-semibold flex items-center gap-1 cursor-pointer transition-all"
+                className="p-2.5 rounded bg-white/10 hover:bg-white/20 text-stone-200 text-xs font-semibold cursor-pointer transition-colors"
                 title="Edit Pledge Info"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -989,9 +987,9 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
             <button
               id="btn-take-pledge"
               onClick={() => setIsPledgeFormOpen(true)}
-              className="px-6 py-3.5 rounded-2xl bg-white text-emerald-900 hover:bg-emerald-50 hover:scale-105 active:scale-95 font-black text-xs sm:text-sm tracking-wide transition-all shadow-md shadow-emerald-900/30 cursor-pointer"
+              className="px-4 py-2.5 rounded bg-white text-stone-900 hover:bg-stone-100 font-semibold text-xs tracking-wide transition-colors shadow-2xs cursor-pointer"
             >
-              Take the Swachhata Pledge ✍️
+              Sign Campus Swachhata Pledge
             </button>
           )}
         </div>
@@ -1000,38 +998,38 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
       {/* Modal: Take Pledge Form */}
       {isPledgeFormOpen && (
         <div 
-          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+          className="fixed inset-0 z-50 bg-stone-900/60 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsPledgeFormOpen(false);
           }}
         >
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-5 bg-gradient-to-r from-emerald-700 to-teal-800 text-white flex items-center justify-between">
+          <div className="bg-white w-full max-w-md rounded-lg shadow-xl border border-stone-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-4 bg-[#134E3A] text-white flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
-                  <Award className="w-5 h-5 text-amber-300" />
+                <div className="w-8 h-8 rounded bg-white/15 flex items-center justify-center">
+                  <Award className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-base font-['Outfit',sans-serif]">
-                    Take the Swachhata Pledge
+                  <h3 className="font-bold text-sm font-editorial">
+                    Campus Swachhata Pledge
                   </h3>
                   <span className="text-[11px] text-emerald-200">
-                    National Clean Campus Chapter
+                    NIT Patna Clean Campus Chapter
                   </span>
                 </div>
               </div>
               <button
                 onClick={() => setIsPledgeFormOpen(false)}
-                className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all cursor-pointer"
+                className="w-7 h-7 rounded bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleConfirmPledge} className="p-5 sm:p-6 space-y-4 text-xs">
+            <form onSubmit={handleConfirmPledge} className="p-5 space-y-3.5 text-xs">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">
-                  Your Full Name:
+                <label className="font-semibold text-stone-700 block mb-1">
+                  Full Name:
                 </label>
                 <input
                   type="text"
@@ -1039,55 +1037,55 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
                   value={tempName}
                   onChange={(e) => setTempName(e.target.value)}
                   placeholder="e.g. Rahul Sharma"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-stone-50 border border-stone-300 rounded-md px-3 py-2 text-xs font-medium text-stone-800 focus:outline-hidden focus:border-[#134E3A]"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">
-                  Department / Hostel / Role:
+                <label className="font-semibold text-stone-700 block mb-1">
+                  Department / Hostel / Designation:
                 </label>
                 <input
                   type="text"
                   value={tempDept}
                   onChange={(e) => setTempDept(e.target.value)}
                   placeholder="e.g. Computer Science (3rd Year) / Kosi Hostel"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-stone-50 border border-stone-300 rounded-md px-3 py-2 text-xs font-medium text-stone-800 focus:outline-hidden focus:border-[#134E3A]"
                 />
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/80 space-y-2">
-                <span className="font-bold text-emerald-950 block">Pledge Statement:</span>
-                <p className="text-emerald-900 leading-relaxed italic">
-                  "I solemnly pledge to keep my university campus clean. I will never throw trash on paths or lawns, always separate dry and wet waste at the source, and actively motivate my peers to uphold Swachh Bharat ideals."
+              <div className="p-3 rounded-md bg-stone-50 border border-stone-200 space-y-1.5">
+                <span className="font-semibold text-stone-800 block text-[11px] uppercase tracking-wider">Pledge Declaration</span>
+                <p className="text-stone-700 leading-relaxed italic text-[11px]">
+                  "I solemnly pledge to keep my university campus clean. I will never litter pathways or lawns, always separate dry and wet waste at the source, and actively motivate my peers to uphold Swachh Bharat ideals."
                 </p>
 
-                <label className="flex items-center gap-2 pt-1 font-bold text-emerald-950 cursor-pointer select-none">
+                <label className="flex items-center gap-2 pt-1 font-semibold text-stone-800 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={pledgeAgreement}
                     onChange={(e) => setPledgeAgreement(e.target.checked)}
-                    className="w-4 h-4 rounded text-emerald-600 accent-emerald-600"
+                    className="w-4 h-4 rounded text-[#134E3A] accent-[#134E3A]"
                   />
-                  <span>I agree and commit to this green charter</span>
+                  <span>I agree and commit to this campus charter</span>
                 </label>
               </div>
 
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-stone-100">
                 <button
                   type="button"
                   onClick={() => setIsPledgeFormOpen(false)}
-                  className="px-4 py-2 font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer"
+                  className="px-3.5 py-1.5 font-medium text-stone-600 hover:bg-stone-100 rounded-md cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!pledgeAgreement || !tempName.trim()}
-                  className="px-5 py-2 font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-xl shadow-md shadow-emerald-600/20 flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-1.5 font-semibold text-white bg-[#134E3A] hover:bg-[#0F3E2E] disabled:opacity-50 rounded-md shadow-2xs flex items-center gap-1.5 cursor-pointer"
                 >
                   <Check className="w-3.5 h-3.5" />
-                  <span>Confirm & Issue Certificate</span>
+                  <span>Confirm &amp; Issue Certificate</span>
                 </button>
               </div>
             </form>

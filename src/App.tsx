@@ -9,7 +9,11 @@ import { CampusAlertsView } from './components/CampusAlertsView';
 import { ReportIssueModal } from './components/ReportIssueModal';
 import { AddBinModal } from './components/AddBinModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
-import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut } from 'lucide-react';
+import { ScanBinModal } from './components/ScanBinModal';
+import { PrintPlacardModal } from './components/PrintPlacardModal';
+import { ExportAuditReportModal } from './components/ExportAuditReportModal';
+import { CampusSanitationScorecard } from './components/CampusSanitationScorecard';
+import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut, CheckCircle2, QrCode } from 'lucide-react';
 import { 
   fetchReportsFromSupabase, 
   insertReportToSupabase, 
@@ -148,6 +152,12 @@ export default function App() {
   const [isAdminLoginModalOpen, setIsAdminLoginModalOpen] = useState(false);
   const [adminLoginReason, setAdminLoginReason] = useState<'reports' | 'add_bin' | null>(null);
   const [targetBinForReport, setTargetBinForReport] = useState<CampusBin | null>(null);
+
+  // New SBM enhancement modal states
+  const [isScanBinModalOpen, setIsScanBinModalOpen] = useState(false);
+  const [isPlacardModalOpen, setIsPlacardModalOpen] = useState(false);
+  const [selectedBinForPlacard, setSelectedBinForPlacard] = useState<CampusBin | null>(null);
+  const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
 
   // Toast notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -523,11 +533,11 @@ export default function App() {
   const activeAlertsCount = tickets.filter((t) => t.status !== 'resolved').length;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="min-h-screen bg-[#F8F9FA] flex flex-col font-['Public_Sans',sans-serif] text-stone-800">
       {/* Toast popup */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 border border-slate-700 animate-in slide-in-from-bottom-5">
-          <Sparkles className="w-4 h-4 text-emerald-400" />
+        <div className="fixed bottom-6 right-6 z-50 bg-stone-900 text-stone-100 text-xs font-medium px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 border border-stone-700 animate-in slide-in-from-bottom-3">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -541,6 +551,7 @@ export default function App() {
           setIsReportModalOpen(true);
         }}
         onOpenAddBinModal={handleTriggerAddBin}
+        onOpenScanModal={() => setIsScanBinModalOpen(true)}
         activeAlertsCount={activeAlertsCount}
         totalBinsCount={bins.length}
         isAdmin={isAdmin}
@@ -548,20 +559,23 @@ export default function App() {
       />
 
       {/* Main View Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 pb-20 md:pb-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7 pb-24 md:pb-10">
         {activeTab === 'map' && (
-          <CampusMap
-            bins={bins}
-            selectedBin={selectedBin}
-            onSelectBin={(bin) => {
-              setSelectedBin(bin);
-              setHighlightedBinId(null);
-            }}
-            userZone={userZone}
-            setUserZone={setUserZone}
-            highlightedBinId={highlightedBinId}
-            onReportBin={handleOpenReportForBin}
-          />
+          <div className="space-y-4">
+            <CampusSanitationScorecard bins={bins} tickets={tickets} />
+            <CampusMap
+              bins={bins}
+              selectedBin={selectedBin}
+              onSelectBin={(bin) => {
+                setSelectedBin(bin);
+                setHighlightedBinId(null);
+              }}
+              userZone={userZone}
+              setUserZone={setUserZone}
+              highlightedBinId={highlightedBinId}
+              onReportBin={handleOpenReportForBin}
+            />
+          </div>
         )}
 
         {activeTab === 'finder' && (
@@ -619,52 +633,61 @@ export default function App() {
               setIsReportModalOpen(true);
             }}
             onOpenAddBinModal={handleTriggerAddBin}
+            onOpenAuditModal={() => setIsAuditModalOpen(true)}
+            onOpenPlacardModal={(bin) => {
+              setSelectedBinForPlacard(bin);
+              setIsPlacardModalOpen(true);
+            }}
           />
         )}
-
       </main>
 
       {/* Mobile Sticky Bottom Navigation Bar */}
       <nav 
         id="mobile-bottom-navbar" 
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1.5 shadow-lg flex items-center justify-around"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-stone-200 px-3 py-2 shadow-xs flex items-center justify-around"
       >
         <button
           id="btn-mobile-nav-map"
           onClick={() => setActiveTab('map')}
-          className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all cursor-pointer ${
-            activeTab === 'map' ? 'text-emerald-700 font-bold' : 'text-slate-500 hover:text-slate-800'
+          className={`flex flex-col items-center justify-center py-1 px-3 rounded-md transition-colors cursor-pointer ${
+            activeTab === 'map' ? 'text-[#134E3A] font-bold' : 'text-stone-500 hover:text-stone-800'
           }`}
         >
-          <div className={`p-1 rounded-lg ${activeTab === 'map' ? 'bg-emerald-50 text-emerald-600' : ''}`}>
-            <MapPin className="w-4 h-4" />
-          </div>
+          <MapPin className="w-4 h-4" />
           <span className="text-[10px] mt-0.5">Map</span>
         </button>
 
         <button
           id="btn-mobile-nav-finder"
           onClick={() => setActiveTab('finder')}
-          className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all cursor-pointer ${
-            activeTab === 'finder' ? 'text-emerald-700 font-bold' : 'text-slate-500 hover:text-slate-800'
+          className={`flex flex-col items-center justify-center py-1 px-3 rounded-md transition-colors cursor-pointer ${
+            activeTab === 'finder' ? 'text-[#134E3A] font-bold' : 'text-stone-500 hover:text-stone-800'
           }`}
         >
-          <div className={`p-1 rounded-lg ${activeTab === 'finder' ? 'bg-emerald-50 text-emerald-600' : ''}`}>
-            <Search className="w-4 h-4" />
-          </div>
+          <Search className="w-4 h-4" />
           <span className="text-[10px] mt-0.5">Nearest</span>
+        </button>
+
+        <button
+          id="btn-mobile-nav-scan"
+          type="button"
+          onClick={() => setIsScanBinModalOpen(true)}
+          className="flex flex-col items-center justify-center py-1 px-3 rounded-md text-stone-500 hover:text-stone-800 transition-colors cursor-pointer"
+          title="Scan Station QR / Lookup"
+        >
+          <QrCode className="w-4 h-4 text-[#134E3A]" />
+          <span className="text-[10px] mt-0.5 font-medium">Scan QR</span>
         </button>
 
         <button
           id="btn-mobile-nav-guide"
           onClick={() => setActiveTab('guide')}
-          className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all cursor-pointer ${
-            activeTab === 'guide' ? 'text-emerald-700 font-bold' : 'text-slate-500 hover:text-slate-800'
+          className={`flex flex-col items-center justify-center py-1 px-3 rounded-md transition-colors cursor-pointer ${
+            activeTab === 'guide' ? 'text-[#134E3A] font-bold' : 'text-stone-500 hover:text-stone-800'
           }`}
         >
-          <div className={`p-1 rounded-lg ${activeTab === 'guide' ? 'bg-emerald-50 text-emerald-600' : ''}`}>
-            <Sparkles className="w-4 h-4" />
-          </div>
+          <Sparkles className="w-4 h-4" />
           <span className="text-[10px] mt-0.5">Guide</span>
         </button>
 
@@ -672,16 +695,14 @@ export default function App() {
           <button
             id="btn-mobile-nav-alerts"
             onClick={() => setActiveTab('alerts')}
-            className={`relative flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all cursor-pointer ${
-              activeTab === 'alerts' ? 'text-emerald-700 font-bold' : 'text-slate-500 hover:text-slate-800'
+            className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-md transition-colors cursor-pointer ${
+              activeTab === 'alerts' ? 'text-[#134E3A] font-bold' : 'text-stone-500 hover:text-stone-800'
             }`}
           >
-            <div className={`p-1 rounded-lg ${activeTab === 'alerts' ? 'bg-emerald-50 text-emerald-600' : ''}`}>
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            </div>
+            <ShieldCheck className="w-4 h-4" />
             <span className="text-[10px] mt-0.5">Admin</span>
             {activeAlertsCount > 0 && (
-              <span className="absolute top-1 right-2 w-3.5 h-3.5 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center">
+              <span className="absolute top-0 right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center font-mono-code">
                 {activeAlertsCount}
               </span>
             )}
@@ -720,28 +741,52 @@ export default function App() {
         onLoginSuccess={handleAdminLoginSuccess}
       />
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 mt-12 text-xs text-slate-500">
-        {/* Dedicated Admin Portal / Login Section in Footer */}
-        <div className="border-b border-slate-100 bg-slate-50/80 py-4 px-4 sm:px-6 lg:px-8">
+      <ScanBinModal
+        isOpen={isScanBinModalOpen}
+        onClose={() => setIsScanBinModalOpen(false)}
+        bins={bins}
+        onSelectBinAndShowMap={handleSelectBinAndShowMap}
+        onReportBin={handleOpenReportForBin}
+        onOpenPlacardModal={(bin) => {
+          setSelectedBinForPlacard(bin);
+          setIsPlacardModalOpen(true);
+        }}
+      />
+
+      <PrintPlacardModal
+        isOpen={isPlacardModalOpen}
+        onClose={() => setIsPlacardModalOpen(false)}
+        bin={selectedBinForPlacard}
+      />
+
+      <ExportAuditReportModal
+        isOpen={isAuditModalOpen}
+        onClose={() => setIsAuditModalOpen(false)}
+        bins={bins}
+        tickets={tickets}
+      />
+
+      {/* Institutional Civic Footer */}
+      <footer className="bg-white border-t border-stone-200 mt-14 text-xs text-stone-500">
+        <div className="border-b border-stone-200 bg-stone-50/70 py-4 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-3 text-center sm:text-left">
-              <div className="w-9 h-9 rounded-xl bg-slate-200/80 text-slate-700 flex items-center justify-center shrink-0">
-                <Shield className="w-4.5 h-4.5" />
+              <div className="w-9 h-9 rounded-md bg-stone-200 text-stone-700 flex items-center justify-center shrink-0 border border-stone-300">
+                <Shield className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
-                  <span className="font-bold text-slate-800 text-xs">
-                    Campus Sanitation Administration
+                  <span className="font-bold text-stone-800 text-xs">
+                    Campus Sanitation Registry & Supervisory Console
                   </span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-200/90 text-slate-700">
-                    SBM Official Portal
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-stone-200 text-stone-700 font-mono-code">
+                    NITP-SBM v2.4
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-0.5">
+                <p className="text-[11px] text-stone-500 mt-0.5">
                   {isAdmin
-                    ? 'Logged in as SBM Administrator. Operational dashboard and dustbin registry controls active.'
-                    : 'Restricted administrative access for authorized Swachh Bharat Mission supervisors & sanitary personnel.'}
+                    ? 'Authenticated as SBM Administrator. Bin registry modifications and housekeeping dispatch tickets enabled.'
+                    : 'Designated administrative portal for Swachh Bharat Mission supervisors, wardens, and sanitary superintendents.'}
                 </p>
               </div>
             </div>
@@ -756,16 +801,16 @@ export default function App() {
                       setActiveTab('alerts');
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
                       activeTab === 'alerts'
-                        ? 'bg-emerald-600 text-white shadow-xs'
-                        : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                        ? 'bg-[#134E3A] text-white shadow-2xs'
+                        : 'bg-emerald-100 text-emerald-900 hover:bg-emerald-200'
                     }`}
                   >
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Admin Dashboard</span>
+                    <span>Open Dashboard</span>
                     {activeAlertsCount > 0 && (
-                      <span className="w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center">
+                      <span className="w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center font-mono-code">
                         {activeAlertsCount}
                       </span>
                     )}
@@ -774,7 +819,7 @@ export default function App() {
                     type="button"
                     id="btn-footer-admin-logout"
                     onClick={handleAdminLogout}
-                    className="px-3 py-2 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="px-3 py-1.5 rounded-md text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors flex items-center gap-1.5 cursor-pointer"
                     title="Log out from Admin"
                   >
                     <LogOut className="w-3.5 h-3.5" />
@@ -789,34 +834,33 @@ export default function App() {
                     setAdminLoginReason('reports');
                     setIsAdminLoginModalOpen(true);
                   }}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 active:bg-slate-950 shadow-sm transition-all flex items-center gap-2 cursor-pointer group"
-                  title="Click to open Admin Login"
+                  className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-white bg-stone-900 hover:bg-stone-800 transition-colors flex items-center gap-2 cursor-pointer shadow-2xs"
+                  title="Supervisor Authentication"
                 >
-                  <Lock className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
-                  <span>Admin Login</span>
+                  <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Supervisor Login</span>
                 </button>
               )}
             </div>
           </div>
         </div>
 
-        {/* NIT Patna Campus info & copyright */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            <span className="font-bold text-slate-700">
-              NIT Patna Main Campus
+        {/* NIT Patna Campus info & official mandate */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-stone-500">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+            <span className="font-semibold text-stone-700">
+              National Institute of Technology Patna
             </span>
             <span>•</span>
-            <span>Swachh Campus Initiative & Clean India Mission</span>
+            <span>Ashok Rajpath, Mahendru, Patna, Bihar 800005</span>
+            <span>•</span>
+            <span className="text-emerald-800 font-medium">Swachh Bharat Abhiyan Cell</span>
           </div>
 
-          <div className="flex items-center gap-4 text-[11px] text-slate-400">
-            <span>Swachh Bharat Abhiyan</span>
+          <div className="flex items-center gap-4 text-[11px] text-stone-400 font-mono-code">
+            <span>Clean Campus Standard IS:10001</span>
             <span>•</span>
-            <span className="flex items-center gap-1">
-              Made with <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> for a Cleaner Campus
-            </span>
+            <span>Daily Clearance: 07:00 &amp; 15:30 IST</span>
           </div>
         </div>
       </footer>

@@ -22,6 +22,8 @@ import {
   PlusCircle,
   RefreshCw,
   Database,
+  FileText,
+  Printer
 } from 'lucide-react';
 
 interface CampusAlertsViewProps {
@@ -42,6 +44,8 @@ interface CampusAlertsViewProps {
   onDeleteBin?: (binId: string) => void;
   onOpenReportModal: () => void;
   onOpenAddBinModal?: () => void;
+  onOpenAuditModal?: () => void;
+  onOpenPlacardModal?: (bin: CampusBin) => void;
 }
 
 export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
@@ -62,6 +66,8 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
   onDeleteBin,
   onOpenReportModal,
   onOpenAddBinModal,
+  onOpenAuditModal,
+  onOpenPlacardModal,
 }) => {
   // Login form state (used when not logged in)
   const [adminIdInput, setAdminIdInput] = useState('');
@@ -114,44 +120,44 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
   // If user is not admin, show secure login gate
   if (!isAdmin) {
     return (
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-xl mx-auto space-y-6">
         {/* Security Alert Header */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center mx-auto shadow-lg shadow-emerald-600/20 mb-4">
-            <Lock className="w-8 h-8" />
+        <div className="bg-white rounded-lg p-6 sm:p-8 border border-stone-200 shadow-2xs text-center">
+          <div className="w-12 h-12 rounded bg-stone-100 text-stone-800 border border-stone-300 flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-6 h-6 text-[#134E3A]" />
           </div>
 
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 mb-3">
-            <ShieldAlert className="w-3.5 h-3.5 text-emerald-700" />
-            Restricted SBM Administration Portal
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-800 border border-stone-200 font-mono-code mb-3">
+            <ShieldAlert className="w-3 h-3 text-[#134E3A]" />
+            Official Administrative Portal
           </span>
 
-          <h2 className="text-2xl font-black text-slate-900 font-['Outfit',sans-serif]">
-            Administrator Login Required
+          <h2 className="text-xl sm:text-2xl font-bold text-stone-900 font-editorial">
+            Sanitation Administration Sign-In
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-md mx-auto leading-relaxed">
-            Viewing submitted reports, citizen sanitation complaints, and housekeeping dispatch controls is confidential and restricted strictly to authorized Swachh Bharat Mission administrators.
+          <p className="text-xs text-stone-600 mt-2 max-w-md mx-auto leading-relaxed">
+            Direct access to submitted maintenance requests, staff dispatch workflows, and registry management is restricted to authorized estate office personnel.
           </p>
-          <p className="text-[11px] text-emerald-700 font-semibold mt-2 bg-emerald-50 py-1.5 px-3 rounded-xl max-w-md mx-auto border border-emerald-200/60">
-            🔒 All submitted dustbin reports are private and visible only to verified campus administrators.
+          <p className="text-[11px] text-stone-700 mt-3 bg-stone-50 py-2 px-3 rounded border border-stone-200 font-mono-code max-w-md mx-auto">
+            Authorized Personnel: SBM Nodal Officers &amp; Housekeeping Supervisors
           </p>
 
           {/* Quick error prompt */}
           {loginError && (
-            <div className="mt-4 max-w-sm mx-auto p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center justify-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+            <div className="mt-4 max-w-sm mx-auto p-3 rounded bg-rose-50 border border-rose-200 text-rose-900 text-xs font-medium flex items-center justify-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
               <span>{loginError}</span>
             </div>
           )}
 
           {/* Inline Login Form */}
-          <form onSubmit={handleInlineLogin} className="mt-6 max-w-sm mx-auto text-left space-y-4">
+          <form onSubmit={handleInlineLogin} className="mt-6 max-w-sm mx-auto text-left space-y-3.5">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
-                Admin ID:
+              <label className="text-xs font-semibold text-stone-700 block mb-1">
+                Admin Username / ID:
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">
                   <User className="w-4 h-4" />
                 </div>
                 <input
@@ -160,18 +166,18 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                   required
                   value={adminIdInput}
                   onChange={(e) => setAdminIdInput(e.target.value)}
-                  placeholder="Enter Admin ID"
-                  className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                  placeholder="Enter administrator ID"
+                  className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-300 rounded text-xs font-medium text-stone-900 placeholder-stone-400 focus:outline-hidden focus:border-[#134E3A] focus:bg-white transition-colors"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
-                Password:
+              <label className="text-xs font-semibold text-stone-700 block mb-1">
+                Security Password:
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -180,13 +186,13 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                   required
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
-                  placeholder="Enter Admin Password"
-                  className="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                  placeholder="Enter administrative password"
+                  className="w-full pl-9 pr-10 py-2 bg-stone-50 border border-stone-300 rounded text-xs font-medium text-stone-900 placeholder-stone-400 focus:outline-hidden focus:border-[#134E3A] focus:bg-white transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-600"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -196,23 +202,23 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
             <button
               id="btn-gate-login"
               type="submit"
-              className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold shadow-md shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-2.5 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
             >
-              <Lock className="w-4 h-4" />
-              <span>Unlock Admin Dashboard</span>
+              <Lock className="w-3.5 h-3.5" />
+              <span>Authenticate &amp; Open Portal</span>
             </button>
           </form>
 
           {/* Alternative action: regular user wanting to submit an issue */}
-          <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-            <span>Are you a student or faculty member reporting a bin?</span>
+          <div className="mt-8 pt-5 border-t border-stone-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-500">
+            <span>Reporting a full or damaged bin on campus?</span>
             <button
               id="btn-gate-open-report"
               onClick={onOpenReportModal}
-              className="px-3.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold border border-amber-200 transition-colors inline-flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded bg-stone-100 hover:bg-stone-200 text-stone-800 font-medium border border-stone-300 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
             >
               <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-              <span>Submit Issue Report</span>
+              <span>Submit Maintenance Ticket</span>
             </button>
           </div>
         </div>
@@ -250,98 +256,109 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
   });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-6">
       {/* Top Admin Status & Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 rounded-3xl p-5 sm:p-6 text-white shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-emerald-900/40">
+      <div className="bg-[#1C1917] rounded-lg p-5 sm:p-6 text-stone-100 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-stone-800">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
-            <ShieldCheck className="w-6 h-6" />
+          <div className="w-11 h-11 rounded bg-stone-800 text-emerald-400 border border-stone-700 flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-black font-['Outfit',sans-serif] tracking-tight">
-                SBM Administrator Dashboard
+              <h2 className="text-base sm:text-lg font-bold font-editorial text-white tracking-tight">
+                Sanitation Control &amp; Dispatch Console
               </h2>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500 text-slate-950 px-2 py-0.5 rounded-full">
-                Active: SBM
-              </span>
-              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-white/10 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded-full">
-                <Lock className="w-3 h-3" /> Visible Only to Admin
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-[#134E3A] text-emerald-100 border border-emerald-700 px-2 py-0.5 rounded font-mono-code">
+                Staff Active
               </span>
             </div>
-            <p className="text-xs text-slate-300 mt-0.5">
-              Live monitoring of crowdsourced waste reports & housekeeping dispatches (Confidential View)
+            <p className="text-xs text-stone-400 mt-0.5">
+              Live monitoring of crowdsourced waste reports, housekeeping dispatches, and campus dustbin infrastructure
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
+          {onOpenAuditModal && (
+            <button
+              id="btn-admin-export-audit"
+              type="button"
+              onClick={onOpenAuditModal}
+              className="px-3 py-1.5 text-xs font-semibold rounded bg-stone-800 hover:bg-stone-700 text-stone-100 border border-stone-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              title="Generate printable Swachh Bharat Mission inspection docket"
+            >
+              <FileText className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden sm:inline">SBM Audit Docket</span>
+              <span className="sm:hidden">Audit</span>
+            </button>
+          )}
+
           {onOpenAddBinModal && (
             <button
               id="btn-admin-add-bin"
               onClick={onOpenAddBinModal}
-              className="px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="px-3 py-1.5 text-xs font-semibold rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer border border-[#0F3E2E]"
             >
               <PlusCircle className="w-3.5 h-3.5" />
-              <span>Add Dustbin</span>
+              <span>Register Dustbin</span>
             </button>
           )}
 
           <button
             id="btn-admin-submit-report"
             onClick={onOpenReportModal}
-            className="px-3.5 py-2 text-xs font-bold rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-1.5 text-xs font-medium rounded bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition-colors flex items-center gap-1.5 cursor-pointer"
           >
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-300" />
-            <span>New Report</span>
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+            <span>New Ticket</span>
           </button>
 
           <button
             id="btn-admin-logout"
             onClick={onAdminLogout}
-            className="px-3.5 py-2 text-xs font-bold rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+            className="px-3 py-1.5 text-xs font-medium rounded bg-rose-900/60 hover:bg-rose-900 text-rose-200 border border-rose-800 transition-colors flex items-center gap-1.5 cursor-pointer"
             title="Log out of Admin Portal"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span>Log Out</span>
+            <span>Sign Out</span>
           </button>
         </div>
       </div>
 
       {/* Supabase Cloud Sync Status Card */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white rounded-lg p-4 border border-stone-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
-            <Database className="w-5 h-5" />
+          <div className="p-2 rounded bg-stone-100 text-stone-700 border border-stone-200 flex items-center justify-center shrink-0">
+            <Database className="w-4 h-4 text-[#134E3A]" />
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-bold text-slate-900 font-['Outfit',sans-serif]">
-                Supabase Database Sync
+              <span className="text-xs font-bold text-stone-900 font-editorial">
+                Database Cloud Synchronization
               </span>
-              <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+              <span className={`inline-flex items-center gap-1 text-[10px] font-bold font-mono-code px-2 py-0.5 rounded ${
                 supabaseSyncStatus === 'connected'
-                  ? 'bg-emerald-100 text-emerald-800'
+                  ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
                   : supabaseSyncStatus === 'syncing'
-                  ? 'bg-amber-100 text-amber-800'
-                  : 'bg-rose-100 text-rose-800'
+                  ? 'bg-amber-50 text-amber-900 border border-amber-200'
+                  : 'bg-rose-50 text-rose-900 border border-rose-200'
               }`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${
                   supabaseSyncStatus === 'connected'
-                    ? 'bg-emerald-500'
+                    ? 'bg-emerald-600'
                     : supabaseSyncStatus === 'syncing'
-                    ? 'bg-amber-500 animate-ping'
-                    : 'bg-rose-500'
+                    ? 'bg-amber-600 animate-ping'
+                    : 'bg-rose-600'
                 }`} />
                 {supabaseSyncStatus === 'connected' 
-                  ? 'Cloud Synced' 
+                  ? 'Database Online' 
                   : supabaseSyncStatus === 'syncing' 
-                  ? 'Syncing Table...' 
-                  : 'Sync Alert'}
+                  ? 'Synchronizing Table...' 
+                  : 'Sync Interrupted'}
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Target Table: <code className="font-mono text-emerald-700 bg-emerald-50/80 px-1 py-0.5 rounded font-bold">public.reports</code> • {tickets.length} total tickets loaded {lastSyncedAt ? `• Synced at ${lastSyncedAt}` : ''}
+            <p className="text-xs text-stone-500 mt-0.5">
+              Target Table: <code className="font-mono-code text-stone-800 bg-stone-100 px-1 py-0.2 rounded">public.reports</code> &bull; {tickets.length} records loaded {lastSyncedAt ? `&bull; Last check at ${lastSyncedAt}` : ''}
             </p>
           </div>
         </div>
@@ -351,11 +368,11 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
             <button
               id="btn-supabase-manual-sync"
               onClick={onManualSync}
-              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+              className="px-3 py-1.5 rounded bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-medium border border-stone-300 transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-2xs"
               title="Force sync local reports with Supabase cloud table"
             >
-              <RefreshCw className={`w-3.5 h-3.5 text-emerald-400 ${supabaseSyncStatus === 'syncing' ? 'animate-spin' : ''}`} />
-              <span>Sync with Supabase</span>
+              <RefreshCw className={`w-3.5 h-3.5 text-stone-600 ${supabaseSyncStatus === 'syncing' ? 'animate-spin' : ''}`} />
+              <span>Refresh Records</span>
             </button>
           )}
         </div>
@@ -363,94 +380,94 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
 
       {/* Top Hygiene & Housekeeping Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs">
+        <div className="bg-white rounded-lg p-4 border border-stone-200 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Total Reports
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 font-mono-code">
+              Total Logged
             </span>
-            <span className="p-2 rounded-xl bg-slate-100 text-slate-700">
-              <Clock className="w-4 h-4" />
+            <span className="p-1.5 rounded bg-stone-100 text-stone-600 border border-stone-200">
+              <Clock className="w-3.5 h-3.5" />
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-slate-900 font-['Outfit',sans-serif]">
+            <span className="text-2xl font-bold text-stone-900 font-editorial">
               {tickets.length}
             </span>
-            <span className="text-xs font-semibold text-slate-500">All submissions</span>
+            <span className="text-xs text-stone-500 font-mono-code">all tickets</span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">{pendingCount} awaiting review</p>
+          <p className="text-xs text-stone-500 mt-1">{pendingCount} pending assignment</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs">
+        <div className="bg-white rounded-lg p-4 border border-stone-200 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-800 font-mono-code">
               Pending Action
             </span>
-            <span className="p-2 rounded-xl bg-amber-50 text-amber-600">
-              <AlertTriangle className="w-4 h-4" />
+            <span className="p-1.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+              <AlertTriangle className="w-3.5 h-3.5" />
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-amber-600 font-['Outfit',sans-serif]">
+            <span className="text-2xl font-bold text-amber-800 font-editorial">
               {pendingCount}
             </span>
-            <span className="text-xs font-bold text-amber-700">Needs dispatch</span>
+            <span className="text-xs text-amber-800 font-mono-code">needs crew</span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">Direct housekeeping staff</p>
+          <p className="text-xs text-stone-500 mt-1">Requires supervisor dispatch</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs">
+        <div className="bg-white rounded-lg p-4 border border-stone-200 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Teams Dispatched
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-sky-800 font-mono-code">
+              Staff Dispatched
             </span>
-            <span className="p-2 rounded-xl bg-sky-50 text-sky-600">
-              <Send className="w-4 h-4" />
+            <span className="p-1.5 rounded bg-sky-50 text-sky-700 border border-sky-200">
+              <Send className="w-3.5 h-3.5" />
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-sky-600 font-['Outfit',sans-serif]">
+            <span className="text-2xl font-bold text-sky-800 font-editorial">
               {dispatchedCount}
             </span>
-            <span className="text-xs font-bold text-sky-700">En route</span>
+            <span className="text-xs text-sky-800 font-mono-code">en route</span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">Cleaning staff in progress</p>
+          <p className="text-xs text-stone-500 mt-1">Housekeeping team active</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs">
+        <div className="bg-white rounded-lg p-4 border border-stone-200 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Cleaned & Resolved
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-800 font-mono-code">
+              Resolved &amp; Cleared
             </span>
-            <span className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
-              <CheckCircle2 className="w-4 h-4" />
+            <span className="p-1.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <CheckCircle2 className="w-3.5 h-3.5" />
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-emerald-600 font-['Outfit',sans-serif]">
+            <span className="text-2xl font-bold text-emerald-800 font-editorial">
               {resolvedCount}
             </span>
-            <span className="text-xs font-bold text-emerald-700">Success</span>
+            <span className="text-xs text-emerald-800 font-mono-code">cleared</span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">Bins emptied & verified</p>
+          <p className="text-xs text-stone-500 mt-1">Bins emptied and verified</p>
         </div>
       </div>
 
       {/* Admin Module Switcher */}
-      <div className="flex items-center gap-2 border-b border-slate-200/80 pb-1">
+      <div className="flex items-center gap-2 border-b border-stone-200 pb-1">
         <button
           id="tab-admin-reports"
           onClick={() => setAdminTab('reports')}
-          className={`px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-3.5 py-2 text-xs font-semibold rounded-t-md transition-colors flex items-center gap-2 cursor-pointer border-b-2 ${
             adminTab === 'reports'
-              ? 'bg-slate-900 text-white shadow-sm'
-              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+              ? 'border-[#134E3A] text-stone-900 bg-white font-editorial'
+              : 'border-transparent text-stone-600 hover:text-stone-900 hover:bg-stone-50'
           }`}
         >
-          <AlertCircle className="w-4 h-4 text-emerald-400" />
-          <span>Sanitation Complaints & Reports ({tickets.length})</span>
+          <AlertCircle className="w-3.5 h-3.5 text-[#134E3A]" />
+          <span>Sanitation Complaints &amp; Reports ({tickets.length})</span>
           {pendingCount > 0 && (
-            <span className="w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center">
+            <span className="px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 border border-amber-200 text-[10px] font-bold font-mono-code">
               {pendingCount}
             </span>
           )}
@@ -459,40 +476,40 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
         <button
           id="tab-admin-bins"
           onClick={() => setAdminTab('bins')}
-          className={`px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-3.5 py-2 text-xs font-semibold rounded-t-md transition-colors flex items-center gap-2 cursor-pointer border-b-2 ${
             adminTab === 'bins'
-              ? 'bg-slate-900 text-white shadow-sm'
-              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+              ? 'border-[#134E3A] text-stone-900 bg-white font-editorial'
+              : 'border-transparent text-stone-600 hover:text-stone-900 hover:bg-stone-50'
           }`}
         >
-          <MapPin className="w-4 h-4 text-teal-400" />
-          <span>Campus Dustbin Registry ({bins.length})</span>
+          <MapPin className="w-3.5 h-3.5 text-stone-600" />
+          <span>Dustbin Stations Registry ({bins.length})</span>
         </button>
       </div>
 
       {/* Conditional rendering based on adminTab */}
       {adminTab === 'reports' ? (
         /* Reports Management Table / List */
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="bg-white rounded-lg p-5 sm:p-6 border border-stone-200 shadow-2xs space-y-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-stone-100">
             <div>
-              <h3 className="text-xl font-bold text-slate-900 font-['Outfit',sans-serif]">
-                Submitted Sanitation Reports
+              <h3 className="text-base sm:text-lg font-bold text-stone-900 font-editorial">
+                Sanitation Maintenance Requests
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Manage citizen complaints and dispatch campus sanitation personnel
+              <p className="text-xs text-stone-500 mt-0.5">
+                Review submitted notifications and dispatch campus housekeeping teams
               </p>
             </div>
 
             {/* Status filter tabs */}
-            <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200/80">
+            <div className="flex flex-wrap items-center gap-1 bg-stone-100 p-1 rounded-md border border-stone-200">
               <button
                 id="filter-all"
                 onClick={() => setStatusFilter('all')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
                   statusFilter === 'all'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white text-stone-900 shadow-2xs font-semibold'
+                    : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
                 All ({tickets.length})
@@ -500,10 +517,10 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
               <button
                 id="filter-pending"
                 onClick={() => setStatusFilter('pending')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
                   statusFilter === 'pending'
-                    ? 'bg-amber-500 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-amber-600 text-white shadow-2xs font-semibold'
+                    : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
                 Pending ({pendingCount})
@@ -511,10 +528,10 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
               <button
                 id="filter-dispatched"
                 onClick={() => setStatusFilter('cleaning_dispatched')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
                   statusFilter === 'cleaning_dispatched'
-                    ? 'bg-sky-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-sky-700 text-white shadow-2xs font-semibold'
+                    : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
                 Dispatched ({dispatchedCount})
@@ -522,10 +539,10 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
               <button
                 id="filter-resolved"
                 onClick={() => setStatusFilter('resolved')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
                   statusFilter === 'resolved'
-                    ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-[#134E3A] text-white shadow-2xs font-semibold'
+                    : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
                 Resolved ({resolvedCount})
@@ -535,11 +552,11 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                 <button
                   id="btn-delete-all-resolved"
                   onClick={() => setShowDeleteResolvedConfirm(true)}
-                  className="px-3 py-1.5 text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer ml-1"
+                  className="px-2.5 py-1 text-xs font-medium text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded transition-colors flex items-center gap-1 cursor-pointer ml-1"
                   title="Permanently purge all resolved tickets"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete All Resolved ({resolvedCount})</span>
+                  <Trash2 className="w-3 h-3" />
+                  <span>Purge Resolved ({resolvedCount})</span>
                 </button>
               )}
             </div>
@@ -547,7 +564,7 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
 
         {/* Search bar */}
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">
             <Search className="w-4 h-4" />
           </div>
           <input
@@ -555,80 +572,80 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search reports by dustbin name, campus location, reporter name, or issue description..."
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+            placeholder="Search by dustbin name, building location, reporter name, or description..."
+            className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-md text-xs font-medium text-stone-900 placeholder-stone-400 focus:outline-hidden focus:border-[#134E3A] focus:bg-white transition-colors"
           />
         </div>
 
         {filteredTickets.length === 0 ? (
-          <div className="text-center py-12 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
-            <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
-            <h4 className="text-base font-bold text-slate-800">No matching reports found</h4>
-            <p className="text-xs text-slate-500 mt-1">
-              {searchQuery ? 'Try clearing your search query.' : 'There are currently no reports in this category.'}
+          <div className="text-center py-10 bg-stone-50 rounded-lg border border-dashed border-stone-200">
+            <CheckCircle2 className="w-8 h-8 text-stone-400 mx-auto mb-2" />
+            <h4 className="text-sm font-bold text-stone-800 font-editorial">No matching reports found</h4>
+            <p className="text-xs text-stone-500 mt-0.5">
+              {searchQuery ? 'Try clearing your search term.' : 'There are currently no reports in this filter category.'}
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredTickets.map((ticket) => {
               const isHighlighted = ticket.id === highlightedTicketId;
               return (
                 <div
                   key={ticket.id}
                   id={`ticket-card-${ticket.id}`}
-                  className={`p-5 rounded-2xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                  className={`p-4 rounded-lg border transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 ${
                     isHighlighted
-                      ? 'ring-2 ring-emerald-500 border-emerald-400 bg-emerald-50/70 shadow-md shadow-emerald-500/15'
-                      : 'border-slate-200 bg-slate-50/60 hover:bg-slate-50'
+                      ? 'ring-2 ring-[#134E3A]/40 border-[#134E3A] bg-emerald-50/20 shadow-2xs'
+                      : 'border-stone-200 bg-white hover:border-stone-300'
                   }`}
                 >
-                  <div className="space-y-1.5 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
+                  <div className="space-y-1 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5 text-xs">
                       {isHighlighted && (
-                        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-600 text-white animate-pulse">
-                          ⚡ Newly Submitted — Ready to Resolve
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#134E3A] text-white font-mono-code">
+                          Newly Logged
                         </span>
                       )}
 
                       <span
-                        className={`text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${
+                        className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded font-mono-code ${
                           ticket.status === 'resolved'
-                            ? 'bg-emerald-100 text-emerald-800'
+                            ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
                             : ticket.status === 'cleaning_dispatched'
-                            ? 'bg-sky-100 text-sky-800'
-                            : 'bg-amber-100 text-amber-800'
+                            ? 'bg-sky-50 text-sky-900 border border-sky-200'
+                            : 'bg-amber-50 text-amber-900 border border-amber-200'
                         }`}
                       >
                         {ticket.status === 'resolved'
-                          ? '✅ Cleaned & Resolved'
+                          ? 'Resolved'
                           : ticket.status === 'cleaning_dispatched'
-                          ? '🚚 Team Dispatched'
-                          : '⏳ Action Pending'}
+                          ? 'Crew Dispatched'
+                          : 'Pending Action'}
                       </span>
 
-                      <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded uppercase">
+                      <span className="text-[10px] font-bold text-rose-800 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 uppercase font-mono-code">
                         {ticket.issueType.replace('_', ' ')}
                       </span>
 
-                      <span className="text-xs text-slate-400">
-                        Reported {formatReportTime(ticket.reportedAt)} by <strong className="text-slate-600">{ticket.reportedBy}</strong>
+                      <span className="text-xs text-stone-500">
+                        {formatReportTime(ticket.reportedAt)} by <strong className="text-stone-700">{ticket.reportedBy}</strong>
                       </span>
 
-                      <span className="text-[10px] font-mono text-slate-400 bg-slate-200/70 px-1.5 py-0.5 rounded">
-                        ID: {ticket.id}
+                      <span className="text-[10px] font-mono-code text-stone-400 bg-stone-100 px-1.5 py-0.2 rounded border border-stone-200">
+                        #{ticket.id.slice(0, 8)}
                       </span>
                     </div>
 
-                    <h4 className="text-base font-bold text-slate-900 font-['Outfit',sans-serif]">
+                    <h4 className="text-sm font-bold text-stone-900 font-editorial">
                       {ticket.binName}
                     </h4>
 
-                    <p className="text-xs text-slate-600 flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                      {ticket.locationName}
+                    <p className="text-xs text-stone-600 flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                      <span>{ticket.locationName}</span>
                     </p>
 
-                    <p className="text-xs text-slate-700 bg-white p-2.5 rounded-xl border border-slate-200/80 mt-2">
+                    <p className="text-xs text-stone-700 bg-stone-50 p-2 rounded border border-stone-200 mt-1">
                       "{ticket.details}"
                     </p>
                   </div>
@@ -640,20 +657,20 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                         <button
                           id={`btn-resolve-direct-${ticket.id}`}
                           onClick={() => onResolveTicket(ticket.id)}
-                          className="px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                          className="px-3 py-1.5 text-xs font-semibold rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
                           title="Mark bin emptied & resolve ticket immediately"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Resolve & Mark Emptied</span>
+                          <span>Mark Cleared</span>
                         </button>
 
                         <button
                           id={`btn-dispatch-${ticket.id}`}
                           onClick={() => onDispatchCleaning(ticket.id)}
-                          className="px-3 py-2 text-xs font-bold rounded-xl bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                          className="px-3 py-1.5 text-xs font-medium rounded bg-stone-800 hover:bg-stone-900 text-white shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
                         >
                           <Send className="w-3.5 h-3.5" />
-                          <span>Dispatch Team</span>
+                          <span>Dispatch Staff</span>
                         </button>
                       </>
                     )}
@@ -662,24 +679,24 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                       <button
                         id={`btn-resolve-${ticket.id}`}
                         onClick={() => onResolveTicket(ticket.id)}
-                        className="px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                        className="px-3 py-1.5 text-xs font-semibold rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Mark Emptied & Resolve</span>
+                        <span>Confirm Emptied &amp; Close</span>
                       </button>
                     )}
 
                     {ticket.status === 'resolved' && (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-emerald-700 flex items-center gap-1 bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-200">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          Resolved
+                        <span className="text-xs font-medium text-emerald-800 flex items-center gap-1 bg-emerald-50 px-2 py-1 rounded border border-emerald-200 font-mono-code">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                          Cleared
                         </span>
                         {onReopenTicket && (
                           <button
                             id={`btn-reopen-${ticket.id}`}
                             onClick={() => onReopenTicket(ticket.id)}
-                            className="px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                            className="px-2 py-1 text-xs font-medium text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded border border-stone-200 transition-colors cursor-pointer"
                             title="Re-open report"
                           >
                             Re-open
@@ -692,10 +709,10 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                       <button
                         id={`btn-delete-${ticket.id}`}
                         onClick={() => setTicketToDelete(ticket)}
-                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer group"
+                        className="p-1.5 text-stone-400 hover:text-rose-700 hover:bg-rose-50 rounded border border-transparent hover:border-rose-200 transition-colors cursor-pointer"
                         title="Delete this report permanently"
                       >
-                        <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>
@@ -707,14 +724,14 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
       </div>
       ) : (
         /* Campus Dustbin Registry View */
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="bg-white rounded-lg p-5 sm:p-6 border border-stone-200 shadow-2xs space-y-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-stone-100">
             <div>
-              <h3 className="text-xl font-bold text-slate-900 font-['Outfit',sans-serif]">
+              <h3 className="text-base sm:text-lg font-bold text-stone-900 font-editorial">
                 Campus Dustbin Stations
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Monitor registered smart dustbins, verify fill status, or decommission retired stations
+              <p className="text-xs text-stone-500 mt-0.5">
+                Verify fill level sensors, inspect compartment capacities, and maintain hardware records
               </p>
             </div>
 
@@ -723,10 +740,10 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                 <button
                   id="btn-admin-add-bin-secondary"
                   onClick={onOpenAddBinModal}
-                  className="px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+                  className="px-3 py-1.5 text-xs font-semibold rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
                 >
                   <PlusCircle className="w-3.5 h-3.5" />
-                  <span>Add New Dustbin</span>
+                  <span>Register Station</span>
                 </button>
               )}
             </div>
@@ -734,55 +751,55 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
 
           {/* Search bar for bins */}
           <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               id="input-search-admin-bins"
               type="text"
               value={binSearchQuery}
               onChange={(e) => setBinSearchQuery(e.target.value)}
-              placeholder="Search dustbins by name, zone, location, or landmark..."
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all placeholder:text-slate-400"
+              placeholder="Search dustbins by name, campus zone, location, or landmark..."
+              className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-md text-xs font-medium text-stone-900 focus:outline-hidden focus:border-[#134E3A] transition-colors placeholder:text-stone-400"
             />
           </div>
 
           {filteredBins.length === 0 ? (
-            <div className="text-center py-12 border border-dashed border-slate-200 rounded-2xl">
-              <MapPin className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-              <p className="text-sm font-bold text-slate-700">No dustbins match your search</p>
-              <p className="text-xs text-slate-400 mt-0.5">Try searching with a different zone or keyword.</p>
+            <div className="text-center py-10 border border-dashed border-stone-200 rounded-lg bg-stone-50">
+              <MapPin className="w-7 h-7 text-stone-300 mx-auto mb-1.5" />
+              <p className="text-xs font-bold text-stone-700">No dustbin records match search criteria</p>
+              <p className="text-[11px] text-stone-400 mt-0.5">Try filtering with a different zone or keyword.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               {filteredBins.map((bin) => (
                 <div
                   key={bin.id}
                   id={`bin-card-admin-${bin.id}`}
-                  className="p-5 rounded-2xl border border-slate-200/90 bg-white hover:border-slate-300 transition-all shadow-2xs flex flex-col justify-between gap-4"
+                  className="p-4 rounded-lg border border-stone-200 bg-white hover:border-stone-300 transition-colors shadow-2xs flex flex-col justify-between gap-3"
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <h4 className="font-bold text-slate-900 text-sm font-['Outfit',sans-serif]">
+                        <h4 className="font-bold text-stone-900 text-sm font-editorial">
                           {bin.name}
                         </h4>
-                        <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <div className="flex items-center gap-1 text-xs text-stone-500 mt-0.5">
+                          <MapPin className="w-3 h-3 text-stone-400 shrink-0" />
                           <span>{bin.locationName}</span>
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          {bin.landmark} • {bin.floor}
+                        <p className="text-[11px] text-stone-400 mt-0.5">
+                          {bin.landmark} &bull; {bin.floor}
                         </p>
                       </div>
 
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono-code ${
                           bin.status === 'normal'
-                            ? 'bg-emerald-100 text-emerald-800'
+                            ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
                             : bin.status === 'filling'
-                            ? 'bg-amber-100 text-amber-800'
+                            ? 'bg-amber-50 text-amber-900 border border-amber-200'
                             : bin.status === 'full'
-                            ? 'bg-rose-100 text-rose-800'
-                            : 'bg-slate-100 text-slate-700'
+                            ? 'bg-rose-50 text-rose-900 border border-rose-200'
+                            : 'bg-stone-100 text-stone-700 border border-stone-200'
                         }`}>
                           {bin.status}
                         </span>
@@ -791,29 +808,29 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                           <button
                             id={`btn-delete-bin-${bin.id}`}
                             onClick={() => setBinToDelete(bin)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer group"
-                            title="Delete this dustbin from registry"
+                            className="p-1 text-stone-400 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors cursor-pointer"
+                            title="Decommission dustbin from registry"
                           >
-                            <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         )}
                       </div>
                     </div>
 
                     {/* Fill Level Meter */}
-                    <div className="mt-4">
+                    <div className="mt-3">
                       <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="font-medium text-slate-500">Fill Level</span>
-                        <span className="font-bold text-slate-800">{bin.fillLevel}%</span>
+                        <span className="text-stone-500 text-[11px]">Fill Status</span>
+                        <span className="font-mono-code text-xs font-bold text-stone-800">{bin.fillLevel}%</span>
                       </div>
-                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden border border-stone-200">
                         <div
-                          className={`h-full transition-all duration-500 ${
+                          className={`h-full transition-all duration-300 ${
                             bin.fillLevel >= 80
-                              ? 'bg-rose-500'
+                              ? 'bg-rose-600'
                               : bin.fillLevel >= 50
                               ? 'bg-amber-500'
-                              : 'bg-emerald-500'
+                              : 'bg-[#134E3A]'
                           }`}
                           style={{ width: `${bin.fillLevel}%` }}
                         />
@@ -821,25 +838,38 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
-                    <div className="flex items-center gap-1.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-stone-100 text-[11px] text-stone-500">
+                    <div className="flex items-center gap-1">
                       {bin.hasDry && (
-                        <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-bold border border-blue-100">
+                        <span className="px-1.5 py-0.2 rounded bg-sky-50 text-sky-900 font-medium border border-sky-200 text-[10px]">
                           Dry
                         </span>
                       )}
                       {bin.hasWet && (
-                        <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold border border-emerald-100">
+                        <span className="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-900 font-medium border border-emerald-200 text-[10px]">
                           Wet
                         </span>
                       )}
                       {bin.hasEwaste && (
-                        <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 font-bold border border-purple-100">
+                        <span className="px-1.5 py-0.2 rounded bg-stone-100 text-stone-800 font-medium border border-stone-300 text-[10px]">
                           E-Waste
                         </span>
                       )}
                     </div>
-                    <span>Capacity: {bin.capacityLiters}L</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono-code text-[10px]">Cap: {bin.capacityLiters}L &bull; {bin.zone}</span>
+                      {onOpenPlacardModal && (
+                        <button
+                          type="button"
+                          onClick={() => onOpenPlacardModal(bin)}
+                          className="px-2 py-0.5 rounded text-[10px] font-medium bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-300 flex items-center gap-1 cursor-pointer transition-colors"
+                          title="Print official physical dustbin sticker with QR"
+                        >
+                          <Printer className="w-3 h-3 text-[#134E3A]" />
+                          <span>Placard</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -850,32 +880,32 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
 
       {/* MODAL 1: Confirm Delete Single Report */}
       {ticketToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200">
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
-              <Trash2 className="w-6 h-6" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 animate-in fade-in duration-150">
+          <div className="bg-white rounded-lg max-w-md w-full p-5 shadow-xl border border-stone-200 animate-in zoom-in-95 duration-150">
+            <div className="w-10 h-10 rounded bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center mb-3">
+              <Trash2 className="w-5 h-5" />
             </div>
-            <h4 className="text-lg font-bold text-slate-900 font-['Outfit',sans-serif]">
+            <h4 className="text-base font-bold text-stone-900 font-editorial">
               Delete Sanitation Report?
             </h4>
-            <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
-              Are you sure you want to permanently delete report ticket <strong className="text-slate-900 font-mono">#{ticketToDelete.id}</strong>? This action will permanently remove the record from both the local dashboard and the Supabase cloud database.
+            <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+              Are you sure you want to permanently delete report ticket <strong className="text-stone-900 font-mono-code">#{ticketToDelete.id}</strong>? This action removes the record from both the local console and Supabase database.
             </p>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 my-4 text-xs space-y-1">
-              <p className="font-bold text-slate-800">{ticketToDelete.binName}</p>
-              <p className="text-slate-500">{ticketToDelete.locationName}</p>
-              <p className="text-slate-600 italic">"{ticketToDelete.details}"</p>
-              <p className="text-[10px] text-slate-400 pt-1">Reported by {ticketToDelete.reportedBy} • {ticketToDelete.reportedAt}</p>
+            <div className="bg-stone-50 border border-stone-200 rounded p-3 my-3 text-xs space-y-0.5">
+              <p className="font-bold text-stone-900">{ticketToDelete.binName}</p>
+              <p className="text-stone-600">{ticketToDelete.locationName}</p>
+              <p className="text-stone-700 italic">"{ticketToDelete.details}"</p>
+              <p className="text-[10px] text-stone-400 pt-1 font-mono-code">Reported by {ticketToDelete.reportedBy} &bull; {ticketToDelete.reportedAt}</p>
             </div>
 
-            <div className="flex items-center justify-end gap-2.5">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
               <button
                 id="btn-cancel-delete-report"
                 type="button"
                 disabled={isDeleting}
                 onClick={() => setTicketToDelete(null)}
-                className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded cursor-pointer transition-colors"
               >
                 Cancel
               </button>
@@ -893,7 +923,7 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                     setTicketToDelete(null);
                   }
                 }}
-                className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-700 hover:bg-rose-800 rounded shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 {isDeleting ? (
                   <>
@@ -903,7 +933,7 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                 ) : (
                   <>
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>Yes, Delete Report</span>
+                    <span>Delete Record</span>
                   </>
                 )}
               </button>
@@ -914,24 +944,24 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
 
       {/* MODAL 2: Confirm Delete All Resolved Reports */}
       {showDeleteResolvedConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200">
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
-              <Trash2 className="w-6 h-6" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 animate-in fade-in duration-150">
+          <div className="bg-white rounded-lg max-w-md w-full p-5 shadow-xl border border-stone-200 animate-in zoom-in-95 duration-150">
+            <div className="w-10 h-10 rounded bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center mb-3">
+              <Trash2 className="w-5 h-5" />
             </div>
-            <h4 className="text-lg font-bold text-slate-900 font-['Outfit',sans-serif]">
+            <h4 className="text-base font-bold text-stone-900 font-editorial">
               Purge All Resolved Reports?
             </h4>
-            <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
-              This will permanently delete all <strong className="text-slate-900 font-bold">{resolvedCount}</strong> resolved reports from both the active campus dashboard and the Supabase cloud table.
+            <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+              This will permanently delete all <strong className="text-stone-900 font-bold">{resolvedCount}</strong> resolved reports from both the active campus dashboard and the Supabase cloud table.
             </p>
-            <div className="flex items-center justify-end gap-2.5 mt-5">
+            <div className="flex items-center justify-end gap-2 mt-4 pt-2 border-t border-stone-100">
               <button
                 id="btn-cancel-delete-all-resolved"
                 type="button"
                 disabled={isDeleting}
                 onClick={() => setShowDeleteResolvedConfirm(false)}
-                className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded cursor-pointer transition-colors"
               >
                 Cancel
               </button>
@@ -949,7 +979,7 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                     setShowDeleteResolvedConfirm(false);
                   }
                 }}
-                className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-700 hover:bg-rose-800 rounded shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 {isDeleting ? (
                   <>
@@ -970,30 +1000,30 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
 
       {/* MODAL 3: Confirm Delete Dustbin */}
       {binToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200">
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
-              <Trash2 className="w-6 h-6" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 animate-in fade-in duration-150">
+          <div className="bg-white rounded-lg max-w-md w-full p-5 shadow-xl border border-stone-200 animate-in zoom-in-95 duration-150">
+            <div className="w-10 h-10 rounded bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center mb-3">
+              <Trash2 className="w-5 h-5" />
             </div>
-            <h4 className="text-lg font-bold text-slate-900 font-['Outfit',sans-serif]">
-              Remove Dustbin Station?
+            <h4 className="text-base font-bold text-stone-900 font-editorial">
+              Decommission Dustbin Station?
             </h4>
-            <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
-              Are you sure you want to remove <strong className="text-slate-900 font-bold">{binToDelete.name}</strong> from the campus registry? It will no longer appear on the interactive map or citizen bin finder.
+            <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+              Are you sure you want to remove <strong className="text-stone-900 font-bold">{binToDelete.name}</strong> from the campus registry? It will no longer appear on the interactive map or citizen bin finder.
             </p>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 my-4 text-xs space-y-1">
-              <p className="font-bold text-slate-800">{binToDelete.name}</p>
-              <p className="text-slate-500">{binToDelete.locationName}</p>
-              <p className="text-[11px] text-slate-400">Zone: {binToDelete.zone} • Capacity: {binToDelete.capacityLiters}L</p>
+            <div className="bg-stone-50 border border-stone-200 rounded p-3 my-3 text-xs space-y-0.5">
+              <p className="font-bold text-stone-900">{binToDelete.name}</p>
+              <p className="text-stone-600">{binToDelete.locationName}</p>
+              <p className="text-[11px] text-stone-400 font-mono-code">Zone: {binToDelete.zone} &bull; Capacity: {binToDelete.capacityLiters}L</p>
             </div>
 
-            <div className="flex items-center justify-end gap-2.5">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
               <button
                 id="btn-cancel-delete-bin"
                 type="button"
                 onClick={() => setBinToDelete(null)}
-                className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded cursor-pointer transition-colors"
               >
                 Cancel
               </button>
@@ -1004,10 +1034,10 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                   if (onDeleteBin) onDeleteBin(binToDelete.id);
                   setBinToDelete(null);
                 }}
-                className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-700 hover:bg-rose-800 rounded shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Yes, Delete Station</span>
+                <span>Confirm Removal</span>
               </button>
             </div>
           </div>

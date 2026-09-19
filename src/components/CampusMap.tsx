@@ -73,86 +73,86 @@ export const CampusMap: React.FC<CampusMapProps> = ({
   return (
     <div className="flex flex-col xl:flex-row gap-6">
       {/* Map Main Canvas Area */}
-      <div className="flex-1 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs flex flex-col">
+      <div className="flex-1 bg-white rounded-lg p-4 sm:p-6 border border-stone-200 shadow-2xs flex flex-col">
         {/* Map Header & Filter Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-stone-200">
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 font-['Outfit',sans-serif]">
-                NIT Patna Main Campus — Interactive Waste Bin Map
+              <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+              <h2 className="text-lg sm:text-xl font-bold text-stone-900 font-editorial tracking-tight">
+                NIT Patna Main Campus — Infrastructure &amp; Dustbin Directory
               </h2>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                {filteredBins.length} bins mapped
+              <span className="text-xs font-semibold px-2 py-0.5 rounded bg-stone-100 text-stone-700 border border-stone-200 font-mono-code">
+                {filteredBins.length} mapped
               </span>
             </div>
-            <p className="text-xs text-slate-500">
-              Live master plan aligned with the official 3D aerial campus layout. Click any zone to change your spot or tap any bin to view details.
+            <p className="text-xs text-stone-500 mt-0.5">
+              Live master plan aligned with the official campus layout. Tap any zone to update your location or inspect stations.
             </p>
           </div>
 
           {/* Placement Standard Banner */}
-          <div className="w-full sm:w-auto flex items-center gap-2 bg-emerald-50/90 border border-emerald-200/80 px-3 py-1.5 rounded-xl text-[11px] text-emerald-900 font-medium">
-            <span className="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+          <div className="w-full sm:w-auto flex items-center gap-2 bg-stone-50 border border-stone-200 px-3 py-1.5 rounded-md text-[11px] text-stone-700 font-medium">
+            <span className="w-2 h-2 rounded-full bg-[#134E3A] shrink-0"></span>
             <span>
-              <strong>Campus Standard:</strong> Wet & Dry bins are paired <strong>together just outside buildings</strong>. Only <strong>SAC Building</strong> has an indoor dustbin.
+              <strong>Campus Standard:</strong> Wet &amp; Dry pairs are installed <strong>at building entrances</strong>. <strong>SAC Building</strong> features designated indoor segregation.
             </span>
           </div>
 
           {/* Quick Filter Buttons */}
-          <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200/70 text-xs">
+          <div className="flex flex-wrap items-center gap-1 bg-stone-100 p-1 rounded-md border border-stone-200 text-xs">
             <button
               id="filter-all-bins"
               onClick={() => setFilterType('all')}
-              className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
+              className={`px-3 py-1 rounded font-semibold transition-colors cursor-pointer ${
                 filterType === 'all'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/80'
+                  : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              All Bins ({bins.length})
+              All Stations ({bins.length})
             </button>
             <button
               id="filter-wet-bins"
               onClick={() => setFilterType('wet')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1 rounded font-semibold transition-colors cursor-pointer ${
                 filterType === 'wet'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-emerald-700 hover:bg-emerald-50'
+                  ? 'bg-[#134E3A] text-white shadow-2xs'
+                  : 'text-emerald-800 hover:bg-stone-200/60'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 border border-white inline-block"></span>
-              Wet (Green)
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+              Wet / Organic
             </button>
             <button
               id="filter-dry-bins"
               onClick={() => setFilterType('dry')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1 rounded font-semibold transition-colors cursor-pointer ${
                 filterType === 'dry'
-                  ? 'bg-sky-600 text-white shadow-xs'
-                  : 'text-sky-700 hover:bg-sky-50'
+                  ? 'bg-sky-700 text-white shadow-2xs'
+                  : 'text-sky-800 hover:bg-stone-200/60'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-sky-500 border border-white inline-block"></span>
-              Dry (Blue)
+              <span className="w-2 h-2 rounded-full bg-sky-400 inline-block"></span>
+              Dry / Recyclable
             </button>
             <button
               id="filter-ewaste-bins"
               onClick={() => setFilterType('ewaste')}
-              className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
+              className={`px-3 py-1 rounded font-semibold transition-colors cursor-pointer ${
                 filterType === 'ewaste'
-                  ? 'bg-slate-800 text-white shadow-xs'
-                  : 'text-slate-700 hover:bg-slate-200/60'
+                  ? 'bg-stone-800 text-white shadow-2xs'
+                  : 'text-stone-700 hover:bg-stone-200/60'
               }`}
             >
-              ⚡ E-Waste
+              E-Waste
             </button>
             <button
               id="filter-full-bins"
               onClick={() => setFilterType('full')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-semibold transition-all ${
+              className={`flex items-center gap-1 px-3 py-1 rounded font-semibold transition-colors cursor-pointer ${
                 filterType === 'full'
-                  ? 'bg-rose-600 text-white shadow-xs'
+                  ? 'bg-rose-700 text-white shadow-2xs'
                   : 'text-rose-700 hover:bg-rose-50'
               }`}
             >
@@ -163,21 +163,21 @@ export const CampusMap: React.FC<CampusMapProps> = ({
         </div>
 
         {/* Current Location & Map Controls Bar */}
-        <div className="py-2.5 px-3 my-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-wrap items-center justify-between gap-2.5 text-xs">
+        <div className="py-2.5 px-3 my-3 rounded-lg bg-stone-50 border border-stone-200 flex flex-wrap items-center justify-between gap-2.5 text-xs">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="flex items-center gap-1 font-semibold text-slate-700 shrink-0">
-              <Navigation className="w-3.5 h-3.5 text-indigo-600 animate-pulse" />
+            <span className="flex items-center gap-1 font-semibold text-stone-700 shrink-0">
+              <Navigation className="w-3.5 h-3.5 text-[#134E3A]" />
               My Current Location:
             </span>
             <select
               id="select-user-zone"
               value={userZone}
               onChange={(e) => setUserZone(e.target.value as BuildingZone)}
-              className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-2xs truncate max-w-[190px] sm:max-w-xs"
+              className="bg-white border border-stone-300 rounded px-2.5 py-1 text-xs font-bold text-stone-800 focus:outline-hidden focus:border-[#134E3A] cursor-pointer shadow-2xs truncate max-w-[190px] sm:max-w-xs font-mono-code"
             >
               {CAMPUS_ZONES.map((zone) => (
                 <option key={zone.id} value={zone.id} title={zone.name}>
-                  📍 {zone.shortName || zone.name}
+                  {zone.shortName || zone.name}
                 </option>
               ))}
             </select>
@@ -185,24 +185,24 @@ export const CampusMap: React.FC<CampusMapProps> = ({
 
           <div className="flex items-center gap-2 shrink-0">
             {/* Zoom Controls */}
-            <div className="flex items-center bg-white border border-slate-200 rounded-lg p-0.5 shadow-2xs">
+            <div className="flex items-center bg-white border border-stone-200 rounded p-0.5 shadow-2xs">
               <button
                 id="btn-zoom-out"
                 onClick={() => setZoomLevel((z) => Math.max(0.85, Number((z - 0.15).toFixed(2))))}
                 disabled={zoomLevel <= 0.85}
-                className="p-1 text-slate-600 hover:bg-slate-100 rounded disabled:opacity-40"
+                className="p-1 text-stone-600 hover:bg-stone-100 rounded disabled:opacity-40 cursor-pointer"
                 title="Zoom Out"
               >
                 <ZoomOut className="w-3.5 h-3.5" />
               </button>
-              <span className="px-1.5 text-[11px] font-bold text-slate-700 select-none">
+              <span className="px-1.5 text-[11px] font-bold text-stone-700 select-none font-mono-code">
                 {Math.round(zoomLevel * 100)}%
               </span>
               <button
                 id="btn-zoom-in"
                 onClick={() => setZoomLevel((z) => Math.min(1.45, Number((z + 0.15).toFixed(2))))}
                 disabled={zoomLevel >= 1.45}
-                className="p-1 text-slate-600 hover:bg-slate-100 rounded disabled:opacity-40"
+                className="p-1 text-stone-600 hover:bg-stone-100 rounded disabled:opacity-40 cursor-pointer"
                 title="Zoom In"
               >
                 <ZoomIn className="w-3.5 h-3.5" />
@@ -210,7 +210,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               <button
                 id="btn-zoom-reset"
                 onClick={() => setZoomLevel(1)}
-                className="p-1 text-slate-600 hover:bg-slate-100 rounded ml-0.5"
+                className="p-1 text-stone-600 hover:bg-stone-100 rounded ml-0.5 cursor-pointer"
                 title="Reset View"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -220,10 +220,10 @@ export const CampusMap: React.FC<CampusMapProps> = ({
             <button
               id="btn-toggle-labels"
               onClick={() => setShowLabels((v) => !v)}
-              className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-colors ${
+              className={`px-2.5 py-1 text-xs font-medium rounded border transition-colors cursor-pointer ${
                 showLabels
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                  : 'bg-white text-slate-600 border-slate-200'
+                  ? 'bg-emerald-50 text-[#134E3A] border-emerald-300 font-semibold'
+                  : 'bg-white text-stone-600 border-stone-200'
               }`}
             >
               Building Badges
@@ -236,7 +236,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 setMailSubmitted(false);
                 setShowMailModal(true);
               }}
-              className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border border-indigo-200 bg-indigo-50/90 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-900 transition-colors shadow-2xs"
+              className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 transition-colors shadow-2xs cursor-pointer"
               title="Contact Sanitation Desk / Send Mail Feedback"
             >
               <Mail className="w-3.5 h-3.5 text-indigo-600" />
@@ -1413,30 +1413,35 @@ export const CampusMap: React.FC<CampusMapProps> = ({
       {/* Selected Bin Details & Action Sidebar */}
       <div className="w-full xl:w-80 shrink-0 flex flex-col gap-4">
         {selectedBin ? (
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+          <div className="bg-white rounded-lg p-5 border border-stone-200 shadow-2xs flex flex-col justify-between">
             <div>
               {/* Header */}
-              <div className="flex items-start justify-between gap-2 pb-3 border-b border-slate-100">
+              <div className="flex items-start justify-between gap-2 pb-3 border-b border-stone-200">
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                    {selectedBin.floor}
-                  </span>
-                  <h3 className="text-base font-bold text-slate-900 mt-1 font-['Outfit',sans-serif]">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-900 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded font-mono-code">
+                      {selectedBin.floor}
+                    </span>
+                    <span className="text-[10px] font-mono-code text-stone-400">
+                      #{selectedBin.id.toUpperCase()}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-stone-900 mt-1 font-editorial">
                     {selectedBin.name}
                   </h3>
-                  <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                  <p className="text-xs text-stone-500 flex items-center gap-1 mt-0.5">
+                    <MapPin className="w-3 h-3 text-stone-400 shrink-0" />
                     {selectedBin.locationName}
                   </p>
                 </div>
 
                 <div
-                  className={`px-2 py-1 rounded-lg text-xs font-bold shrink-0 ${
+                  className={`px-2.5 py-1 rounded text-xs font-bold font-mono-code shrink-0 border ${
                     selectedBin.fillLevel >= 85
-                      ? 'bg-rose-100 text-rose-800'
+                      ? 'bg-rose-50 text-rose-800 border-rose-200'
                       : selectedBin.fillLevel >= 60
-                      ? 'bg-amber-100 text-amber-800'
-                      : 'bg-emerald-100 text-emerald-800'
+                      ? 'bg-amber-50 text-amber-900 border-amber-200'
+                      : 'bg-emerald-50 text-emerald-900 border-emerald-200'
                   }`}
                 >
                   {selectedBin.fillLevel}% Full
@@ -1444,76 +1449,76 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               </div>
 
               {/* Fill Level Meter */}
-              <div className="my-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <div className="my-4 bg-stone-50 p-3 rounded-md border border-stone-200">
                 <div className="flex items-center justify-between text-xs mb-1.5">
-                  <span className="font-semibold text-slate-700">Capacity & Fill Level</span>
-                  <span className="text-slate-500">
+                  <span className="font-semibold text-stone-700">Capacity &amp; Current Fill</span>
+                  <span className="text-stone-500 font-mono-code">
                     {Math.round((selectedBin.fillLevel / 100) * selectedBin.capacityLiters)}L / {selectedBin.capacityLiters}L
                   </span>
                 </div>
-                <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${
+                    className={`h-full transition-all duration-500 ${
                       selectedBin.fillLevel >= 85
-                        ? 'bg-rose-500'
+                        ? 'bg-rose-600'
                         : selectedBin.fillLevel >= 60
                         ? 'bg-amber-500'
-                        : 'bg-emerald-500'
+                        : 'bg-emerald-600'
                     }`}
                     style={{ width: `${selectedBin.fillLevel}%` }}
                   ></div>
                 </div>
-                <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1.5">
-                  <span>Last emptied: {selectedBin.lastEmptied}</span>
-                  <span className="font-medium text-slate-600">
-                    {selectedBin.fillLevel < 80 ? '✅ Ready for use' : '⚠️ Cleaning requested'}
+                <div className="flex items-center justify-between text-[11px] text-stone-500 mt-1.5">
+                  <span>Last cleared: {selectedBin.lastEmptied}</span>
+                  <span className="font-medium">
+                    {selectedBin.fillLevel < 80 ? 'In Service' : 'Clearing Required'}
                   </span>
                 </div>
               </div>
 
               {/* Supported Segregations */}
               <div className="mb-4">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                  Available Compartments:
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-2">
+                  Segregation Compartments:
                 </h4>
                 <div className="space-y-2">
                   {selectedBin.hasWet && (
-                    <div className="flex items-center gap-2.5 p-2 rounded-lg bg-emerald-50/80 border border-emerald-200/80 text-xs">
-                      <div className="w-6 h-6 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
-                        🟢
+                    <div className="flex items-center gap-2.5 p-2 rounded-md bg-emerald-50/70 border border-emerald-200 text-xs">
+                      <div className="w-5 h-5 rounded bg-emerald-700 text-white flex items-center justify-center font-bold text-[10px] shrink-0">
+                        W
                       </div>
                       <div>
-                        <div className="font-bold text-emerald-950">Green Bin: Wet / Organic</div>
+                        <div className="font-bold text-emerald-950">Green Bin: Wet / Biodegradable</div>
                         <div className="text-[11px] text-emerald-800">
-                          Food leftovers, fruit peels, tea leaves, compostable waste
+                          Food scraps, canteen leftovers, leaves, tea waste
                         </div>
                       </div>
                     </div>
                   )}
 
                   {selectedBin.hasDry && (
-                    <div className="flex items-center gap-2.5 p-2 rounded-lg bg-sky-50/80 border border-sky-200/80 text-xs">
-                      <div className="w-6 h-6 rounded-md bg-sky-600 text-white flex items-center justify-center font-bold text-xs">
-                        🔵
+                    <div className="flex items-center gap-2.5 p-2 rounded-md bg-sky-50/70 border border-sky-200 text-xs">
+                      <div className="w-5 h-5 rounded bg-sky-700 text-white flex items-center justify-center font-bold text-[10px] shrink-0">
+                        D
                       </div>
                       <div>
                         <div className="font-bold text-sky-950">Blue Bin: Dry / Recyclable</div>
                         <div className="text-[11px] text-sky-800">
-                          Plastic bottles, notebooks, cardboard, wrappers, drink cans
+                          Plastics, paper, cardboard, cans, stationery
                         </div>
                       </div>
                     </div>
                   )}
 
                   {selectedBin.hasEwaste && (
-                    <div className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-100 border border-slate-300 text-xs">
-                      <div className="w-6 h-6 rounded-md bg-slate-800 text-amber-300 flex items-center justify-center font-bold text-xs">
-                        ⚡
+                    <div className="flex items-center gap-2.5 p-2 rounded-md bg-stone-100 border border-stone-300 text-xs">
+                      <div className="w-5 h-5 rounded bg-stone-800 text-amber-300 flex items-center justify-center font-bold text-[10px] shrink-0">
+                        E
                       </div>
                       <div>
-                        <div className="font-bold text-slate-900">Black/Yellow: E-Waste Box</div>
-                        <div className="text-[11px] text-slate-600">
-                          Dead batteries, chargers, earphone wires, broken gadgets
+                        <div className="font-bold text-stone-900">E-Waste Containment Box</div>
+                        <div className="text-[11px] text-stone-600">
+                          Batteries, cables, circuit boards, small peripherals
                         </div>
                       </div>
                     </div>
@@ -1522,95 +1527,94 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               </div>
 
               {/* Landmark directions */}
-              <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl text-xs text-amber-900 mb-4">
-                <div className="font-bold flex items-center gap-1 text-amber-950 mb-0.5">
-                  <Compass className="w-3.5 h-3.5 text-amber-600" />
-                  Exact Spot on Campus
+              <div className="p-3 bg-stone-50 border border-stone-200 rounded-md text-xs text-stone-800 mb-4">
+                <div className="font-bold flex items-center gap-1 text-stone-900 mb-0.5">
+                  <Compass className="w-3.5 h-3.5 text-stone-600" />
+                  Station Position
                 </div>
-                <p className="text-[11px] text-amber-800 leading-relaxed">
+                <p className="text-[11px] text-stone-600 leading-relaxed">
                   {selectedBin.landmark} ({selectedBin.floor})
                 </p>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col gap-2 pt-2 border-t border-slate-100">
+            <div className="flex flex-col gap-2 pt-2 border-t border-stone-100">
               <button
                 id="btn-report-selected-bin"
                 onClick={() => onReportBin(selectedBin)}
-                className="w-full py-2 px-3 text-xs font-semibold rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 transition-colors flex items-center justify-center gap-1.5"
+                className="w-full py-2 px-3 text-xs font-semibold rounded-md bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-700" />
-                Report Full / Damaged / Request Cleaning
+                Report Full Station or Defect
               </button>
             </div>
           </div>
         ) : (
           /* Empty selection guide */
-          <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs flex flex-col items-center justify-center text-center">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
-              <Trash2 className="w-6 h-6" />
+          <div className="bg-white rounded-lg p-6 border border-stone-200 shadow-2xs flex flex-col items-center justify-center text-center">
+            <div className="w-10 h-10 rounded-md bg-stone-100 text-stone-700 flex items-center justify-center mb-3 border border-stone-200">
+              <Trash2 className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-bold text-slate-800 font-['Outfit',sans-serif]">
-              Select Any Dustbin Marker
+            <h3 className="text-sm font-bold text-stone-900 font-editorial">
+              Select a Dustbin Station
             </h3>
-            <p className="text-xs text-slate-500 mt-1 max-w-xs leading-relaxed">
-              Click on any colored marker on the NIT Patna master plan to see its real-time fill level, segregation compartments, and walking route.
+            <p className="text-xs text-stone-500 mt-1 max-w-xs leading-relaxed">
+              Click any station on the campus master plan to view real-time capacity, compartment breakdown, and clearance schedules.
             </p>
 
-            <div className="w-full mt-5 pt-4 border-t border-slate-100 text-left space-y-2.5">
-              <div className="text-xs font-bold text-slate-700">NIT Patna Cleanliness Guidelines:</div>
-              <div className="text-[11px] text-slate-600 flex items-start gap-1.5">
-                <span className="text-emerald-600 font-bold">1.</span>
-                <span>Crush plastic bottles flat before depositing in Blue Bins.</span>
+            <div className="w-full mt-5 pt-4 border-t border-stone-200 text-left space-y-2.5">
+              <div className="text-xs font-bold text-stone-800">NIT Patna Cleanliness Protocols:</div>
+              <div className="text-[11px] text-stone-600 flex items-start gap-2">
+                <span className="text-[#134E3A] font-bold font-mono-code">1.</span>
+                <span>Compress plastic beverage bottles before placing in Blue Recyclable bins.</span>
               </div>
-              <div className="text-[11px] text-slate-600 flex items-start gap-1.5">
-                <span className="text-emerald-600 font-bold">2.</span>
-                <span>Keep hostel mess food scraps strictly in Green Bins for campus composting.</span>
+              <div className="text-[11px] text-stone-600 flex items-start gap-2">
+                <span className="text-[#134E3A] font-bold font-mono-code">2.</span>
+                <span>Hostel mess organic scraps belong in Green bins for the campus compost unit.</span>
               </div>
-              <div className="text-[11px] text-slate-600 flex items-start gap-1.5">
-                <span className="text-emerald-600 font-bold">3.</span>
-                <span>Never mix dead phone or mouse batteries with ordinary trash. Drop in I.T. Lab box.</span>
+              <div className="text-[11px] text-stone-600 flex items-start gap-2">
+                <span className="text-[#134E3A] font-bold font-mono-code">3.</span>
+                <span>Drop hazardous battery cells only in designated Computer Center boxes.</span>
               </div>
             </div>
           </div>
         )}
 
-        {/* Swachhata Vision Card */}
-        <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-4 text-white shadow-xs">
+        {/* Official Campus Directive Card */}
+        <div className="bg-[#134E3A] rounded-lg p-4 text-stone-100 border border-[#0F3E2E] shadow-2xs">
           <div className="flex items-center gap-2 mb-1.5">
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-100">
-              NIT Patna Swachhata
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-white/15 px-1.5 py-0.5 rounded text-emerald-200">
+              NIT Patna Directive
             </span>
           </div>
-          <h4 className="text-sm font-bold leading-snug">
-            Clean Campus, Green Future
+          <h4 className="text-sm font-bold font-editorial text-white leading-snug">
+            Swachh Bharat Abhiyan Protocol
           </h4>
-          <p className="text-xs text-emerald-100/90 mt-1 leading-relaxed">
-            Report overflowing bins directly to campus sanitation teams and keep the academic, residential, and riverfront zones clean.
+          <p className="text-xs text-stone-300 mt-1 leading-relaxed">
+            Report overflowing bins directly to Estate Sanitation supervisory staff to maintain hygienic academic and hostel surroundings.
           </p>
         </div>
       </div>
 
       {/* Campus Sanitation & Feedback Mail Modal */}
       {showMailModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-stone-900/60 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-md w-full shadow-lg border border-stone-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-indigo-700 via-indigo-600 to-sky-600 text-white p-4 flex items-center justify-between">
+            <div className="bg-[#134E3A] text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <div className="w-8 h-8 rounded bg-white/15 flex items-center justify-center">
                   <Mail className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold font-['Outfit',sans-serif]">Campus Sanitation Mail Desk</h3>
-                  <p className="text-[11px] text-indigo-100">NIT Patna Swachhata Cell & Estate Office</p>
+                  <h3 className="text-sm font-bold font-editorial">Campus Sanitation Mail Desk</h3>
+                  <p className="text-[11px] text-emerald-200">NIT Patna Estate Office &amp; Swachhata Cell</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowMailModal(false)}
-                className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>

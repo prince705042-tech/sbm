@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { 
   Trash2, 
   MapPin, 
-  Search, 
-  Sparkles, 
-  AlertCircle, 
+  Compass, 
+  BookOpen, 
+  AlertTriangle, 
   PlusCircle, 
   CheckCircle2, 
   ShieldCheck, 
   Menu, 
-  X
+  X,
+  Building2,
+  QrCode
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -17,6 +19,7 @@ interface NavbarProps {
   setActiveTab: (tab: 'map' | 'finder' | 'guide' | 'alerts') => void;
   onOpenReportModal: () => void;
   onOpenAddBinModal: () => void;
+  onOpenScanModal?: () => void;
   activeAlertsCount: number;
   totalBinsCount: number;
   isAdmin: boolean;
@@ -28,10 +31,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActiveTab,
   onOpenReportModal,
   onOpenAddBinModal,
+  onOpenScanModal,
   activeAlertsCount,
   totalBinsCount,
   isAdmin,
-  onAdminLogout,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -41,115 +44,116 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-      {/* Top mission banner */}
-      <div className="bg-gradient-to-r from-emerald-700 via-teal-700 to-sky-700 text-white px-3 sm:px-4 py-1 sm:py-1.5 text-xs font-medium">
-        <div className="flex items-center space-x-2 max-w-7xl mx-auto w-full justify-between">
-          <div className="flex items-center space-x-2 min-w-0">
-            <span className="inline-flex items-center justify-center bg-white/20 px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold tracking-wide shrink-0">
-              🇮🇳 SBM
+    <header className="sticky top-0 z-30 bg-white border-b border-stone-200">
+      {/* Institutional Top Header Strip */}
+      <div className="bg-[#134E3A] text-stone-100 px-3 sm:px-6 py-1.5 text-[11px] font-medium tracking-tight">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 truncate">
+            <span className="inline-flex items-center font-bold px-1.5 py-0.5 rounded bg-white/15 text-[10px] tracking-wider shrink-0 uppercase">
+              SBM • NIT Patna
             </span>
-            <span className="hidden md:inline text-emerald-100 truncate text-[11px]">
-              Clean Campus, Green Future — Segregate at Source (Dry & Wet Waste)
+            <span className="hidden sm:inline text-stone-200 truncate">
+              National Institute of Technology Patna — Swachh Bharat Sanitation & Segregation Registry
             </span>
-            <span className="md:hidden text-emerald-100 truncate text-[11px]">
-              NIT Patna Swachh Campus
+            <span className="sm:hidden text-stone-200 truncate">
+              NIT Patna — Swachh Campus
             </span>
           </div>
-          <div className="flex items-center space-x-3 text-[10px] sm:text-[11px] shrink-0">
-            <span className="inline-flex items-center gap-1 text-emerald-100">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
-              <span>Hygiene: <strong className="text-white">94%</strong></span>
+
+          <div className="flex items-center gap-3 shrink-0 text-[11px] text-stone-300 font-mono-code">
+            <span className="inline-flex items-center gap-1.5 text-stone-100">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>Sanitation Index: <strong>94%</strong></span>
             </span>
-            <span className="hidden sm:inline-flex items-center gap-1 text-sky-200">
-              <span>{totalBinsCount} Bins</span>
+            <span className="hidden md:inline text-stone-400">|</span>
+            <span className="hidden md:inline text-stone-300">
+              {totalBinsCount} Active Stations
             </span>
           </div>
         </div>
       </div>
 
-      {/* Main navigation row */}
+      {/* Main Navigation Row */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-3">
-          {/* Logo & title */}
+        <div className="flex items-center justify-between h-16 gap-3">
+          {/* Logo & Campus Identity */}
           <div 
             onClick={() => handleTabClick('map')}
-            className="flex items-center gap-2 sm:gap-3 cursor-pointer shrink-0"
+            className="flex items-center gap-3 cursor-pointer select-none shrink-0"
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-sky-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 shrink-0">
-              <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+            <div className="w-10 h-10 rounded-lg bg-[#134E3A] text-white flex items-center justify-center border border-[#0F3E2E] shrink-0 shadow-xs">
+              <Trash2 className="w-5 h-5 text-emerald-300" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 font-['Outfit',sans-serif]">
-                  Swachh<span className="text-emerald-600">Campus</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-bold text-stone-900 font-editorial tracking-tight">
+                  Swachh Campus
                 </span>
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-700 px-1.5 py-0.5 rounded border border-stone-200">
                   NITP
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 hidden lg:block">
-                Smart Dustbin Locator & Waste Segregation
+              <p className="text-[11px] text-stone-500 hidden sm:block">
+                Source Segregation & Infrastructure Map
               </p>
             </div>
           </div>
 
-          {/* Desktop & Tablet Center Tabs */}
-          <nav className="hidden md:flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80">
+          {/* Desktop Navigation Tabs */}
+          <nav className="hidden md:flex items-center gap-1 bg-stone-100/90 p-1 rounded-lg border border-stone-200">
             <button
               id="tab-campus-map"
               onClick={() => handleTabClick('map')}
-              className={`flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
                 activeTab === 'map'
-                  ? 'bg-white text-emerald-800 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/80'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
               }`}
             >
-              <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+              <MapPin className={`w-3.5 h-3.5 ${activeTab === 'map' ? 'text-[#134E3A]' : 'text-stone-500'}`} />
               <span>Campus Map</span>
             </button>
 
             <button
               id="tab-nearest-bin"
               onClick={() => handleTabClick('finder')}
-              className={`flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
                 activeTab === 'finder'
-                  ? 'bg-white text-emerald-800 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/80'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
               }`}
             >
-              <Search className="w-3.5 h-3.5 text-sky-600" />
+              <Compass className={`w-3.5 h-3.5 ${activeTab === 'finder' ? 'text-[#134E3A]' : 'text-stone-500'}`} />
               <span>Find Nearest</span>
             </button>
 
             <button
               id="tab-sorting-guide"
               onClick={() => handleTabClick('guide')}
-              className={`flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
                 activeTab === 'guide'
-                  ? 'bg-white text-emerald-800 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/80'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>Waste Guide</span>
+              <BookOpen className={`w-3.5 h-3.5 ${activeTab === 'guide' ? 'text-[#134E3A]' : 'text-stone-500'}`} />
+              <span>Segregation Guide</span>
             </button>
 
             {isAdmin && (
               <button
                 id="tab-campus-alerts"
                 onClick={() => handleTabClick('alerts')}
-                className={`relative flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                className={`relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
                   activeTab === 'alerts'
-                    ? 'bg-white text-emerald-800 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                    ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/80'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
                 }`}
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="hidden xl:inline">Admin Dashboard</span>
-                <span className="xl:hidden">Admin</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-[#134E3A]" />
+                <span>Admin Portal</span>
                 {activeAlertsCount > 0 && (
-                  <span className="w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center">
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[10px] font-bold font-mono-code">
                     {activeAlertsCount}
                   </span>
                 )}
@@ -157,134 +161,156 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </nav>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* Report Button */}
+          {/* Action Utilities */}
+          <div className="flex items-center gap-2">
+            {onOpenScanModal && (
+              <button
+                id="btn-scan-qr"
+                type="button"
+                onClick={onOpenScanModal}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-md bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                title="Scan Dustbin QR Code or Direct Lookup"
+              >
+                <QrCode className="w-3.5 h-3.5 text-[#134E3A] shrink-0" />
+                <span className="hidden sm:inline">Scan QR / ID</span>
+                <span className="sm:hidden">QR</span>
+              </button>
+            )}
+
             <button
               id="btn-report-issue"
               onClick={onOpenReportModal}
-              className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200 transition-colors cursor-pointer shrink-0"
-              title="Report full or overflowing dustbin"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-amber-50 text-amber-900 hover:bg-amber-100/80 border border-amber-300 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+              title="Report full bin or misplaced waste"
             >
-              <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-              <span className="hidden md:inline">Report Bin</span>
-              <span className="md:hidden">Report</span>
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+              <span className="hidden sm:inline">Report Issue</span>
+              <span className="sm:hidden">Report</span>
             </button>
 
-            {/* Add Bin Button */}
             <button
               id="btn-add-bin"
               onClick={onOpenAddBinModal}
-              className={`inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl transition-colors cursor-pointer shrink-0 ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
                 isAdmin
-                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs shadow-emerald-600/30 font-bold'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80'
+                  ? 'bg-[#134E3A] text-white hover:bg-[#0F3E2E] shadow-2xs'
+                  : 'bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-300'
               }`}
-              title={isAdmin ? "Add New Campus Dustbin Station (Admin Verified)" : "Add Bin"}
+              title={isAdmin ? "Add New Station (Admin)" : "Add New Station"}
             >
               <PlusCircle className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden sm:inline">Add Bin</span>
+              <span className="hidden sm:inline">Add Station</span>
+              <span className="sm:hidden">Add</span>
             </button>
 
-            {/* Mobile Menu Hamburger Toggle */}
+            {/* Mobile Menu Toggle */}
             <button
               id="btn-mobile-menu-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="md:hidden p-2 rounded-md text-stone-700 hover:bg-stone-100 border border-stone-200 transition-colors cursor-pointer"
               aria-label="Toggle Navigation Menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Drawer Menu (Visible when hamburger is toggled) */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-slate-200 px-4 py-3 shadow-lg animate-in slide-in-from-top-2 duration-150">
-          <div className="space-y-1">
+        <div className="md:hidden bg-white border-b border-stone-200 px-4 py-3 shadow-sm space-y-1">
+          <button
+            id="mobile-nav-map"
+            onClick={() => handleTabClick('map')}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
+              activeTab === 'map' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <MapPin className="w-4 h-4 text-[#134E3A]" />
+              <span>Campus Map & Bins</span>
+            </div>
+            <span className="text-[10px] font-mono-code bg-stone-100 text-stone-600 px-2 py-0.5 rounded">
+              {totalBinsCount} Bins
+            </span>
+          </button>
+
+          <button
+            id="mobile-nav-finder"
+            onClick={() => handleTabClick('finder')}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
+              activeTab === 'finder' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <Compass className="w-4 h-4 text-[#134E3A]" />
+              <span>Find Nearest Dustbin</span>
+            </div>
+            <span className="text-[10px] text-stone-500">Walking routes</span>
+          </button>
+
+          <button
+            id="mobile-nav-guide"
+            onClick={() => handleTabClick('guide')}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
+              activeTab === 'guide' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <BookOpen className="w-4 h-4 text-[#134E3A]" />
+              <span>Waste Segregation Guide</span>
+            </div>
+            <span className="text-[10px] text-stone-500">Wet / Dry / E-Waste</span>
+          </button>
+
+          {isAdmin && (
             <button
-              id="mobile-nav-map"
-              onClick={() => handleTabClick('map')}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${
-                activeTab === 'map' ? 'bg-emerald-50 text-emerald-800' : 'text-slate-700 hover:bg-slate-100'
+              id="mobile-nav-alerts"
+              onClick={() => handleTabClick('alerts')}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
+                activeTab === 'alerts' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <MapPin className="w-4 h-4 text-emerald-600" />
-                <span>Interactive Campus Map</span>
+                <ShieldCheck className="w-4 h-4 text-[#134E3A]" />
+                <span>Admin Dispatch & Reports</span>
               </div>
-              <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold">
-                {totalBinsCount} Bins
-              </span>
+              {activeAlertsCount > 0 && (
+                <span className="bg-rose-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded font-mono-code">
+                  {activeAlertsCount}
+                </span>
+              )}
             </button>
+          )}
 
+          {onOpenScanModal && (
             <button
-              id="mobile-nav-finder"
-              onClick={() => handleTabClick('finder')}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${
-                activeTab === 'finder' ? 'bg-emerald-50 text-emerald-800' : 'text-slate-700 hover:bg-slate-100'
-              }`}
+              id="mobile-nav-scan-qr"
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenScanModal();
+              }}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
             >
               <div className="flex items-center gap-2.5">
-                <Search className="w-4 h-4 text-sky-600" />
-                <span>Find Nearest Dustbin</span>
+                <QrCode className="w-4 h-4 text-[#134E3A]" />
+                <span>Scan Station QR / ID</span>
               </div>
-              <span className="text-[10px] text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full font-semibold">
-                Radar
-              </span>
+              <span className="text-[10px] text-stone-500 font-mono-code">Live Lookup</span>
             </button>
+          )}
 
-            <button
-              id="mobile-nav-guide"
-              onClick={() => handleTabClick('guide')}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${
-                activeTab === 'guide' ? 'bg-emerald-50 text-emerald-800' : 'text-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Sparkles className="w-4 h-4 text-amber-500" />
-                <span>Waste Segregation Guide</span>
-              </div>
-              <span className="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full font-semibold">
-                Wet / Dry
-              </span>
-            </button>
-
-            {isAdmin && (
-              <button
-                id="mobile-nav-alerts"
-                onClick={() => handleTabClick('alerts')}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${
-                  activeTab === 'alerts' ? 'bg-emerald-50 text-emerald-800' : 'text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Admin Reports Dashboard</span>
-                </div>
-                {activeAlertsCount > 0 && (
-                  <span className="bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    {activeAlertsCount}
-                  </span>
-                )}
-              </button>
-            )}
-          </div>
-
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-            <span>NIT Patna Campus Sanitation</span>
-            {isAdmin ? (
-              <span className="text-emerald-700 font-bold flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Admin Active
-              </span>
-            ) : (
-              <span className="text-slate-400">Clean Campus Mission</span>
-            )}
+          <div className="pt-2 mt-2 border-t border-stone-100 text-[11px] text-stone-500 flex items-center justify-between">
+            <span className="flex items-center gap-1">
+              <Building2 className="w-3.5 h-3.5 text-stone-400" />
+              NIT Patna Main Campus
+            </span>
+            <span className="text-emerald-700 font-semibold font-mono-code">SBM-Cell Active</span>
           </div>
         </div>
       )}
     </header>
   );
 };
+

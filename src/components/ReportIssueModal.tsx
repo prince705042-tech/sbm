@@ -104,47 +104,47 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/65 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-100 overflow-hidden relative my-auto max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 animate-in fade-in duration-150 overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-lg w-full p-5 sm:p-6 shadow-xl border border-stone-200 overflow-hidden relative my-auto max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-100 shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+        <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-stone-100 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className={`w-9 h-9 rounded flex items-center justify-center transition-colors border ${
               isSubmitted
-                ? 'bg-emerald-100 text-emerald-600'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                 : isSubmitting
-                ? 'bg-amber-100 text-amber-600'
-                : 'bg-rose-100 text-rose-600'
+                ? 'bg-amber-50 text-amber-800 border-amber-200'
+                : 'bg-rose-50 text-rose-800 border-rose-200'
             }`}>
               {isSubmitted ? (
-                <CheckCircle2 className="w-5 h-5" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-700" />
               ) : isSubmitting ? (
-                <Sparkles className="w-5 h-5 animate-spin text-amber-500" />
+                <Sparkles className="w-4 h-4 animate-spin text-amber-700" />
               ) : (
-                <AlertTriangle className="w-5 h-5" />
+                <AlertTriangle className="w-4 h-4 text-rose-700" />
               )}
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 font-['Outfit',sans-serif]">
+              <h3 className="text-base sm:text-lg font-bold text-stone-900 font-editorial">
                 {isSubmitted
-                  ? 'Report Received & Confirmed'
+                  ? 'Maintenance Ticket Registered'
                   : isSubmitting
-                  ? 'Dispatching Campus Report...'
-                  : 'Report Dustbin Issue'}
+                  ? 'Dispatching Maintenance Alert...'
+                  : 'Submit Sanitation Ticket'}
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-stone-500">
                 {isSubmitted
-                  ? 'Housekeeping notified for clearance'
+                  ? 'Housekeeping supervisor alerted for resolution'
                   : isSubmitting
-                  ? 'Alerting campus housekeeping crew...'
-                  : 'Help housekeeping keep our campus 100% clean'}
+                  ? 'Routing notification to estate team...'
+                  : 'Official campus hygiene & waste station report'}
               </p>
             </div>
           </div>
           {!isSubmitting && (
             <button
               onClick={handleClose}
-              className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 hover:bg-slate-200 flex items-center justify-center cursor-pointer transition-colors"
+              className="w-7 h-7 rounded bg-stone-100 text-stone-500 hover:text-stone-900 hover:bg-stone-200 flex items-center justify-center cursor-pointer transition-colors border border-stone-200"
             >
               <X className="w-4 h-4" />
             </button>
@@ -157,168 +157,90 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
             /* ================= SUBMISSION ANIMATION ================= */
             <motion.div
               key="submitting-animation"
-              initial={{ opacity: 0, scale: 0.94 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.25 }}
-              className="py-10 px-4 text-center flex flex-col items-center justify-center space-y-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="py-10 px-4 text-center flex flex-col items-center justify-center space-y-5"
             >
-              {/* Animated Radar Pulse Core */}
-              <div className="relative w-28 h-28 flex items-center justify-center">
-                {/* Ripple ring 1 */}
-                <motion.div
-                  animate={{ scale: [1, 1.8, 2.2], opacity: [0.8, 0.3, 0] }}
-                  transition={{ duration: 1.8, repeat: Infinity, ease: 'easeOut' }}
-                  className="absolute inset-0 rounded-full bg-rose-400/25 border border-rose-400/40"
-                />
-                {/* Ripple ring 2 */}
-                <motion.div
-                  animate={{ scale: [1, 1.4, 1.7], opacity: [0.9, 0.4, 0] }}
-                  transition={{ duration: 1.8, delay: 0.4, repeat: Infinity, ease: 'easeOut' }}
-                  className="absolute inset-2 rounded-full bg-emerald-400/20 border border-emerald-400/40"
-                />
-
-                {/* Central glowing icon container */}
-                <motion.div
-                  animate={{
-                    scale: submissionStep === 3 ? [1, 1.15, 1] : [1, 1.05, 1],
-                    rotate: submissionStep === 1 ? [0, -5, 5, 0] : 0,
-                  }}
-                  transition={{ duration: 0.6, repeat: Infinity }}
-                  className={`w-20 h-20 rounded-3xl shadow-xl flex items-center justify-center z-10 transition-all duration-300 ${
-                    submissionStep >= 3
-                      ? 'bg-emerald-600 text-white shadow-emerald-600/30'
-                      : submissionStep === 2
-                      ? 'bg-blue-600 text-white shadow-blue-600/30'
-                      : 'bg-rose-600 text-white shadow-rose-600/30'
-                  }`}
-                >
-                  {submissionStep >= 3 ? (
-                    <motion.div
-                      initial={{ scale: 0, rotate: -45 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ type: 'spring', stiffness: 350, damping: 18 }}
-                    >
-                      <CheckCircle2 className="w-10 h-10 stroke-[2.5]" />
-                    </motion.div>
-                  ) : submissionStep === 2 ? (
-                    <motion.div
-                      animate={{ y: [-3, 3, -3] }}
-                      transition={{ repeat: Infinity, duration: 0.8 }}
-                    >
-                      <ShieldCheck className="w-10 h-10" />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ repeat: Infinity, duration: 0.6 }}
-                    >
-                      <Radio className="w-10 h-10 animate-pulse" />
-                    </motion.div>
-                  )}
-                </motion.div>
+              <div className="w-16 h-16 rounded-lg bg-stone-100 border border-stone-300 text-stone-800 flex items-center justify-center">
+                {submissionStep >= 3 ? (
+                  <CheckCircle2 className="w-8 h-8 text-[#134E3A]" />
+                ) : (
+                  <Radio className="w-8 h-8 text-amber-600 animate-pulse" />
+                )}
               </div>
 
               {/* Step indicator and message */}
-              <div className="space-y-2 max-w-sm">
-                <motion.div
-                  key={submissionStep}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase bg-slate-100 text-slate-700">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                    {submissionStep === 1 && 'Transmitting Ticket...'}
-                    {submissionStep === 2 && 'Alerting Housekeeping Crew...'}
-                    {submissionStep >= 3 && 'Confirmed by Housekeeping!'}
-                  </span>
-                </motion.div>
+              <div className="space-y-1.5 max-w-sm">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-stone-100 text-stone-700 font-mono-code border border-stone-200">
+                  {submissionStep === 1 && 'Step 1: Logging Ticket'}
+                  {submissionStep === 2 && 'Step 2: Dispatching Crew Alert'}
+                  {submissionStep >= 3 && 'Step 3: Acknowledged'}
+                </span>
 
-                <h4 className="text-base sm:text-lg font-black text-slate-800 font-['Outfit',sans-serif]">
-                  {submissionStep === 1 && `Registering issue for ${targetBin.name}`}
+                <h4 className="text-base font-bold text-stone-900 font-editorial">
+                  {submissionStep === 1 && `Registering ticket for ${targetBin.name}`}
                   {submissionStep === 2 && `Alerting campus housekeeping crew`}
-                  {submissionStep >= 3 && `Report successfully logged!`}
+                  {submissionStep >= 3 && `Ticket recorded successfully`}
                 </h4>
 
-                <p className="text-xs text-slate-500">
-                  {targetBin.locationName} • Floor: {targetBin.floor}
+                <p className="text-xs text-stone-500">
+                  {targetBin.locationName} &bull; Floor: {targetBin.floor}
                 </p>
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full max-w-xs bg-slate-100 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-200">
+              <div className="w-full max-w-xs bg-stone-100 h-2 rounded-full overflow-hidden border border-stone-200">
                 <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-rose-500 via-blue-500 to-emerald-500"
-                  initial={{ width: '15%' }}
+                  className="h-full bg-[#134E3A]"
+                  initial={{ width: '20%' }}
                   animate={{
                     width:
                       submissionStep === 1
-                        ? '38%'
+                        ? '45%'
                         : submissionStep === 2
-                        ? '78%'
+                        ? '80%'
                         : '100%',
                   }}
-                  transition={{ duration: 0.45, ease: 'easeInOut' }}
+                  transition={{ duration: 0.4, ease: 'easeInOut' }}
                 />
               </div>
 
-              <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                <span>Swachh Campus SBM Portal</span>
+              <div className="flex items-center gap-1.5 text-[11px] text-stone-500 font-mono-code">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#134E3A]" />
+                <span>NIT Patna Sanitation Dispatch Network</span>
               </div>
             </motion.div>
           ) : isSubmitted ? (
             /* ================= SUBMISSION CONFIRMATION VIEW ================= */
             <motion.div
               key="submitted-confirmation"
-              initial={{ opacity: 0, scale: 0.92, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-              className="py-5 sm:py-7 px-2 text-center space-y-4"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="py-6 px-2 text-center space-y-4"
             >
-              {/* Celebration badge with floating stars */}
-              <div className="relative inline-block mx-auto">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 350, damping: 15 }}
-                  className="w-16 h-16 rounded-3xl bg-emerald-500 text-white mx-auto flex items-center justify-center shadow-xl shadow-emerald-500/30"
-                >
-                  <CheckCircle2 className="w-9 h-9 stroke-[2.5]" />
-                </motion.div>
-
-                {/* Micro floating sparkle tags */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0, x: -20 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  transition={{ delay: 0.2, type: 'spring' }}
-                  className="absolute -top-1 -right-3 bg-amber-400 text-slate-900 rounded-full p-1 shadow-sm"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                </motion.div>
+              <div className="w-12 h-12 rounded-lg bg-emerald-50 border border-emerald-200 text-[#134E3A] mx-auto flex items-center justify-center">
+                <CheckCircle2 className="w-7 h-7" />
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center justify-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                    Report Confirmed
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                    <Check className="w-3 h-3 text-emerald-600" />
-                    Saved Successfully
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-900 border border-emerald-200 font-mono-code">
+                    <CheckCircle2 className="w-3 h-3 text-[#134E3A]" />
+                    Ticket Registered
                   </span>
                 </div>
-                <h4 className="text-xl font-extrabold text-slate-900 font-['Outfit',sans-serif] mt-2">
-                  Thank You for Your Report!
+                <h4 className="text-xl font-bold text-stone-900 font-editorial mt-2">
+                  Thank You for Your Report
                 </h4>
-                <p className="text-xs text-slate-600 max-w-sm mx-auto leading-relaxed">
-                  Your report for <strong className="text-slate-800">{submittedBinName}</strong> has been received. Campus housekeeping staff have been notified to address this bin.
+                <p className="text-xs text-stone-600 max-w-sm mx-auto leading-relaxed">
+                  Your report for <strong className="text-stone-800">{submittedBinName}</strong> has been assigned to the estate office housekeeping queue for resolution.
                 </p>
                 {createdTicketId && (
-                  <p className="text-[11px] font-mono font-bold text-slate-500 bg-slate-100 inline-block px-2.5 py-0.5 rounded-md">
+                  <p className="text-xs font-mono-code text-stone-600 bg-stone-100 inline-block px-2.5 py-1 rounded border border-stone-200">
                     Ticket ID: #{createdTicketId}
                   </p>
                 )}
@@ -329,10 +251,10 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
                   type="button"
                   id="btn-close-report-modal"
                   onClick={handleClose}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  className="px-5 py-2 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white text-xs font-semibold shadow-2xs transition-colors cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <Check className="w-4 h-4" />
-                  <span>Done & Return to Campus Map</span>
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Return to Campus Map</span>
                 </button>
               </div>
             </motion.div>
@@ -344,55 +266,55 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onSubmit={handleSubmit}
-              className="mt-4 space-y-4 text-xs overflow-y-auto pr-1"
+              className="mt-4 space-y-3.5 text-xs overflow-y-auto pr-1"
             >
               {/* Privacy Assurance Notice */}
-              <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/70 text-slate-700 flex items-start gap-2.5">
-                <Lock className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+              <div className="p-3 rounded bg-stone-50 border border-stone-200 text-stone-700 flex items-start gap-2.5">
+                <Lock className="w-4 h-4 text-stone-600 shrink-0 mt-0.5" />
                 <div className="text-[11px] leading-relaxed">
-                  <span className="font-bold text-emerald-950 block">Visible Only to Admin:</span>
-                  <span className="text-emerald-900/80">
-                    All submitted issue reports appear directly on the SBM Administrator Dashboard for housekeeping dispatch and are stored in your SupaBase tables.
+                  <span className="font-semibold text-stone-900 block">Estate Office &amp; SBM Dispatch:</span>
+                  <span className="text-stone-600">
+                    Submitted tickets are logged directly into the administrative housekeeping queue and synchronized with the cloud database.
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">
-                  Select Dustbin Location:
+                <label className="font-semibold text-stone-700 block mb-1">
+                  Target Dustbin Station:
                 </label>
                 <select
                   value={binId}
                   onChange={(e) => setBinId(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-rose-500"
+                  className="w-full bg-stone-50 border border-stone-200 rounded px-3 py-2 text-xs font-medium text-stone-900 focus:outline-hidden focus:border-[#134E3A] focus:bg-white transition-colors"
                 >
                   {bins.map((bin) => (
                     <option key={bin.id} value={bin.id}>
-                      {bin.name} ({bin.locationName} - {bin.floor})
+                      {bin.name} ({bin.locationName} &bull; {bin.floor})
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">
-                  What is the issue?
+                <label className="font-semibold text-stone-700 block mb-1">
+                  Observed Condition:
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { id: 'overflowing', label: '🗑️ Full / Overflowing' },
-                    { id: 'smell', label: '🦨 Bad Odor / Flies' },
-                    { id: 'wrong_waste', label: '⚠️ Mixed Waste (Dry & Wet mixed)' },
-                    { id: 'damaged', label: '🛠️ Damaged Lid or Body' },
+                    { id: 'overflowing', label: 'Full / Overflowing' },
+                    { id: 'smell', label: 'Odor / Hygiene Issue' },
+                    { id: 'wrong_waste', label: 'Improper Waste Segregation' },
+                    { id: 'damaged', label: 'Damaged Station / Lid' },
                   ].map((type) => (
                     <button
                       type="button"
                       key={type.id}
                       onClick={() => setIssueType(type.id as ReportTicket['issueType'])}
-                      className={`p-2.5 rounded-xl text-left font-semibold border transition-all cursor-pointer ${
+                      className={`p-2.5 rounded text-left font-medium border transition-colors cursor-pointer text-xs ${
                         issueType === type.id
-                          ? 'border-rose-500 bg-rose-50 text-rose-900'
-                          : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                          ? 'border-[#134E3A] bg-emerald-50/50 text-stone-900 font-semibold'
+                          : 'border-stone-200 bg-stone-50 text-stone-700 hover:bg-stone-100'
                       }`}
                     >
                       {type.label}
@@ -402,51 +324,51 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">
-                  Additional Details / Description (Optional):
+                <label className="font-semibold text-stone-700 block mb-1">
+                  Specific Observations (Optional):
                 </label>
                 <textarea
                   rows={2}
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
-                  placeholder="e.g. Green bin is completely full near the canteen counter; cups spilling onto ground."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-rose-500"
+                  placeholder="e.g. Wet compartment is full near the canteen counter; waste spilling onto floor."
+                  className="w-full bg-stone-50 border border-stone-200 rounded p-2.5 text-xs font-medium text-stone-900 focus:outline-hidden focus:border-[#134E3A] focus:bg-white transition-colors"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">
-                  Your Name / Roll No. (Optional):
+                <label className="font-semibold text-stone-700 block mb-1">
+                  Reporter Name / Department (Optional):
                 </label>
                 <input
                   type="text"
                   value={reporterName}
                   onChange={(e) => setReporterName(e.target.value)}
-                  placeholder="e.g. Rahul Sharma (CS 3rd Year)"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-rose-500"
+                  placeholder="e.g. Rahul Sharma (Civil Engineering)"
+                  className="w-full bg-stone-50 border border-stone-200 rounded px-3 py-2 text-xs font-medium text-stone-900 focus:outline-hidden focus:border-[#134E3A] focus:bg-white transition-colors"
                 />
               </div>
 
-              <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-stone-100">
+                <div className="flex items-center gap-1.5 text-[11px] text-stone-500 font-mono-code">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#134E3A] shrink-0" />
                   <span>Immediate Housekeeping Dispatch</span>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer"
+                    className="px-3.5 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded cursor-pointer transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     id="btn-submit-report-to-admin"
                     type="submit"
-                    className="px-5 py-2.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 rounded-xl shadow-md shadow-rose-600/25 flex items-center gap-2 cursor-pointer transition-all active:scale-95 group"
+                    className="px-4 py-1.5 text-xs font-semibold text-white bg-[#134E3A] hover:bg-[#0F3E2E] rounded shadow-2xs flex items-center gap-1.5 cursor-pointer transition-colors"
                   >
-                    <Send className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                    <span>Submit Report</span>
+                    <Send className="w-3.5 h-3.5" />
+                    <span>Submit Ticket</span>
                   </button>
                 </div>
               </div>

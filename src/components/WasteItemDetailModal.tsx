@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { WasteItem, CampusBin } from '../types';
 import { 
   X, 
@@ -11,7 +11,10 @@ import {
   Clock, 
   ExternalLink,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Volume2,
+  VolumeX,
+  Languages
 } from 'lucide-react';
 
 interface WasteItemDetailModalProps {
@@ -128,6 +131,63 @@ export const WasteItemDetailModal: React.FC<WasteItemDetailModalProps> = ({
 
   const meta = getBinMeta();
 
+  // Audio Speech Synthesis state
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [audioLang, setAudioLang] = useState<'hi' | 'en'>('hi');
+
+  // Stop speech when modal closes or item changes
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [item]);
+
+  const handleToggleAudio = () => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      alert('Speech audio is not supported in this browser.');
+      return;
+    }
+
+    if (isPlayingAudio) {
+      window.speechSynthesis.cancel();
+      setIsPlayingAudio(false);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    let textToSpeak = '';
+    if (audioLang === 'hi') {
+      if (item.category === 'wet') {
+        textToSpeak = `${item.name} गीला कचरा है। इसे हमेशा हरे डस्टबिन में डालें। ${item.tip}`;
+      } else if (item.category === 'dry') {
+        textToSpeak = `${item.name} सूखा कचरा है। इसे नीले डस्टबिन में डालें। ${item.tip}`;
+      } else if (item.category === 'e-waste') {
+        textToSpeak = `${item.name} ई-कचरा है। इसे कंप्यूटर साइंस डिपार्टमेंट के ई-वेस्ट ड्रॉप बॉक्स में डालें। ${item.tip}`;
+      } else {
+        textToSpeak = `${item.name} हानिकारक कचरा है। इसे सावधानी से लाल डस्टबिन या स्वास्थ्य केंद्र में दें।`;
+      }
+    } else {
+      textToSpeak = `Official disposal guide for ${item.name}. Category: ${meta.label}. Protocol instruction: ${item.tip}`;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.lang = audioLang === 'hi' ? 'hi-IN' : 'en-IN';
+    utterance.rate = 0.95;
+
+    utterance.onend = () => {
+      setIsPlayingAudio(false);
+    };
+    utterance.onerror = () => {
+      setIsPlayingAudio(false);
+    };
+
+    setIsPlayingAudio(true);
+    window.speechSynthesis.speak(utterance);
+  };
+
   // Find campus bins that accept this waste
   const relevantBins = bins.filter((b) => {
     if (item.category === 'wet') return b.hasWet;
@@ -139,72 +199,125 @@ export const WasteItemDetailModal: React.FC<WasteItemDetailModalProps> = ({
   return (
     <div 
       id="modal-waste-detail-backdrop"
-      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 bg-stone-900/60 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white w-full max-w-lg rounded-lg shadow-xl border border-stone-200 overflow-hidden my-auto animate-in fade-in duration-150">
         {/* Header with bin color theme */}
-        <div className={`p-5 sm:p-6 ${meta.bgColor} border-b ${meta.borderColor} flex items-start justify-between relative`}>
+        <div className={`p-4 sm:p-5 ${meta.bgColor} border-b ${meta.borderColor} flex items-start justify-between relative`}>
           <div className="flex items-start gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-white shadow-sm flex items-center justify-center shrink-0 border border-slate-200/60">
+            <div className="w-10 h-10 rounded bg-white shadow-2xs flex items-center justify-center shrink-0 border border-stone-200">
               {meta.icon}
             </div>
             <div>
-              <span className={`inline-flex items-center gap-1 text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border mb-1.5 ${meta.badgeColor}`}>
+              <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded border mb-1 font-mono-code ${meta.badgeColor}`}>
                 {meta.label}
               </span>
-              <h3 className={`text-lg sm:text-xl font-black font-['Outfit',sans-serif] leading-tight ${meta.textColor}`}>
+              <h3 className={`text-lg sm:text-xl font-bold font-editorial leading-tight ${meta.textColor}`}>
                 {item.name}
               </h3>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/80 hover:bg-white text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer shadow-xs"
+            className="w-7 h-7 rounded bg-white/90 hover:bg-white text-stone-500 hover:text-stone-900 flex items-center justify-center transition-colors cursor-pointer border border-stone-200"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Content body */}
-        <div className="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
-          {/* Quick specs grid */}
-          <div className="grid grid-cols-2 gap-2.5">
-            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
-                Recyclability
-              </span>
-              <div className="flex items-center gap-1.5 font-bold text-slate-800">
-                {item.recyclable ? (
+        <div className="p-4 sm:p-5 space-y-3.5 max-h-[75vh] overflow-y-auto text-xs">
+          {/* Audio Voice Guidance Control Strip */}
+          <div className="p-2.5 rounded bg-stone-50 border border-stone-200 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleToggleAudio}
+                className={`px-3 py-1 rounded text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  isPlayingAudio
+                    ? 'bg-rose-700 text-white'
+                    : 'bg-[#134E3A] hover:bg-[#0F3E2E] text-white shadow-2xs'
+                }`}
+              >
+                {isPlayingAudio ? (
                   <>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Recyclable</span>
+                    <VolumeX className="w-3.5 h-3.5" />
+                    <span>Stop Audio</span>
                   </>
                 ) : (
                   <>
-                    <X className="w-3.5 h-3.5 text-rose-500" />
-                    <span>Non-recyclable</span>
+                    <Volume2 className="w-3.5 h-3.5" />
+                    <span>Listen Audio Guide</span>
+                  </>
+                )}
+              </button>
+
+              <span className="text-[10px] text-stone-500 font-mono-code hidden sm:inline">
+                {isPlayingAudio ? 'Speaking...' : 'Institutional Voice Synthesizer'}
+              </span>
+            </div>
+
+            {/* Language toggle: Hindi / English */}
+            <div className="flex items-center gap-1 bg-stone-200/80 p-0.5 rounded text-[10px] font-mono-code font-bold">
+              <button
+                type="button"
+                onClick={() => setAudioLang('hi')}
+                className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
+                  audioLang === 'hi' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                हिन्दी
+              </button>
+              <button
+                type="button"
+                onClick={() => setAudioLang('en')}
+                className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
+                  audioLang === 'en' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                ENG
+              </button>
+            </div>
+          </div>
+
+          {/* Quick specs grid */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="p-2.5 rounded bg-stone-50 border border-stone-200">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-0.5 font-mono-code">
+                Recyclability
+              </span>
+              <div className="flex items-center gap-1.5 font-semibold text-stone-900">
+                {item.recyclable ? (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#134E3A]" />
+                    <span>Recyclable Stream</span>
+                  </>
+                ) : (
+                  <>
+                    <X className="w-3.5 h-3.5 text-rose-700" />
+                    <span>Non-Recyclable</span>
                   </>
                 )}
               </div>
             </div>
 
-            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+            <div className="p-2.5 rounded bg-stone-50 border border-stone-200">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-0.5 font-mono-code">
                 Biodegradability
               </span>
-              <div className="flex items-center gap-1.5 font-bold text-slate-800">
+              <div className="flex items-center gap-1.5 font-semibold text-stone-900">
                 {item.biodegradable ? (
                   <>
-                    <Leaf className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Biodegradable</span>
+                    <Leaf className="w-3.5 h-3.5 text-[#134E3A]" />
+                    <span>Organic / Compostable</span>
                   </>
                 ) : (
                   <>
-                    <Clock className="w-3.5 h-3.5 text-amber-600" />
-                    <span>Non-biodegradable</span>
+                    <Clock className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Persistent Material</span>
                   </>
                 )}
               </div>
@@ -213,63 +326,63 @@ export const WasteItemDetailModal: React.FC<WasteItemDetailModalProps> = ({
 
           {/* Description & Tip */}
           <div className="space-y-2">
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
-              <span className="font-bold text-slate-700 block">Description:</span>
-              <p className="text-slate-600 leading-relaxed">{item.description}</p>
+            <div className="p-3 rounded bg-stone-50 border border-stone-200 space-y-1">
+              <span className="font-semibold text-stone-900 block font-editorial text-sm">Description</span>
+              <p className="text-stone-600 leading-relaxed">{item.description}</p>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-emerald-950">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Expert SBM Disposal Rule:</span>
+            <div className="p-3 rounded bg-emerald-50/50 border border-emerald-200 space-y-1">
+              <div className="flex items-center gap-1.5 font-semibold text-[#134E3A]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#134E3A]" />
+                <span className="font-editorial text-sm">Disposal Protocol</span>
               </div>
-              <p className="text-emerald-900/90 leading-relaxed font-medium">{item.tip}</p>
+              <p className="text-stone-700 leading-relaxed font-medium">{item.tip}</p>
             </div>
           </div>
 
           {/* Environmental Impact & Decomposition */}
-          <div className="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-200/80 space-y-1.5">
-            <div className="flex items-center gap-1.5 font-bold text-amber-950">
-              <Clock className="w-3.5 h-3.5 text-amber-600" />
-              <span>Decomposition & Impact:</span>
+          <div className="p-3 rounded bg-stone-50 border border-stone-200 space-y-1.5">
+            <div className="flex items-center gap-1.5 font-semibold text-stone-900">
+              <Clock className="w-3.5 h-3.5 text-stone-700" />
+              <span className="font-editorial text-sm">Decomposition &amp; Environmental Lifecycle</span>
             </div>
-            <p className="text-amber-900/90 leading-relaxed">
-              <strong>Timeframe:</strong> {meta.decomp}
+            <p className="text-stone-700 leading-relaxed">
+              <strong className="text-stone-900">Degradation Duration:</strong> {meta.decomp}
             </p>
-            <p className="text-amber-900/80 text-[11px] leading-relaxed">
-              <strong>Campus Treatment:</strong> {meta.process}
+            <p className="text-stone-600 text-[11px] leading-relaxed">
+              <strong className="text-stone-900">Campus Facility Treatment:</strong> {meta.process}
             </p>
           </div>
 
           {/* Do's and Don'ts */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
-              <div className="font-bold text-emerald-700 flex items-center gap-1 text-[11px]">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                <span>Recommended (Do)</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <div className="p-3 rounded bg-stone-50 border border-stone-200 space-y-1.5">
+              <div className="font-semibold text-[#134E3A] flex items-center gap-1 text-xs">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#134E3A]" />
+                <span>Mandatory Protocols</span>
               </div>
-              <ul className="space-y-1 text-[11px] text-slate-600">
+              <ul className="space-y-1 text-[11px] text-stone-600">
                 {meta.dos.map((d, idx) => (
-                  <li key={idx}>• {d}</li>
+                  <li key={idx}>&bull; {d}</li>
                 ))}
               </ul>
             </div>
 
-            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
-              <div className="font-bold text-rose-700 flex items-center gap-1 text-[11px]">
-                <AlertCircle className="w-3 h-3 text-rose-500" />
-                <span>Avoid (Don't)</span>
+            <div className="p-3 rounded bg-stone-50 border border-stone-200 space-y-1.5">
+              <div className="font-semibold text-rose-800 flex items-center gap-1 text-xs">
+                <AlertCircle className="w-3.5 h-3.5 text-rose-700" />
+                <span>Prohibited Actions</span>
               </div>
-              <ul className="space-y-1 text-[11px] text-slate-600">
+              <ul className="space-y-1 text-[11px] text-stone-600">
                 {meta.donts.map((d, idx) => (
-                  <li key={idx}>• {d}</li>
+                  <li key={idx}>&bull; {d}</li>
                 ))}
               </ul>
             </div>
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center gap-2">
+          <div className="pt-2 border-t border-stone-100 flex flex-col sm:flex-row items-center gap-2">
             {onNavigateToFinder && (
               <button
                 type="button"
@@ -277,10 +390,10 @@ export const WasteItemDetailModal: React.FC<WasteItemDetailModalProps> = ({
                   onClose();
                   onNavigateToFinder(item.category === 'wet' ? 'wet' : item.category === 'dry' ? 'dry' : 'e-waste');
                 }}
-                className="w-full sm:w-1/2 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 cursor-pointer transition-all"
+                className="w-full sm:w-1/2 py-2 px-3 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer transition-colors"
               >
                 <MapPin className="w-3.5 h-3.5" />
-                <span>Find Nearest Bin</span>
+                <span>Locate Nearest Station</span>
               </button>
             )}
 
@@ -292,10 +405,10 @@ export const WasteItemDetailModal: React.FC<WasteItemDetailModalProps> = ({
                   const targetBin = relevantBins[0];
                   onNavigateToMap(targetBin?.id);
                 }}
-                className="w-full sm:w-1/2 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                className="w-full sm:w-1/2 py-2 px-3 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors border border-stone-200"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                <span>View Bins on Map</span>
+                <span>View Stations on Map</span>
               </button>
             )}
           </div>
