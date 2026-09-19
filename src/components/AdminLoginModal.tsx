@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Shield, Lock, User, Eye, EyeOff, AlertCircle, PlusCircle } from 'lucide-react';
+import { X, Shield, Lock, User, Eye, EyeOff, AlertCircle, PlusCircle, Sparkles } from 'lucide-react';
 
 interface AdminLoginModalProps {
   isOpen: boolean;
@@ -27,11 +27,11 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
     setErrorMessage(null);
     setIsLoading(true);
 
-    const cleanId = adminId.trim();
+    const cleanId = adminId.trim().toUpperCase();
     const cleanPassword = password.trim();
 
     // Check credentials:
-    // Admin ID: SBM
+    // Admin ID: SBM (case-insensitive)
     // Password: SBM@2612047
     if (cleanId === 'SBM' && cleanPassword === 'SBM@2612047') {
       setTimeout(() => {
@@ -42,9 +42,15 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
     } else {
       setTimeout(() => {
         setIsLoading(false);
-        setErrorMessage('Invalid Admin ID or Password. Please verify your credentials.');
+        setErrorMessage('Invalid Admin ID or Password. Demo credentials: SBM / SBM@2612047');
       }, 300);
     }
+  };
+
+  const handleQuickFill = () => {
+    setAdminId('SBM');
+    setPassword('SBM@2612047');
+    setErrorMessage(null);
   };
 
   const isAddBinReason = reason === 'add_bin';
@@ -169,6 +175,22 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
                 <span>{isAddBinReason ? 'Verify & Continue to Add Bin' : 'Sign In as Admin'}</span>
               </>
             )}
+          </button>
+
+          <div className="relative flex py-1 items-center">
+            <div className="grow border-t border-slate-200"></div>
+            <span className="shrink mx-2 text-[10px] uppercase font-bold text-slate-400">or demo credentials</span>
+            <div className="grow border-t border-slate-200"></div>
+          </div>
+
+          <button
+            id="btn-modal-quick-fill"
+            type="button"
+            onClick={handleQuickFill}
+            className="w-full py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Auto-fill Demo Credentials (ID: SBM)</span>
           </button>
         </form>
 

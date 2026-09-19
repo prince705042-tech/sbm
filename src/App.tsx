@@ -15,13 +15,15 @@ import {
   insertReportToSupabase, 
   updateReportStatusInSupabase, 
   deleteReportFromSupabase,
-  supabase 
+  syncAllLocalTicketsToSupabase,
+  subscribeToReportsRealtime,
+  toValidIsoDate,
 } from './lib/supabase';
 
 export default function App() {
   // Persistence in localStorage
   // Version key to ensure updated campus locations load cleanly
-  const DATA_VERSION = 'v19_removed_gandhi_ghat_bin';
+  const DATA_VERSION = 'v20_sanitized_keys';
 
   const [bins, setBins] = useState<CampusBin[]>(() => {
     try {
@@ -44,8 +46,6 @@ export default function App() {
               return b;
             });
         }
-      } else {
-        localStorage.setItem('swachh_campus_version', DATA_VERSION);
       }
     } catch {
       // Fallback
@@ -127,6 +127,10 @@ export default function App() {
   // Toast notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Supabase Sync State & Timestamp
+  const [supabaseSyncStatus, setSupabaseSyncStatus] = useState<'connected' | 'syncing' | 'error'>('syncing');
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
@@ -134,9 +138,10 @@ export default function App() {
     }, 4000);
   };
 
-  // Save to localStorage
+  // Save to localStorage & version tag
   useEffect(() => {
     try {
+      localStorage.setItem('swachh_campus_version', DATA_VERSION);
       localStorage.setItem('swachh_campus_bins', JSON.stringify(bins));
     } catch {}
   }, [bins]);
@@ -147,9 +152,90 @@ export default function App() {
     } catch {}
   }, [tickets]);
 
+  // Two-way synchronization with Supabase reports table
+  const syncWithSupabase = async (showFeedback = false) => {
+    setSupabaseSyncStatus('syncing');
+    try {
+      const { data, error } = await fetchReportsFromSupabase();
+      if (error) {
+        console.warn('Supabase sync warning:', error.message);
+        setSupabaseSyncStatus('error');
+        if (showFeedback) showToast(`⚠️ Supabase connection warning: ${error.message}`);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        setTickets((prev) => {
+          const remoteMap = new Map(data.map((t) => [t.id, t]));
+          // Remote records take priority
+          const merged = [...data];
+          // Preserve any local tickets that aren't in remote yet
+          prev.forEach((localT) => {
+            if (!remoteMap.has(localT.id)) {
+              merged.push(localT);
+            }
+          });
+          return merged;
+        });
+
+        // Push any unsynced local tickets to remote
+        const remoteIds = new Set(data.map((t) => t.id));
+        setTickets((currentTickets) => {
+          const unsynced = currentTickets.filter((t) => !remoteIds.has(t.id));
+          if (unsynced.length > 0) {
+            syncAllLocalTicketsToSupabase(unsynced).catch((e) => console.warn('Unsynced push notice:', e));
+          }
+          return currentTickets;
+        });
+
+        setSupabaseSyncStatus('connected');
+        const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        setLastSyncedAt(nowStr);
+        if (showFeedback) showToast(`⚡ Synced with Supabase! Loaded ${data.length} reports.`);
+      } else {
+        // Table exists but is currently empty: push existing local tickets to seed it
+        setTickets((currentTickets) => {
+          if (currentTickets.length > 0) {
+            syncAllLocalTicketsToSupabase(currentTickets)
+              .then(({ count }) => {
+                setSupabaseSyncStatus('connected');
+                const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                setLastSyncedAt(nowStr);
+                if (showFeedback) showToast(`⚡ Initialized Supabase table with ${count} reports!`);
+              })
+              .catch(() => {
+                setSupabaseSyncStatus('connected');
+              });
+          } else {
+            setSupabaseSyncStatus('connected');
+            if (showFeedback) showToast(`⚡ Supabase table connected (0 records)`);
+          }
+          return currentTickets;
+        });
+      }
+    } catch (err) {
+      console.error('Supabase sync exception:', err);
+      setSupabaseSyncStatus('error');
+      if (showFeedback) showToast(`⚠️ Supabase connection error`);
+    }
+  };
+
+  // Sync reports with Supabase on mount + realtime postgres changes
+  useEffect(() => {
+    syncWithSupabase();
+
+    const unsubscribe = subscribeToReportsRealtime(() => {
+      syncWithSupabase();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   // Admin Authentication Handlers
   const handleAdminLogin = (id: string, pass: string): boolean => {
-    if (id.trim() === 'SBM' && pass.trim() === 'SBM@2612047') {
+    if (id.trim().toUpperCase() === 'SBM' && pass.trim() === 'SBM@2612047') {
       setIsAdmin(true);
       try {
         localStorage.setItem('swachh_campus_admin_auth', 'true');
@@ -222,15 +308,33 @@ export default function App() {
 
   const handleSubmitReport = (data: Omit<ReportTicket, 'id' | 'reportedAt' | 'status'>): string => {
     const newTicketId = `t-${Date.now()}`;
+    const isoTimestamp = new Date().toISOString();
     const newTicket: ReportTicket = {
       ...data,
       id: newTicketId,
-      reportedAt: 'Just now',
+      reportedAt: isoTimestamp,
       status: 'pending',
     };
 
     setTickets((prev) => [newTicket, ...prev]);
     setHighlightedTicketId(newTicketId);
+
+    // Sync to Supabase in background (with guaranteed ISO timestamp)
+    insertReportToSupabase(newTicket)
+      .then((res) => {
+        if (res.success) {
+          setSupabaseSyncStatus('connected');
+          const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          setLastSyncedAt(nowStr);
+          showToast(`📢 Report logged & synced to Supabase database table!`);
+        } else {
+          console.warn('Supabase sync notice:', res.error);
+          showToast(`📢 Report saved locally (cloud sync pending)`);
+        }
+      })
+      .catch((err) => {
+        console.warn('Supabase insert exception:', err);
+      });
 
     // Update bin status to filling / full
     setBins((prev) =>
@@ -247,14 +351,21 @@ export default function App() {
       })
     );
 
-    showToast(`📢 Report logged to SBM Admin Dashboard!`);
     return newTicketId;
   };
 
   const handleDispatchCleaning = (ticketId: string) => {
+    const targetTicket = tickets.find((t) => t.id === ticketId);
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, status: 'cleaning_dispatched' } : t))
     );
+    if (targetTicket) {
+      updateReportStatusInSupabase(ticketId, 'cleaning_dispatched', { ...targetTicket, status: 'cleaning_dispatched' })
+        .then(() => setLastSyncedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })))
+        .catch(() => {});
+    } else {
+      updateReportStatusInSupabase(ticketId, 'cleaning_dispatched').catch(() => {});
+    }
     showToast('🚚 Housekeeping personnel dispatched to the dustbin location.');
   };
 
@@ -269,6 +380,11 @@ export default function App() {
             : b
         )
       );
+      updateReportStatusInSupabase(ticketId, 'resolved', { ...target, status: 'resolved' })
+        .then(() => setLastSyncedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })))
+        .catch(() => {});
+    } else {
+      updateReportStatusInSupabase(ticketId, 'resolved').catch(() => {});
     }
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, status: 'resolved' } : t))
@@ -286,6 +402,11 @@ export default function App() {
             : b
         )
       );
+      updateReportStatusInSupabase(ticketId, 'pending', { ...target, status: 'pending' })
+        .then(() => setLastSyncedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })))
+        .catch(() => {});
+    } else {
+      updateReportStatusInSupabase(ticketId, 'pending').catch(() => {});
     }
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, status: 'pending' } : t))
@@ -295,6 +416,9 @@ export default function App() {
 
   const handleDeleteTicket = (ticketId: string) => {
     setTickets((prev) => prev.filter((t) => t.id !== ticketId));
+    deleteReportFromSupabase(ticketId)
+      .then(() => setLastSyncedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })))
+      .catch(() => {});
     showToast('🗑️ Report ticket dismissed.');
   };
 
@@ -381,6 +505,9 @@ export default function App() {
             bins={bins}
             isAdmin={isAdmin}
             highlightedTicketId={highlightedTicketId}
+            supabaseSyncStatus={supabaseSyncStatus}
+            lastSyncedAt={lastSyncedAt}
+            onManualSync={() => syncWithSupabase(true)}
             onAdminLogin={handleAdminLogin}
             onAdminLogout={handleAdminLogout}
             onResolveTicket={handleResolveTicket}

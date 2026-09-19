@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ReportTicket, CampusBin } from '../types';
+import { formatReportTime } from '../lib/supabase';
 import { 
   AlertTriangle, 
   CheckCircle2, 
@@ -20,6 +21,8 @@ import {
   Sparkles,
   AlertCircle,
   PlusCircle,
+  RefreshCw,
+  Database,
 } from 'lucide-react';
 
 interface CampusAlertsViewProps {
@@ -27,6 +30,9 @@ interface CampusAlertsViewProps {
   bins: CampusBin[];
   isAdmin: boolean;
   highlightedTicketId?: string | null;
+  supabaseSyncStatus?: 'connected' | 'syncing' | 'error';
+  lastSyncedAt?: string | null;
+  onManualSync?: () => Promise<void> | void;
   onAdminLogin: (id: string, pass: string) => boolean;
   onAdminLogout: () => void;
   onResolveTicket: (ticketId: string) => void;
@@ -42,6 +48,9 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
   bins,
   isAdmin,
   highlightedTicketId,
+  supabaseSyncStatus = 'connected',
+  lastSyncedAt,
+  onManualSync,
   onAdminLogin,
   onAdminLogout,
   onResolveTicket,
@@ -85,7 +94,7 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
 
     const success = onAdminLogin(adminIdInput.trim(), passwordInput.trim());
     if (!success) {
-      setLoginError('Invalid Admin ID or Password. Please check your credentials.');
+      setLoginError('Invalid Admin ID or Password. Demo credentials: ID: SBM, Password: SBM@2612047');
     }
   };
 
@@ -287,6 +296,59 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
             <LogOut className="w-3.5 h-3.5" />
             <span>Log Out</span>
           </button>
+        </div>
+      </div>
+
+      {/* Supabase Cloud Sync Status Card */}
+      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
+            <Database className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-bold text-slate-900 font-['Outfit',sans-serif]">
+                Supabase Database Sync
+              </span>
+              <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                supabaseSyncStatus === 'connected'
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : supabaseSyncStatus === 'syncing'
+                  ? 'bg-amber-100 text-amber-800'
+                  : 'bg-rose-100 text-rose-800'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  supabaseSyncStatus === 'connected'
+                    ? 'bg-emerald-500'
+                    : supabaseSyncStatus === 'syncing'
+                    ? 'bg-amber-500 animate-ping'
+                    : 'bg-rose-500'
+                }`} />
+                {supabaseSyncStatus === 'connected' 
+                  ? 'Cloud Synced' 
+                  : supabaseSyncStatus === 'syncing' 
+                  ? 'Syncing Table...' 
+                  : 'Sync Alert'}
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Target Table: <code className="font-mono text-emerald-700 bg-emerald-50/80 px-1 py-0.5 rounded font-bold">public.reports</code> • {tickets.length} total tickets loaded {lastSyncedAt ? `• Synced at ${lastSyncedAt}` : ''}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {onManualSync && (
+            <button
+              id="btn-supabase-manual-sync"
+              onClick={onManualSync}
+              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+              title="Force sync local reports with Supabase cloud table"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-emerald-400 ${supabaseSyncStatus === 'syncing' ? 'animate-spin' : ''}`} />
+              <span>Sync with Supabase</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -492,7 +554,7 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                       </span>
 
                       <span className="text-xs text-slate-400">
-                        Reported {ticket.reportedAt} by <strong className="text-slate-600">{ticket.reportedBy}</strong>
+                        Reported {formatReportTime(ticket.reportedAt)} by <strong className="text-slate-600">{ticket.reportedBy}</strong>
                       </span>
 
                       <span className="text-[10px] font-mono text-slate-400 bg-slate-200/70 px-1.5 py-0.5 rounded">

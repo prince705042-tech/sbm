@@ -63,7 +63,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
     y: ((currentUserZoneInfo.coords.y + currentUserZoneInfo.coords.height / 2) / 100) * 1040,
   };
 
-  const selectedBinCoords = selectedBin
+  const selectedBinCoords = selectedBin && selectedBin.coords
     ? {
         x: (selectedBin.coords.x / 100) * 720,
         y: (selectedBin.coords.y / 100) * 1040,

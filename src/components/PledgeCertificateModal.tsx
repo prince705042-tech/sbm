@@ -33,7 +33,11 @@ export const PledgeCertificateModal: React.FC<PledgeCertificateModalProps> = ({
   if (!isOpen) return null;
 
   const handlePrint = () => {
-    window.print();
+    try {
+      window.print();
+    } catch (e) {
+      console.warn('Print not supported in current window or frame:', e);
+    }
   };
 
   const handleShare = async () => {
