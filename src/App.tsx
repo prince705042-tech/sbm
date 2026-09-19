@@ -15,6 +15,7 @@ import {
   insertReportToSupabase, 
   updateReportStatusInSupabase, 
   deleteReportFromSupabase,
+  deleteReportsFromSupabase,
   syncAllLocalTicketsToSupabase,
   subscribeToReportsRealtime,
   toValidIsoDate,
@@ -53,12 +54,36 @@ export default function App() {
     return INITIAL_BINS;
   });
 
+  // Deleted tickets tracker to ensure deleted tickets NEVER resurrect upon re-sync or reload
+  const [deletedTicketIds, setDeletedTicketIds] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('swachh_campus_deleted_tickets');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return new Set<string>(parsed);
+      }
+    } catch {}
+    return new Set<string>();
+  });
+
   const [tickets, setTickets] = useState<ReportTicket[]>(() => {
+    let deletedSet = new Set<string>();
+    try {
+      const savedDeleted = localStorage.getItem('swachh_campus_deleted_tickets');
+      if (savedDeleted) {
+        const parsed = JSON.parse(savedDeleted);
+        if (Array.isArray(parsed)) deletedSet = new Set<string>(parsed);
+      }
+    } catch {}
+
     try {
       const savedVersion = localStorage.getItem('swachh_campus_version');
       if (savedVersion === DATA_VERSION) {
         const saved = localStorage.getItem('swachh_campus_tickets');
-        if (saved) return JSON.parse(saved);
+        if (saved) {
+          const parsed: ReportTicket[] = JSON.parse(saved);
+          return parsed.filter((t) => !deletedSet.has(t.id));
+        }
       }
     } catch {
       // Fallback
@@ -97,7 +122,7 @@ export default function App() {
         status: 'pending',
         reportedBy: 'Ananya (B.Tech 3rd Year)',
       },
-    ];
+    ].filter((t) => !deletedSet.has(t.id));
   });
 
   // Admin authentication state
@@ -164,59 +189,56 @@ export default function App() {
         return;
       }
 
+      let deletedSet = new Set<string>();
+      try {
+        const savedDeleted = localStorage.getItem('swachh_campus_deleted_tickets');
+        if (savedDeleted) {
+          const parsed = JSON.parse(savedDeleted);
+          if (Array.isArray(parsed)) deletedSet = new Set(parsed);
+        }
+      } catch {}
+
       if (data && data.length > 0) {
+        // Filter out any tickets that were permanently deleted
+        const activeRemoteTickets = data.filter((t) => !deletedSet.has(t.id));
+
+        // Purge any remote records that match local deleted set in a single batch
+        const remoteToPurge = data.filter((t) => deletedSet.has(t.id));
+        if (remoteToPurge.length > 0) {
+          const idsToPurge = remoteToPurge.map((t) => t.id);
+          deleteReportsFromSupabase(idsToPurge).catch(() => {});
+        }
+
         setTickets((prev) => {
-          const remoteMap = new Map(data.map((t) => [t.id, t]));
-          // Remote records take priority
-          const merged = [...data];
-          // Preserve any local tickets that aren't in remote yet
+          const remoteMap = new Map(activeRemoteTickets.map((t) => [t.id, t]));
+          const merged = [...activeRemoteTickets];
+          // Preserve any local tickets that aren't deleted AND aren't in remote yet
           prev.forEach((localT) => {
-            if (!remoteMap.has(localT.id)) {
+            if (!deletedSet.has(localT.id) && !remoteMap.has(localT.id)) {
               merged.push(localT);
             }
           });
           return merged;
         });
 
-        // Push any unsynced local tickets to remote
-        const remoteIds = new Set(data.map((t) => t.id));
-        setTickets((currentTickets) => {
-          const unsynced = currentTickets.filter((t) => !remoteIds.has(t.id));
-          if (unsynced.length > 0) {
-            syncAllLocalTicketsToSupabase(unsynced).catch((e) => console.warn('Unsynced push notice:', e));
-          }
-          return currentTickets;
-        });
-
         setSupabaseSyncStatus('connected');
         const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         setLastSyncedAt(nowStr);
-        if (showFeedback) showToast(`⚡ Synced with Supabase! Loaded ${data.length} reports.`);
+        if (showFeedback) showToast(`⚡ Synced with Supabase! Loaded ${activeRemoteTickets.length} reports.`);
       } else {
-        // Table exists but is currently empty: push existing local tickets to seed it
+        // Remote table has 0 records
         setTickets((currentTickets) => {
-          if (currentTickets.length > 0) {
-            syncAllLocalTicketsToSupabase(currentTickets)
-              .then(({ count }) => {
-                setSupabaseSyncStatus('connected');
-                const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                setLastSyncedAt(nowStr);
-                if (showFeedback) showToast(`⚡ Initialized Supabase table with ${count} reports!`);
-              })
-              .catch(() => {
-                setSupabaseSyncStatus('connected');
-              });
-          } else {
-            setSupabaseSyncStatus('connected');
-            if (showFeedback) showToast(`⚡ Supabase table connected (0 records)`);
-          }
-          return currentTickets;
+          return currentTickets.filter((t) => !deletedSet.has(t.id));
         });
+        setSupabaseSyncStatus('connected');
+        const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        setLastSyncedAt(nowStr);
+        if (showFeedback) showToast(`⚡ Supabase connected (0 records)`);
       }
     } catch (err) {
-      console.error('Supabase sync exception:', err);
+      console.warn('Supabase sync notice:', err);
       setSupabaseSyncStatus('error');
-      if (showFeedback) showToast(`⚠️ Supabase connection error`);
+      if (showFeedback) showToast(`⚠️ Supabase connection offline / local mode`);
     }
   };
 
@@ -266,7 +288,11 @@ export default function App() {
 
   // Callback on successful admin modal login
   const handleAdminLoginSuccess = () => {
-    handleAdminLogin('SBM', 'SBM@2612047');
+    setIsAdmin(true);
+    try {
+      localStorage.setItem('swachh_campus_admin_auth', 'true');
+    } catch {}
+    showToast('🛡️ Welcome SBM Administrator! Admin privileges active.');
     if (adminLoginReason === 'add_bin') {
       setIsAddBinModalOpen(true);
       showToast('🛡️ SBM Admin verified. You can now register a new dustbin station.');
@@ -414,12 +440,84 @@ export default function App() {
     showToast('🔄 Ticket reopened for housekeeping action.');
   };
 
-  const handleDeleteTicket = (ticketId: string) => {
-    setTickets((prev) => prev.filter((t) => t.id !== ticketId));
-    deleteReportFromSupabase(ticketId)
-      .then(() => setLastSyncedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })))
-      .catch(() => {});
-    showToast('🗑️ Report ticket dismissed.');
+  const handleDeleteTicket = async (ticketId: string) => {
+    // 1. Immediately record in deleted set
+    const nextDeleted = new Set(deletedTicketIds);
+    nextDeleted.add(ticketId);
+    setDeletedTicketIds(nextDeleted);
+    try {
+      localStorage.setItem('swachh_campus_deleted_tickets', JSON.stringify([...nextDeleted]));
+    } catch {}
+
+    // 2. Remove immediately from local state and storage
+    setTickets((prev) => {
+      const updated = prev.filter((t) => t.id !== ticketId);
+      try {
+        localStorage.setItem('swachh_campus_tickets', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    // 3. Delete from Supabase remote database
+    try {
+      const res = await deleteReportFromSupabase(ticketId);
+      if (res.success) {
+        setLastSyncedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+        showToast('🗑️ Report ticket deleted permanently from database.');
+      } else {
+        console.warn('Supabase remote delete notice:', res.error);
+        showToast('🗑️ Report ticket deleted locally.');
+      }
+    } catch (e) {
+      console.warn('Delete ticket notice:', e);
+      showToast('🗑️ Report ticket removed.');
+    }
+  };
+
+  const handleDeleteResolvedTickets = async () => {
+    const resolvedTickets = tickets.filter((t) => t.status === 'resolved');
+    if (resolvedTickets.length === 0) return;
+
+    const resolvedIds = resolvedTickets.map((t) => t.id);
+
+    // 1. Record all in deleted tracker
+    const nextDeleted = new Set(deletedTicketIds);
+    resolvedIds.forEach((id) => nextDeleted.add(id));
+    setDeletedTicketIds(nextDeleted);
+    try {
+      localStorage.setItem('swachh_campus_deleted_tickets', JSON.stringify([...nextDeleted]));
+    } catch {}
+
+    // 2. Remove from local state
+    setTickets((prev) => {
+      const updated = prev.filter((t) => t.status !== 'resolved');
+      try {
+        localStorage.setItem('swachh_campus_tickets', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    showToast(`🗑️ Purged ${resolvedIds.length} resolved reports.`);
+
+    // 3. Delete each from Supabase in a single batch call
+    if (resolvedIds.length > 0) {
+      await deleteReportsFromSupabase(resolvedIds).catch(() => {});
+    }
+    setLastSyncedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  };
+
+  const handleDeleteBin = (binId: string) => {
+    setBins((prev) => {
+      const updated = prev.filter((b) => b.id !== binId);
+      try {
+        localStorage.setItem('swachh_campus_bins', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    if (selectedBin?.id === binId) {
+      setSelectedBin(bins.find((b) => b.id !== binId) || null);
+    }
+    showToast('🗑️ Dustbin station deleted from campus registry.');
   };
 
   const activeAlertsCount = tickets.filter((t) => t.status !== 'resolved').length;
@@ -514,6 +612,8 @@ export default function App() {
             onDispatchCleaning={handleDispatchCleaning}
             onReopenTicket={handleReopenTicket}
             onDeleteTicket={handleDeleteTicket}
+            onDeleteResolvedTickets={handleDeleteResolvedTickets}
+            onDeleteBin={handleDeleteBin}
             onOpenReportModal={() => {
               setTargetBinForReport(selectedBin);
               setIsReportModalOpen(true);
@@ -640,7 +740,7 @@ export default function App() {
                 </div>
                 <p className="text-[11px] text-slate-500 mt-0.5">
                   {isAdmin
-                    ? 'Logged in as SBM Administrator (ID: SBM). Operational dashboard and dustbin registry controls active.'
+                    ? 'Logged in as SBM Administrator. Operational dashboard and dustbin registry controls active.'
                     : 'Restricted administrative access for authorized Swachh Bharat Mission supervisors & sanitary personnel.'}
                 </p>
               </div>

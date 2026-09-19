@@ -123,7 +123,7 @@ export async function fetchReportsFromSupabase(): Promise<{ data: ReportTicket[]
     const tickets: ReportTicket[] = (data || []).map((row: DbReportRow) => fromDbRow(row));
     return { data: tickets, error: null };
   } catch (err: unknown) {
-    console.error('[Supabase fetchReports exception]:', err);
+    console.warn('[Supabase fetchReports notice - offline fallback]:', err);
     return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
   }
 }
@@ -141,12 +141,12 @@ export async function insertReportToSupabase(
       .maybeSingle();
 
     if (error) {
-      console.error('[Supabase insertReport error]:', error);
+      console.warn('[Supabase insertReport notice]:', error.message);
       return { success: false, error: new Error(error.message) };
     }
     return { success: true, error: null, row: data as DbReportRow | undefined };
   } catch (err: unknown) {
-    console.error('[Supabase insertReport exception]:', err);
+    console.warn('[Supabase insertReport notice - offline fallback]:', err);
     return { success: false, error: err instanceof Error ? err : new Error(String(err)) };
   }
 }
@@ -166,12 +166,12 @@ export async function syncAllLocalTicketsToSupabase(
       .select();
 
     if (error) {
-      console.error('[Supabase bulk sync error]:', error);
+      console.warn('[Supabase bulk sync notice]:', error.message);
       return { count: 0, error: new Error(error.message) };
     }
     return { count: data?.length ?? payloads.length, error: null };
   } catch (err: unknown) {
-    console.error('[Supabase bulk sync exception]:', err);
+    console.warn('[Supabase bulk sync notice - offline fallback]:', err);
     return { count: 0, error: err instanceof Error ? err : new Error(String(err)) };
   }
 }
@@ -190,7 +190,7 @@ export async function updateReportStatusInSupabase(
         .upsert(payload, { onConflict: 'id' });
 
       if (error) {
-        console.error('[Supabase updateReportStatus upsert error]:', error);
+        console.warn('[Supabase updateReportStatus upsert notice]:', error.message);
         return { success: false, error: new Error(error.message) };
       }
       return { success: true, error: null };
@@ -202,35 +202,46 @@ export async function updateReportStatusInSupabase(
       .eq('id', ticketId);
 
     if (error) {
-      console.error('[Supabase updateReportStatus error]:', error);
+      console.warn('[Supabase updateReportStatus notice]:', error.message);
       return { success: false, error: new Error(error.message) };
     }
     return { success: true, error: null };
   } catch (err: unknown) {
-    console.error('[Supabase updateReportStatus exception]:', err);
+    console.warn('[Supabase updateReportStatus notice - offline fallback]:', err);
     return { success: false, error: err instanceof Error ? err : new Error(String(err)) };
   }
 }
 
-// Delete report from Supabase
-export async function deleteReportFromSupabase(
-  ticketId: string
+// Batch delete reports from Supabase in a single HTTP request
+export async function deleteReportsFromSupabase(
+  ticketIds: string[]
 ): Promise<{ success: boolean; error: Error | null }> {
+  if (!ticketIds || ticketIds.length === 0) {
+    return { success: true, error: null };
+  }
   try {
     const { error } = await supabase
       .from('reports')
       .delete()
-      .eq('id', ticketId);
+      .in('id', ticketIds);
 
     if (error) {
-      console.error('[Supabase deleteReport error]:', error);
+      console.warn('[Supabase deleteReports notice]:', error.message);
       return { success: false, error: new Error(error.message) };
     }
     return { success: true, error: null };
   } catch (err: unknown) {
-    console.error('[Supabase deleteReport exception]:', err);
+    console.warn('[Supabase deleteReports notice - offline fallback]:', err);
     return { success: false, error: err instanceof Error ? err : new Error(String(err)) };
   }
+}
+
+// Delete single report from Supabase
+export async function deleteReportFromSupabase(
+  ticketId: string
+): Promise<{ success: boolean; error: Error | null }> {
+  if (!ticketId) return { success: true, error: null };
+  return deleteReportsFromSupabase([ticketId]);
 }
 
 // Subscribe to real-time changes on public.reports
@@ -245,10 +256,16 @@ export function subscribeToReportsRealtime(onDatabaseChange: () => void): () => 
           onDatabaseChange();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          // Soft notice, falls back to polling or local state
+        }
+      });
 
     return () => {
-      supabase.removeChannel(channel);
+      try {
+        supabase.removeChannel(channel);
+      } catch {}
     };
   } catch {
     return () => {};

@@ -18,7 +18,6 @@ import {
   Search, 
   Trash2, 
   ShieldAlert, 
-  Sparkles,
   AlertCircle,
   PlusCircle,
   RefreshCw,
@@ -38,7 +37,9 @@ interface CampusAlertsViewProps {
   onResolveTicket: (ticketId: string) => void;
   onDispatchCleaning: (ticketId: string) => void;
   onReopenTicket?: (ticketId: string) => void;
-  onDeleteTicket?: (ticketId: string) => void;
+  onDeleteTicket?: (ticketId: string) => Promise<void> | void;
+  onDeleteResolvedTickets?: () => Promise<void> | void;
+  onDeleteBin?: (binId: string) => void;
   onOpenReportModal: () => void;
   onOpenAddBinModal?: () => void;
 }
@@ -57,6 +58,8 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
   onDispatchCleaning,
   onReopenTicket,
   onDeleteTicket,
+  onDeleteResolvedTickets,
+  onDeleteBin,
   onOpenReportModal,
   onOpenAddBinModal,
 }) => {
@@ -65,6 +68,16 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
   const [passwordInput, setPasswordInput] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+
+  // Admin Dashboard Section Switcher
+  const [adminTab, setAdminTab] = useState<'reports' | 'bins'>('reports');
+  const [binSearchQuery, setBinSearchQuery] = useState('');
+
+  // Delete modal and loading states
+  const [ticketToDelete, setTicketToDelete] = useState<ReportTicket | null>(null);
+  const [binToDelete, setBinToDelete] = useState<CampusBin | null>(null);
+  const [showDeleteResolvedConfirm, setShowDeleteResolvedConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Filter and search state for logged-in admin
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'cleaning_dispatched' | 'resolved'>('all');
@@ -94,7 +107,7 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
 
     const success = onAdminLogin(adminIdInput.trim(), passwordInput.trim());
     if (!success) {
-      setLoginError('Invalid Admin ID or Password. Demo credentials: ID: SBM, Password: SBM@2612047');
+      setLoginError('Invalid Admin ID or Password. Access is restricted to authorized personnel.');
     }
   };
 
@@ -188,22 +201,6 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
               <Lock className="w-4 h-4" />
               <span>Unlock Admin Dashboard</span>
             </button>
-
-            <div className="relative flex py-1 items-center">
-              <div className="grow border-t border-slate-200"></div>
-              <span className="shrink mx-2 text-[10px] uppercase font-bold text-slate-400">or instant access</span>
-              <div className="grow border-t border-slate-200"></div>
-            </div>
-
-            <button
-              id="btn-gate-quick-access"
-              type="button"
-              onClick={() => onAdminLogin('SBM', 'SBM@2612047')}
-              className="w-full py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              <span>One-Click Quick Admin Access (Resolve Reports)</span>
-            </button>
           </form>
 
           {/* Alternative action: regular user wanting to submit an issue */}
@@ -238,6 +235,18 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
       return matchName || matchLoc || matchReporter || matchDetails || matchIssue;
     }
     return true;
+  });
+
+  const filteredBins = bins.filter((b) => {
+    if (!binSearchQuery.trim()) return true;
+    const q = binSearchQuery.toLowerCase();
+    return (
+      b.name.toLowerCase().includes(q) ||
+      b.locationName.toLowerCase().includes(q) ||
+      b.floor.toLowerCase().includes(q) ||
+      b.landmark.toLowerCase().includes(q) ||
+      b.zone.toLowerCase().includes(q)
+    );
   });
 
   return (
@@ -427,66 +436,114 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
         </div>
       </div>
 
-      {/* Reports Management Table / List */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-          <div>
-            <h3 className="text-xl font-bold text-slate-900 font-['Outfit',sans-serif]">
-              Submitted Sanitation Reports
-            </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Manage citizen complaints and dispatch campus sanitation personnel
-            </p>
-          </div>
+      {/* Admin Module Switcher */}
+      <div className="flex items-center gap-2 border-b border-slate-200/80 pb-1">
+        <button
+          id="tab-admin-reports"
+          onClick={() => setAdminTab('reports')}
+          className={`px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
+            adminTab === 'reports'
+              ? 'bg-slate-900 text-white shadow-sm'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+          }`}
+        >
+          <AlertCircle className="w-4 h-4 text-emerald-400" />
+          <span>Sanitation Complaints & Reports ({tickets.length})</span>
+          {pendingCount > 0 && (
+            <span className="w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center">
+              {pendingCount}
+            </span>
+          )}
+        </button>
 
-          {/* Status filter tabs */}
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80">
-            <button
-              id="filter-all"
-              onClick={() => setStatusFilter('all')}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                statusFilter === 'all'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              All ({tickets.length})
-            </button>
-            <button
-              id="filter-pending"
-              onClick={() => setStatusFilter('pending')}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                statusFilter === 'pending'
-                  ? 'bg-amber-500 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Pending ({pendingCount})
-            </button>
-            <button
-              id="filter-dispatched"
-              onClick={() => setStatusFilter('cleaning_dispatched')}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                statusFilter === 'cleaning_dispatched'
-                  ? 'bg-sky-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Dispatched ({dispatchedCount})
-            </button>
-            <button
-              id="filter-resolved"
-              onClick={() => setStatusFilter('resolved')}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                statusFilter === 'resolved'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Resolved ({resolvedCount})
-            </button>
+        <button
+          id="tab-admin-bins"
+          onClick={() => setAdminTab('bins')}
+          className={`px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
+            adminTab === 'bins'
+              ? 'bg-slate-900 text-white shadow-sm'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+          }`}
+        >
+          <MapPin className="w-4 h-4 text-teal-400" />
+          <span>Campus Dustbin Registry ({bins.length})</span>
+        </button>
+      </div>
+
+      {/* Conditional rendering based on adminTab */}
+      {adminTab === 'reports' ? (
+        /* Reports Management Table / List */
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <h3 className="text-xl font-bold text-slate-900 font-['Outfit',sans-serif]">
+                Submitted Sanitation Reports
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Manage citizen complaints and dispatch campus sanitation personnel
+              </p>
+            </div>
+
+            {/* Status filter tabs */}
+            <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200/80">
+              <button
+                id="filter-all"
+                onClick={() => setStatusFilter('all')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                  statusFilter === 'all'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                All ({tickets.length})
+              </button>
+              <button
+                id="filter-pending"
+                onClick={() => setStatusFilter('pending')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                  statusFilter === 'pending'
+                    ? 'bg-amber-500 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Pending ({pendingCount})
+              </button>
+              <button
+                id="filter-dispatched"
+                onClick={() => setStatusFilter('cleaning_dispatched')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                  statusFilter === 'cleaning_dispatched'
+                    ? 'bg-sky-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Dispatched ({dispatchedCount})
+              </button>
+              <button
+                id="filter-resolved"
+                onClick={() => setStatusFilter('resolved')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                  statusFilter === 'resolved'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Resolved ({resolvedCount})
+              </button>
+
+              {statusFilter === 'resolved' && resolvedCount > 0 && onDeleteResolvedTickets && (
+                <button
+                  id="btn-delete-all-resolved"
+                  onClick={() => setShowDeleteResolvedConfirm(true)}
+                  className="px-3 py-1.5 text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer ml-1"
+                  title="Permanently purge all resolved tickets"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete All Resolved ({resolvedCount})</span>
+                </button>
+              )}
+            </div>
           </div>
-        </div>
 
         {/* Search bar */}
         <div className="relative">
@@ -634,11 +691,11 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                     {onDeleteTicket && (
                       <button
                         id={`btn-delete-${ticket.id}`}
-                        onClick={() => onDeleteTicket(ticket.id)}
-                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
-                        title="Dismiss / Delete report"
+                        onClick={() => setTicketToDelete(ticket)}
+                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer group"
+                        title="Delete this report permanently"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                       </button>
                     )}
                   </div>
@@ -648,6 +705,314 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
           </div>
         )}
       </div>
+      ) : (
+        /* Campus Dustbin Registry View */
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <h3 className="text-xl font-bold text-slate-900 font-['Outfit',sans-serif]">
+                Campus Dustbin Stations
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Monitor registered smart dustbins, verify fill status, or decommission retired stations
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {onOpenAddBinModal && (
+                <button
+                  id="btn-admin-add-bin-secondary"
+                  onClick={onOpenAddBinModal}
+                  className="px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+                >
+                  <PlusCircle className="w-3.5 h-3.5" />
+                  <span>Add New Dustbin</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Search bar for bins */}
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              id="input-search-admin-bins"
+              type="text"
+              value={binSearchQuery}
+              onChange={(e) => setBinSearchQuery(e.target.value)}
+              placeholder="Search dustbins by name, zone, location, or landmark..."
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all placeholder:text-slate-400"
+            />
+          </div>
+
+          {filteredBins.length === 0 ? (
+            <div className="text-center py-12 border border-dashed border-slate-200 rounded-2xl">
+              <MapPin className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm font-bold text-slate-700">No dustbins match your search</p>
+              <p className="text-xs text-slate-400 mt-0.5">Try searching with a different zone or keyword.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredBins.map((bin) => (
+                <div
+                  key={bin.id}
+                  id={`bin-card-admin-${bin.id}`}
+                  className="p-5 rounded-2xl border border-slate-200/90 bg-white hover:border-slate-300 transition-all shadow-2xs flex flex-col justify-between gap-4"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm font-['Outfit',sans-serif]">
+                          {bin.name}
+                        </h4>
+                        <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>{bin.locationName}</span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
+                          {bin.landmark} • {bin.floor}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                          bin.status === 'normal'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : bin.status === 'filling'
+                            ? 'bg-amber-100 text-amber-800'
+                            : bin.status === 'full'
+                            ? 'bg-rose-100 text-rose-800'
+                            : 'bg-slate-100 text-slate-700'
+                        }`}>
+                          {bin.status}
+                        </span>
+
+                        {onDeleteBin && (
+                          <button
+                            id={`btn-delete-bin-${bin.id}`}
+                            onClick={() => setBinToDelete(bin)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer group"
+                            title="Delete this dustbin from registry"
+                          >
+                            <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Fill Level Meter */}
+                    <div className="mt-4">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="font-medium text-slate-500">Fill Level</span>
+                        <span className="font-bold text-slate-800">{bin.fillLevel}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-500 ${
+                            bin.fillLevel >= 80
+                              ? 'bg-rose-500'
+                              : bin.fillLevel >= 50
+                              ? 'bg-amber-500'
+                              : 'bg-emerald-500'
+                          }`}
+                          style={{ width: `${bin.fillLevel}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+                    <div className="flex items-center gap-1.5">
+                      {bin.hasDry && (
+                        <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-bold border border-blue-100">
+                          Dry
+                        </span>
+                      )}
+                      {bin.hasWet && (
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold border border-emerald-100">
+                          Wet
+                        </span>
+                      )}
+                      {bin.hasEwaste && (
+                        <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 font-bold border border-purple-100">
+                          E-Waste
+                        </span>
+                      )}
+                    </div>
+                    <span>Capacity: {bin.capacityLiters}L</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* MODAL 1: Confirm Delete Single Report */}
+      {ticketToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <h4 className="text-lg font-bold text-slate-900 font-['Outfit',sans-serif]">
+              Delete Sanitation Report?
+            </h4>
+            <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+              Are you sure you want to permanently delete report ticket <strong className="text-slate-900 font-mono">#{ticketToDelete.id}</strong>? This action will permanently remove the record from both the local dashboard and the Supabase cloud database.
+            </p>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 my-4 text-xs space-y-1">
+              <p className="font-bold text-slate-800">{ticketToDelete.binName}</p>
+              <p className="text-slate-500">{ticketToDelete.locationName}</p>
+              <p className="text-slate-600 italic">"{ticketToDelete.details}"</p>
+              <p className="text-[10px] text-slate-400 pt-1">Reported by {ticketToDelete.reportedBy} • {ticketToDelete.reportedAt}</p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5">
+              <button
+                id="btn-cancel-delete-report"
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setTicketToDelete(null)}
+                className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                id="btn-confirm-delete-report"
+                type="button"
+                disabled={isDeleting}
+                onClick={async () => {
+                  if (!onDeleteTicket) return;
+                  setIsDeleting(true);
+                  try {
+                    await onDeleteTicket(ticketToDelete.id);
+                  } finally {
+                    setIsDeleting(false);
+                    setTicketToDelete(null);
+                  }
+                }}
+                className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Yes, Delete Report</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: Confirm Delete All Resolved Reports */}
+      {showDeleteResolvedConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <h4 className="text-lg font-bold text-slate-900 font-['Outfit',sans-serif]">
+              Purge All Resolved Reports?
+            </h4>
+            <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+              This will permanently delete all <strong className="text-slate-900 font-bold">{resolvedCount}</strong> resolved reports from both the active campus dashboard and the Supabase cloud table.
+            </p>
+            <div className="flex items-center justify-end gap-2.5 mt-5">
+              <button
+                id="btn-cancel-delete-all-resolved"
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setShowDeleteResolvedConfirm(false)}
+                className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                id="btn-confirm-delete-all-resolved"
+                type="button"
+                disabled={isDeleting}
+                onClick={async () => {
+                  if (!onDeleteResolvedTickets) return;
+                  setIsDeleting(true);
+                  try {
+                    await onDeleteResolvedTickets();
+                  } finally {
+                    setIsDeleting(false);
+                    setShowDeleteResolvedConfirm(false);
+                  }
+                }}
+                className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Purging...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete {resolvedCount} Reports</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: Confirm Delete Dustbin */}
+      {binToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <h4 className="text-lg font-bold text-slate-900 font-['Outfit',sans-serif]">
+              Remove Dustbin Station?
+            </h4>
+            <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+              Are you sure you want to remove <strong className="text-slate-900 font-bold">{binToDelete.name}</strong> from the campus registry? It will no longer appear on the interactive map or citizen bin finder.
+            </p>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 my-4 text-xs space-y-1">
+              <p className="font-bold text-slate-800">{binToDelete.name}</p>
+              <p className="text-slate-500">{binToDelete.locationName}</p>
+              <p className="text-[11px] text-slate-400">Zone: {binToDelete.zone} • Capacity: {binToDelete.capacityLiters}L</p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5">
+              <button
+                id="btn-cancel-delete-bin"
+                type="button"
+                onClick={() => setBinToDelete(null)}
+                className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                id="btn-confirm-delete-bin"
+                type="button"
+                onClick={() => {
+                  if (onDeleteBin) onDeleteBin(binToDelete.id);
+                  setBinToDelete(null);
+                }}
+                className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Yes, Delete Station</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
