@@ -129,14 +129,14 @@ export const ScanBinModal: React.FC<ScanBinModalProps> = ({
             </div>
 
             <p className="text-[11px] text-stone-400 mt-3 font-mono-code">
-              Point camera at any campus dustbin placard or select a quick demonstration station below.
+              Point camera at any campus dustbin placard or select a station below.
             </p>
           </div>
 
-          {/* Quick presets for rapid demo testing */}
+          {/* Quick presets for station scanning */}
           <div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1.5 font-mono-code">
-              Quick Demonstration Stations (Tap to Simulate Scan):
+              Campus Stations (Tap to Simulate Scan):
             </span>
             <div className="flex flex-wrap gap-1.5">
               {bins.slice(0, 6).map((b) => (

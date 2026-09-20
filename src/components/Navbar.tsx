@@ -5,7 +5,6 @@ import {
   Compass, 
   BookOpen, 
   AlertTriangle, 
-  PlusCircle, 
   CheckCircle2, 
   ShieldCheck, 
   Menu, 
@@ -18,7 +17,7 @@ interface NavbarProps {
   activeTab: 'map' | 'finder' | 'guide' | 'alerts';
   setActiveTab: (tab: 'map' | 'finder' | 'guide' | 'alerts') => void;
   onOpenReportModal: () => void;
-  onOpenAddBinModal: () => void;
+  onOpenAddBinModal?: () => void;
   onOpenScanModal?: () => void;
   activeAlertsCount: number;
   totalBinsCount: number;
@@ -186,21 +185,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <AlertTriangle className="w-3.5 h-3.5 text-amber-700 shrink-0" />
               <span className="hidden sm:inline">Report Issue</span>
               <span className="sm:hidden">Report</span>
-            </button>
-
-            <button
-              id="btn-add-bin"
-              onClick={onOpenAddBinModal}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
-                isAdmin
-                  ? 'bg-[#134E3A] text-white hover:bg-[#0F3E2E] shadow-2xs'
-                  : 'bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-300'
-              }`}
-              title={isAdmin ? "Add New Station (Admin)" : "Add New Station"}
-            >
-              <PlusCircle className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden sm:inline">Add Station</span>
-              <span className="sm:hidden">Add</span>
             </button>
 
             {/* Mobile Menu Toggle */}
