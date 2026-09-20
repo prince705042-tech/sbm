@@ -21,6 +21,7 @@ import {
   Check,
   X
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { WasteItemDetailModal } from './WasteItemDetailModal';
 import { WasteQuiz } from './WasteQuiz';
 import { PledgeCertificateModal } from './PledgeCertificateModal';
@@ -849,9 +850,11 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
               {filteredItems.map((item) => {
                 const isHighlighted = highlightedItemId === item.id;
                 return (
-                  <div
+                  <motion.div
                     key={item.id}
                     id={`waste-item-${item.id}`}
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.99 }}
                     onClick={() => handleItemClick(item)}
                     className={`bg-white rounded-lg p-4 border transition-all cursor-pointer flex flex-col justify-between group relative ${
                       isHighlighted
@@ -943,7 +946,7 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
                         Details &rarr;
                       </span>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
@@ -1000,123 +1003,145 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
       </div>
 
       {/* Modal: Take Pledge Form */}
-      {isPledgeFormOpen && (
-        <div 
-          className="fixed inset-0 z-50 bg-stone-900/60 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsPledgeFormOpen(false);
-          }}
-        >
-          <div className="bg-white w-full max-w-md rounded-lg shadow-xl border border-stone-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-4 bg-[#134E3A] text-white flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded bg-white/15 flex items-center justify-center">
-                  <Award className="w-4 h-4 text-white" />
+      <AnimatePresence>
+        {isPledgeFormOpen && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+          >
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsPledgeFormOpen(false)}
+              className="fixed inset-0 bg-stone-900/60"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className="relative z-10 bg-white w-full max-w-md rounded-lg shadow-xl border border-stone-200 overflow-hidden my-auto"
+            >
+              <div className="p-4 bg-[#134E3A] text-white flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded bg-white/15 flex items-center justify-center">
+                    <Award className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm font-editorial">
+                      Campus Swachhata Pledge
+                    </h3>
+                    <span className="text-[11px] text-emerald-200">
+                      NIT Patna Clean Campus Chapter
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-sm font-editorial">
-                    Campus Swachhata Pledge
-                  </h3>
-                  <span className="text-[11px] text-emerald-200">
-                    NIT Patna Clean Campus Chapter
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsPledgeFormOpen(false)}
-                className="w-7 h-7 rounded bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleConfirmPledge} className="p-5 space-y-3.5 text-xs">
-              <div>
-                <label className="font-semibold text-stone-700 block mb-1">
-                  Full Name:
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={tempName}
-                  onChange={(e) => setTempName(e.target.value)}
-                  placeholder="e.g. Rahul Sharma"
-                  className="w-full bg-stone-50 border border-stone-300 rounded-md px-3 py-2 text-xs font-medium text-stone-800 focus:outline-hidden focus:border-[#134E3A]"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-stone-700 block mb-1">
-                  Department / Hostel / Designation:
-                </label>
-                <input
-                  type="text"
-                  value={tempDept}
-                  onChange={(e) => setTempDept(e.target.value)}
-                  placeholder="e.g. Computer Science (3rd Year) / Kosi Hostel"
-                  className="w-full bg-stone-50 border border-stone-300 rounded-md px-3 py-2 text-xs font-medium text-stone-800 focus:outline-hidden focus:border-[#134E3A]"
-                />
-              </div>
-
-              <div className="p-3 rounded-md bg-stone-50 border border-stone-200 space-y-1.5">
-                <span className="font-semibold text-stone-800 block text-[11px] uppercase tracking-wider">Pledge Declaration</span>
-                <p className="text-stone-700 leading-relaxed italic text-[11px]">
-                  "I solemnly pledge to keep my university campus clean. I will never litter pathways or lawns, always separate dry and wet waste at the source, and actively motivate my peers to uphold Swachh Bharat ideals."
-                </p>
-
-                <label className="flex items-center gap-2 pt-1 font-semibold text-stone-800 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={pledgeAgreement}
-                    onChange={(e) => setPledgeAgreement(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#134E3A] accent-[#134E3A]"
-                  />
-                  <span>I agree and commit to this campus charter</span>
-                </label>
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-stone-100">
                 <button
-                  type="button"
                   onClick={() => setIsPledgeFormOpen(false)}
-                  className="px-3.5 py-1.5 font-medium text-stone-600 hover:bg-stone-100 rounded-md cursor-pointer"
+                  className="w-7 h-7 rounded bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={!pledgeAgreement || !tempName.trim()}
-                  className="px-4 py-1.5 font-semibold text-white bg-[#134E3A] hover:bg-[#0F3E2E] disabled:opacity-50 rounded-md shadow-2xs flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Check className="w-3.5 h-3.5" />
-                  <span>Confirm &amp; Issue Certificate</span>
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            </form>
+
+              <form onSubmit={handleConfirmPledge} className="p-5 space-y-3.5 text-xs">
+                <div>
+                  <label className="font-semibold text-stone-700 block mb-1">
+                    Full Name:
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={tempName}
+                    onChange={(e) => setTempName(e.target.value)}
+                    placeholder="e.g. Rahul Sharma"
+                    className="w-full bg-stone-50 border border-stone-300 rounded-md px-3 py-2 text-xs font-medium text-stone-800 focus:outline-hidden focus:border-[#134E3A]"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-semibold text-stone-700 block mb-1">
+                    Department / Hostel / Designation:
+                  </label>
+                  <input
+                    type="text"
+                    value={tempDept}
+                    onChange={(e) => setTempDept(e.target.value)}
+                    placeholder="e.g. Computer Science (3rd Year) / Kosi Hostel"
+                    className="w-full bg-stone-50 border border-stone-300 rounded-md px-3 py-2 text-xs font-medium text-stone-800 focus:outline-hidden focus:border-[#134E3A]"
+                  />
+                </div>
+
+                <div className="p-3 rounded-md bg-stone-50 border border-stone-200 space-y-1.5">
+                  <span className="font-semibold text-stone-800 block text-[11px] uppercase tracking-wider">Pledge Declaration</span>
+                  <p className="text-stone-700 leading-relaxed italic text-[11px]">
+                    "I solemnly pledge to keep my university campus clean. I will never litter pathways or lawns, always separate dry and wet waste at the source, and actively motivate my peers to uphold Swachh Bharat ideals."
+                  </p>
+
+                  <label className="flex items-center gap-2 pt-1 font-semibold text-stone-800 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={pledgeAgreement}
+                      onChange={(e) => setPledgeAgreement(e.target.checked)}
+                      className="w-4 h-4 rounded text-[#134E3A] accent-[#134E3A]"
+                    />
+                    <span>I agree and commit to this campus charter</span>
+                  </label>
+                </div>
+
+                <div className="pt-2 flex items-center justify-end gap-2 border-t border-stone-100">
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    type="button"
+                    onClick={() => setIsPledgeFormOpen(false)}
+                    className="px-3.5 py-1.5 font-medium text-stone-600 hover:bg-stone-100 rounded-md cursor-pointer"
+                  >
+                    Cancel
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    disabled={!pledgeAgreement || !tempName.trim()}
+                    className="px-4 py-1.5 font-semibold text-white bg-[#134E3A] hover:bg-[#0F3E2E] disabled:opacity-50 rounded-md shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Confirm &amp; Issue Certificate</span>
+                  </motion.button>
+                </div>
+              </form>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* Modal: Item Detail View */}
-      <WasteItemDetailModal
-        item={selectedItem}
-        isOpen={isDetailModalOpen}
-        onClose={() => setIsDetailModalOpen(false)}
-        onNavigateToFinder={onNavigateToFinder}
-        onNavigateToMap={onNavigateToMap}
-        onOpenReportModal={onOpenReportModal}
-        bins={bins}
-      />
+      <AnimatePresence>
+        {isDetailModalOpen && (
+          <WasteItemDetailModal
+            item={selectedItem}
+            isOpen={isDetailModalOpen}
+            onClose={() => setIsDetailModalOpen(false)}
+            onNavigateToFinder={onNavigateToFinder}
+            onNavigateToMap={onNavigateToMap}
+            onOpenReportModal={onOpenReportModal}
+            bins={bins}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Modal: Official Pledge Certificate */}
-      <PledgeCertificateModal
-        isOpen={isCertificateOpen}
-        onClose={() => setIsCertificateOpen(false)}
-        pledgeName={pledgeName}
-        pledgeDept={pledgeDept}
-        pledgeDate={pledgeDate}
-        onResetPledge={handleResetPledge}
-      />
+      <AnimatePresence>
+        {isCertificateOpen && (
+          <PledgeCertificateModal
+            isOpen={isCertificateOpen}
+            onClose={() => setIsCertificateOpen(false)}
+            pledgeName={pledgeName}
+            pledgeDept={pledgeDept}
+            pledgeDate={pledgeDate}
+            onResetPledge={handleResetPledge}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -14,6 +14,7 @@ import {
   Clock,
   Sparkles
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface ScanBinModalProps {
   isOpen: boolean;
@@ -65,12 +66,22 @@ export const ScanBinModal: React.FC<ScanBinModalProps> = ({
   return (
     <div 
       id="modal-scan-bin-backdrop"
-      className="fixed inset-0 z-50 bg-stone-900/60 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
     >
-      <div className="bg-white w-full max-w-lg rounded-lg shadow-xl border border-stone-200 overflow-hidden my-auto animate-in fade-in duration-150">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 bg-stone-900/60"
+      />
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.2 }}
+        className="relative z-10 bg-white w-full max-w-lg rounded-lg shadow-xl border border-stone-200 overflow-hidden my-auto"
+      >
         {/* Header */}
         <div className="p-4 sm:p-5 bg-stone-50 border-b border-stone-200 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -105,23 +116,27 @@ export const ScanBinModal: React.FC<ScanBinModalProps> = ({
         <div className="p-4 sm:p-5 space-y-4 max-h-[80vh] overflow-y-auto text-xs">
           {/* Simulated Scanner Viewfinder */}
           <div className="relative rounded-lg overflow-hidden bg-stone-900 border border-stone-800 p-6 text-center text-stone-300">
-            <div className="w-36 h-36 mx-auto relative flex items-center justify-center border-2 border-dashed border-emerald-500/80 rounded-md bg-stone-950/60">
+            <div className="w-36 h-36 mx-auto relative flex items-center justify-center border-2 border-dashed border-emerald-500/80 rounded-md bg-stone-950/60 overflow-hidden">
               {/* Corner brackets */}
-              <div className="absolute top-1 left-1 w-3 h-3 border-t-2 border-l-2 border-emerald-400"></div>
-              <div className="absolute top-1 right-1 w-3 h-3 border-t-2 border-r-2 border-emerald-400"></div>
-              <div className="absolute bottom-1 left-1 w-3 h-3 border-b-2 border-l-2 border-emerald-400"></div>
-              <div className="absolute bottom-1 right-1 w-3 h-3 border-b-2 border-r-2 border-emerald-400"></div>
+              <div className="absolute top-1 left-1 w-3 h-3 border-t-2 border-l-2 border-emerald-400 z-20"></div>
+              <div className="absolute top-1 right-1 w-3 h-3 border-t-2 border-r-2 border-emerald-400 z-20"></div>
+              <div className="absolute bottom-1 left-1 w-3 h-3 border-b-2 border-l-2 border-emerald-400 z-20"></div>
+              <div className="absolute bottom-1 right-1 w-3 h-3 border-b-2 border-r-2 border-emerald-400 z-20"></div>
 
               {/* Animated laser line */}
-              <div className="absolute left-2 right-2 h-0.5 bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse"></div>
+              <motion.div 
+                className="absolute left-2 right-2 h-0.5 bg-emerald-400 shadow-[0_0_8px_#34d399] z-10 pointer-events-none"
+                animate={{ top: ['15%', '85%', '15%'] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+              />
 
               {isSimulatingCamera ? (
-                <div className="text-emerald-400 text-xs font-mono-code flex flex-col items-center gap-1">
+                <div className="text-emerald-400 text-xs font-mono-code flex flex-col items-center gap-1 z-20">
                   <Camera className="w-6 h-6 animate-bounce" />
                   <span>Decoding QR...</span>
                 </div>
               ) : (
-                <div className="text-stone-400 flex flex-col items-center gap-1">
+                <div className="text-stone-400 flex flex-col items-center gap-1 z-20">
                   <QrCode className="w-8 h-8 text-stone-400 opacity-60" />
                   <span className="text-[10px] font-mono-code text-stone-400">Align Placard QR</span>
                 </div>
@@ -140,7 +155,8 @@ export const ScanBinModal: React.FC<ScanBinModalProps> = ({
             </span>
             <div className="flex flex-wrap gap-1.5">
               {bins.slice(0, 6).map((b) => (
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   key={b.id}
                   type="button"
                   onClick={() => handleSimulateScan(b)}
@@ -151,7 +167,7 @@ export const ScanBinModal: React.FC<ScanBinModalProps> = ({
                   }`}
                 >
                   {b.name.split(' ')[0]} ({b.floor.split(' ')[0]})
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
@@ -324,7 +340,7 @@ export const ScanBinModal: React.FC<ScanBinModalProps> = ({
             Done
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

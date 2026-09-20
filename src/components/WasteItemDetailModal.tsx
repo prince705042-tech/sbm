@@ -16,6 +16,7 @@ import {
   VolumeX,
   Languages
 } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface WasteItemDetailModalProps {
   item: WasteItem | null;
@@ -208,12 +209,22 @@ export const WasteItemDetailModal: React.FC<WasteItemDetailModalProps> = ({
   return (
     <div 
       id="modal-waste-detail-backdrop"
-      className="fixed inset-0 z-50 bg-stone-900/60 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
     >
-      <div className="bg-white w-full max-w-lg rounded-lg shadow-xl border border-stone-200 overflow-hidden my-auto animate-in fade-in duration-150">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 bg-stone-900/60"
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.2 }}
+        className="relative z-10 bg-white w-full max-w-lg rounded-lg shadow-xl border border-stone-200 overflow-hidden my-auto"
+      >
         {/* Header with bin color theme */}
         <div className={`p-4 sm:p-5 ${meta.bgColor} border-b ${meta.borderColor} flex items-start justify-between relative`}>
           <div className="flex items-start gap-3">
@@ -429,7 +440,7 @@ export const WasteItemDetailModal: React.FC<WasteItemDetailModalProps> = ({
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

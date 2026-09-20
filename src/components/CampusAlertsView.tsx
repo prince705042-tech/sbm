@@ -25,6 +25,7 @@ import {
   FileText,
   Printer
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface CampusAlertsViewProps {
   tickets: ReportTicket[];
@@ -588,18 +589,24 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
           </div>
         ) : (
           <div className="space-y-3">
-            {filteredTickets.map((ticket) => {
-              const isHighlighted = ticket.id === highlightedTicketId;
-              return (
-                <div
-                  key={ticket.id}
-                  id={`ticket-card-${ticket.id}`}
-                  className={`p-4 rounded-lg border transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 ${
-                    isHighlighted
-                      ? 'ring-2 ring-[#134E3A]/40 border-[#134E3A] bg-emerald-50/20 shadow-2xs'
-                      : 'border-stone-200 bg-white hover:border-stone-300'
-                  }`}
-                >
+            <AnimatePresence>
+              {filteredTickets.map((ticket) => {
+                const isHighlighted = ticket.id === highlightedTicketId;
+                return (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={{ duration: 0.2 }}
+                    key={ticket.id}
+                    id={`ticket-card-${ticket.id}`}
+                    className={`p-4 rounded-lg border transition-colors flex flex-col md:flex-row md:items-center justify-between gap-3 ${
+                      isHighlighted
+                        ? 'ring-2 ring-[#134E3A]/40 border-[#134E3A] bg-emerald-50/20 shadow-2xs'
+                        : 'border-stone-200 bg-white hover:border-stone-300'
+                    }`}
+                  >
                   <div className="space-y-1 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5 text-xs">
                       {isHighlighted && (
@@ -717,11 +724,12 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                       </button>
                     )}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
-        )}
+          </AnimatePresence>
+        </div>
+      )}
       </div>
       ) : (
         /* Campus Dustbin Registry View */
@@ -881,170 +889,215 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
       )}
 
       {/* MODAL 1: Confirm Delete Single Report */}
-      {ticketToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 animate-in fade-in duration-150">
-          <div className="bg-white rounded-lg max-w-md w-full p-5 shadow-xl border border-stone-200 animate-in zoom-in-95 duration-150">
-            <div className="w-10 h-10 rounded bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center mb-3">
-              <Trash2 className="w-5 h-5" />
-            </div>
-            <h4 className="text-base font-bold text-stone-900 font-editorial">
-              Delete Sanitation Report?
-            </h4>
-            <p className="text-xs text-stone-600 mt-1 leading-relaxed">
-              Are you sure you want to permanently delete report ticket <strong className="text-stone-900 font-mono-code">#{ticketToDelete.id}</strong>? This action removes the record from both the local console and Supabase database.
-            </p>
+      <AnimatePresence>
+        {ticketToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !isDeleting && setTicketToDelete(null)}
+              className="fixed inset-0 bg-stone-900/60"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className="relative z-10 bg-white rounded-lg max-w-md w-full p-5 shadow-xl border border-stone-200 my-auto"
+            >
+              <div className="w-10 h-10 rounded bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center mb-3">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <h4 className="text-base font-bold text-stone-900 font-editorial">
+                Delete Sanitation Report?
+              </h4>
+              <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+                Are you sure you want to permanently delete report ticket <strong className="text-stone-900 font-mono-code">#{ticketToDelete.id}</strong>? This action removes the record from both the local console and Supabase database.
+              </p>
 
-            <div className="bg-stone-50 border border-stone-200 rounded p-3 my-3 text-xs space-y-0.5">
-              <p className="font-bold text-stone-900">{ticketToDelete.binName}</p>
-              <p className="text-stone-600">{ticketToDelete.locationName}</p>
-              <p className="text-stone-700 italic">"{ticketToDelete.details}"</p>
-              <p className="text-[10px] text-stone-400 pt-1 font-mono-code">Reported by {ticketToDelete.reportedBy} &bull; {ticketToDelete.reportedAt}</p>
-            </div>
+              <div className="bg-stone-50 border border-stone-200 rounded p-3 my-3 text-xs space-y-0.5">
+                <p className="font-bold text-stone-900">{ticketToDelete.binName}</p>
+                <p className="text-stone-600">{ticketToDelete.locationName}</p>
+                <p className="text-stone-700 italic">"{ticketToDelete.details}"</p>
+                <p className="text-[10px] text-stone-400 pt-1 font-mono-code">Reported by {ticketToDelete.reportedBy} &bull; {ticketToDelete.reportedAt}</p>
+              </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
-              <button
-                id="btn-cancel-delete-report"
-                type="button"
-                disabled={isDeleting}
-                onClick={() => setTicketToDelete(null)}
-                className="px-3 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded cursor-pointer transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                id="btn-confirm-delete-report"
-                type="button"
-                disabled={isDeleting}
-                onClick={async () => {
-                  if (!onDeleteTicket) return;
-                  setIsDeleting(true);
-                  try {
-                    await onDeleteTicket(ticketToDelete.id);
-                  } finally {
-                    setIsDeleting(false);
-                    setTicketToDelete(null);
-                  }
-                }}
-                className="px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-700 hover:bg-rose-800 rounded shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              >
-                {isDeleting ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Deleting...</span>
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>Delete Record</span>
-                  </>
-                )}
-              </button>
-            </div>
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
+                <button
+                  id="btn-cancel-delete-report"
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={() => setTicketToDelete(null)}
+                  className="px-3 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  id="btn-confirm-delete-report"
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={async () => {
+                    if (!onDeleteTicket) return;
+                    setIsDeleting(true);
+                    try {
+                      await onDeleteTicket(ticketToDelete.id);
+                    } finally {
+                      setIsDeleting(false);
+                      setTicketToDelete(null);
+                    }
+                  }}
+                  className="px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-700 hover:bg-rose-800 rounded shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  {isDeleting ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Deleting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete Record</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* MODAL 2: Confirm Delete All Resolved Reports */}
-      {showDeleteResolvedConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 animate-in fade-in duration-150">
-          <div className="bg-white rounded-lg max-w-md w-full p-5 shadow-xl border border-stone-200 animate-in zoom-in-95 duration-150">
-            <div className="w-10 h-10 rounded bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center mb-3">
-              <Trash2 className="w-5 h-5" />
-            </div>
-            <h4 className="text-base font-bold text-stone-900 font-editorial">
-              Purge All Resolved Reports?
-            </h4>
-            <p className="text-xs text-stone-600 mt-1 leading-relaxed">
-              This will permanently delete all <strong className="text-stone-900 font-bold">{resolvedCount}</strong> resolved reports from both the active campus dashboard and the Supabase cloud table.
-            </p>
-            <div className="flex items-center justify-end gap-2 mt-4 pt-2 border-t border-stone-100">
-              <button
-                id="btn-cancel-delete-all-resolved"
-                type="button"
-                disabled={isDeleting}
-                onClick={() => setShowDeleteResolvedConfirm(false)}
-                className="px-3 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded cursor-pointer transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                id="btn-confirm-delete-all-resolved"
-                type="button"
-                disabled={isDeleting}
-                onClick={async () => {
-                  if (!onDeleteResolvedTickets) return;
-                  setIsDeleting(true);
-                  try {
-                    await onDeleteResolvedTickets();
-                  } finally {
-                    setIsDeleting(false);
-                    setShowDeleteResolvedConfirm(false);
-                  }
-                }}
-                className="px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-700 hover:bg-rose-800 rounded shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              >
-                {isDeleting ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Purging...</span>
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>Delete {resolvedCount} Reports</span>
-                  </>
-                )}
-              </button>
-            </div>
+      <AnimatePresence>
+        {showDeleteResolvedConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !isDeleting && setShowDeleteResolvedConfirm(false)}
+              className="fixed inset-0 bg-stone-900/60"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className="relative z-10 bg-white rounded-lg max-w-md w-full p-5 shadow-xl border border-stone-200 my-auto"
+            >
+              <div className="w-10 h-10 rounded bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center mb-3">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <h4 className="text-base font-bold text-stone-900 font-editorial">
+                Purge All Resolved Reports?
+              </h4>
+              <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+                This will permanently delete all <strong className="text-stone-900 font-bold">{resolvedCount}</strong> resolved reports from both the active campus dashboard and the Supabase cloud table.
+              </p>
+              <div className="flex items-center justify-end gap-2 mt-4 pt-2 border-t border-stone-100">
+                <button
+                  id="btn-cancel-delete-all-resolved"
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={() => setShowDeleteResolvedConfirm(false)}
+                  className="px-3 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  id="btn-confirm-delete-all-resolved"
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={async () => {
+                    if (!onDeleteResolvedTickets) return;
+                    setIsDeleting(true);
+                    try {
+                      await onDeleteResolvedTickets();
+                    } finally {
+                      setIsDeleting(false);
+                      setShowDeleteResolvedConfirm(false);
+                    }
+                  }}
+                  className="px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-700 hover:bg-rose-800 rounded shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  {isDeleting ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Purging...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete {resolvedCount} Reports</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* MODAL 3: Confirm Delete Dustbin */}
-      {binToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 animate-in fade-in duration-150">
-          <div className="bg-white rounded-lg max-w-md w-full p-5 shadow-xl border border-stone-200 animate-in zoom-in-95 duration-150">
-            <div className="w-10 h-10 rounded bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center mb-3">
-              <Trash2 className="w-5 h-5" />
-            </div>
-            <h4 className="text-base font-bold text-stone-900 font-editorial">
-              Decommission Dustbin Station?
-            </h4>
-            <p className="text-xs text-stone-600 mt-1 leading-relaxed">
-              Are you sure you want to remove <strong className="text-stone-900 font-bold">{binToDelete.name}</strong> from the campus registry? It will no longer appear on the interactive map or citizen bin finder.
-            </p>
+      <AnimatePresence>
+        {binToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setBinToDelete(null)}
+              className="fixed inset-0 bg-stone-900/60"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className="relative z-10 bg-white rounded-lg max-w-md w-full p-5 shadow-xl border border-stone-200 my-auto"
+            >
+              <div className="w-10 h-10 rounded bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center mb-3">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <h4 className="text-base font-bold text-stone-900 font-editorial">
+                Decommission Dustbin Station?
+              </h4>
+              <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+                Are you sure you want to remove <strong className="text-stone-900 font-bold">{binToDelete.name}</strong> from the campus registry? It will no longer appear on the interactive map or citizen bin finder.
+              </p>
 
-            <div className="bg-stone-50 border border-stone-200 rounded p-3 my-3 text-xs space-y-0.5">
-              <p className="font-bold text-stone-900">{binToDelete.name}</p>
-              <p className="text-stone-600">{binToDelete.locationName}</p>
-              <p className="text-[11px] text-stone-400 font-mono-code">Zone: {binToDelete.zone} &bull; Capacity: {binToDelete.capacityLiters}L</p>
-            </div>
+              <div className="bg-stone-50 border border-stone-200 rounded p-3 my-3 text-xs space-y-0.5">
+                <p className="font-bold text-stone-900">{binToDelete.name}</p>
+                <p className="text-stone-600">{binToDelete.locationName}</p>
+                <p className="text-[11px] text-stone-400 font-mono-code">Zone: {binToDelete.zone} &bull; Capacity: {binToDelete.capacityLiters}L</p>
+              </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
-              <button
-                id="btn-cancel-delete-bin"
-                type="button"
-                onClick={() => setBinToDelete(null)}
-                className="px-3 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded cursor-pointer transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                id="btn-confirm-delete-bin"
-                type="button"
-                onClick={() => {
-                  if (onDeleteBin) onDeleteBin(binToDelete.id);
-                  setBinToDelete(null);
-                }}
-                className="px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-700 hover:bg-rose-800 rounded shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Confirm Removal</span>
-              </button>
-            </div>
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
+                <button
+                  id="btn-cancel-delete-bin"
+                  type="button"
+                  onClick={() => setBinToDelete(null)}
+                  className="px-3 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  id="btn-confirm-delete-bin"
+                  type="button"
+                  onClick={() => {
+                    if (onDeleteBin) onDeleteBin(binToDelete.id);
+                    setBinToDelete(null);
+                  }}
+                  className="px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-700 hover:bg-rose-800 rounded shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Confirm Removal</span>
+                </button>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };

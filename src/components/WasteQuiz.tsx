@@ -12,6 +12,7 @@ import {
   Zap,
   AlertTriangle
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface QuizQuestion {
   id: number;
@@ -227,155 +228,173 @@ export const WasteQuiz: React.FC = () => {
         )}
       </div>
 
-      {!quizCompleted ? (
-        <div className="space-y-5">
-          {/* Progress bar */}
-          <div className="w-full bg-stone-100 h-1.5 rounded-full overflow-hidden border border-stone-200">
-            <div
-              className="bg-[#134E3A] h-full transition-all duration-300"
-              style={{ width: `${((currentIndex + (isAnswered ? 1 : 0)) / QUIZ_QUESTIONS.length) * 100}%` }}
-            />
-          </div>
+      <AnimatePresence mode="wait">
+        {!quizCompleted ? (
+          <motion.div 
+            key={currentIndex}
+            initial={{ opacity: 0, x: 15 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -15 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-5"
+          >
+            {/* Progress bar */}
+            <div className="w-full bg-stone-100 h-1.5 rounded-full overflow-hidden border border-stone-200">
+              <div
+                className="bg-[#134E3A] h-full transition-all duration-300"
+                style={{ width: `${((currentIndex + (isAnswered ? 1 : 0)) / QUIZ_QUESTIONS.length) * 100}%` }}
+              />
+            </div>
 
-          {/* Scenario Card */}
-          <div className="p-4 sm:p-5 rounded bg-stone-900 text-stone-100 border border-stone-800 shadow-2xs space-y-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 font-mono-code block">
-              Case Study &bull; {currentQ.context}
-            </span>
-            <h4 className="text-base sm:text-lg font-bold font-editorial text-white leading-snug">
-              &ldquo;{currentQ.scenario}&rdquo;
-            </h4>
-            <p className="text-xs text-stone-400">
-              Select the compliant waste management protocol:
-            </p>
-          </div>
+            {/* Scenario Card */}
+            <div className="p-4 sm:p-5 rounded bg-stone-900 text-stone-100 border border-stone-800 shadow-2xs space-y-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 font-mono-code block">
+                Case Study &bull; {currentQ.context}
+              </span>
+              <h4 className="text-base sm:text-lg font-bold font-editorial text-white leading-snug">
+                &ldquo;{currentQ.scenario}&rdquo;
+              </h4>
+              <p className="text-xs text-stone-400">
+                Select the compliant waste management protocol:
+              </p>
+            </div>
 
-          {/* Options */}
-          <div className="space-y-2">
-            {currentQ.options.map((option, idx) => {
-              const isSelected = selectedOption === idx;
-              let btnStyle = 'bg-stone-50 hover:bg-stone-100 border-stone-200 text-stone-800';
+            {/* Options */}
+            <div className="space-y-2">
+              {currentQ.options.map((option, idx) => {
+                const isSelected = selectedOption === idx;
+                let btnStyle = 'bg-stone-50 hover:bg-stone-100 border-stone-200 text-stone-800';
 
-              if (isAnswered) {
-                if (option.isCorrect) {
-                  btnStyle = 'bg-emerald-50/70 border-[#134E3A] text-stone-900 font-semibold shadow-2xs';
-                } else if (isSelected) {
-                  btnStyle = 'bg-rose-50 border-rose-300 text-rose-950 font-medium';
-                } else {
-                  btnStyle = 'bg-stone-50/40 border-stone-200 text-stone-400 opacity-60';
+                if (isAnswered) {
+                  if (option.isCorrect) {
+                    btnStyle = 'bg-emerald-50/70 border-[#134E3A] text-stone-900 font-semibold shadow-2xs';
+                  } else if (isSelected) {
+                    btnStyle = 'bg-rose-50 border-rose-300 text-rose-950 font-medium';
+                  } else {
+                    btnStyle = 'bg-stone-50/40 border-stone-200 text-stone-400 opacity-60';
+                  }
                 }
-              }
 
-              return (
-                <button
-                  key={idx}
-                  onClick={() => handleSelectOption(idx)}
-                  disabled={isAnswered}
-                  className={`w-full text-left p-3.5 rounded border transition-colors text-xs sm:text-sm font-medium flex items-start gap-3 cursor-pointer ${btnStyle}`}
-                >
-                  <span className="w-5 h-5 rounded bg-white border border-stone-300 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 font-mono-code text-stone-700">
-                    {String.fromCharCode(65 + idx)}
-                  </span>
-                  <div className="flex-1">
-                    <span>{option.text}</span>
-                    {isAnswered && (option.isCorrect || isSelected) && (
-                      <div className="mt-2 pt-2 border-t border-stone-200/60 text-xs font-normal">
-                        <span className="font-semibold block mb-0.5 text-stone-900 font-editorial">
-                          {option.isCorrect ? 'Institutional Rationalization:' : 'Regulatory Conflict:'}
-                        </span>
-                        <span className="text-stone-700">{option.explanation}</span>
-                      </div>
+                return (
+                  <motion.button
+                    whileTap={!isAnswered ? { scale: 0.99 } : {}}
+                    key={idx}
+                    onClick={() => handleSelectOption(idx)}
+                    disabled={isAnswered}
+                    className={`w-full text-left p-3.5 rounded border transition-colors text-xs sm:text-sm font-medium flex items-start gap-3 cursor-pointer ${btnStyle}`}
+                  >
+                    <span className="w-5 h-5 rounded bg-white border border-stone-300 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 font-mono-code text-stone-700">
+                      {String.fromCharCode(65 + idx)}
+                    </span>
+                    <div className="flex-1">
+                      <span>{option.text}</span>
+                      {isAnswered && (option.isCorrect || isSelected) && (
+                        <div className="mt-2 pt-2 border-t border-stone-200/60 text-xs font-normal">
+                          <span className="font-semibold block mb-0.5 text-stone-900 font-editorial">
+                            {option.isCorrect ? 'Institutional Rationalization:' : 'Regulatory Conflict:'}
+                          </span>
+                          <span className="text-stone-700">{option.explanation}</span>
+                        </div>
+                      )}
+                    </div>
+                    {isAnswered && option.isCorrect && (
+                      <CheckCircle2 className="w-4 h-4 text-[#134E3A] shrink-0 mt-0.5" />
                     )}
-                  </div>
-                  {isAnswered && option.isCorrect && (
-                    <CheckCircle2 className="w-4 h-4 text-[#134E3A] shrink-0 mt-0.5" />
-                  )}
-                  {isAnswered && isSelected && !option.isCorrect && (
-                    <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
+                    {isAnswered && isSelected && !option.isCorrect && (
+                      <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    )}
+                  </motion.button>
+                );
+              })}
+            </div>
 
-          {/* Next button */}
-          {isAnswered && (
-            <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-              <span className="text-xs font-medium text-stone-500 font-mono-code">
-                {currentQ.options[selectedOption!].isCorrect ? (
-                  <span className="text-[#134E3A] font-semibold flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Correct Assessment (+1)
-                  </span>
-                ) : (
-                  <span className="text-rose-700 font-semibold flex items-center gap-1">
-                    <XCircle className="w-3.5 h-3.5" /> Non-Compliant Selection
-                  </span>
-                )}
+            {/* Next button */}
+            {isAnswered && (
+              <div className="flex items-center justify-between pt-2 border-t border-stone-100">
+                <span className="text-xs font-medium text-stone-500 font-mono-code">
+                  {currentQ.options[selectedOption!].isCorrect ? (
+                    <span className="text-[#134E3A] font-semibold flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Correct Assessment (+1)
+                    </span>
+                  ) : (
+                    <span className="text-rose-700 font-semibold flex items-center gap-1">
+                      <XCircle className="w-3.5 h-3.5" /> Non-Compliant Selection
+                    </span>
+                  )}
+                </span>
+
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleNext}
+                  className="px-4 py-1.5 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white text-xs font-semibold shadow-2xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <span>{currentIndex < QUIZ_QUESTIONS.length - 1 ? 'Proceed to Next Case' : 'View Final Evaluation'}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </motion.button>
+              </div>
+            )}
+          </motion.div>
+        ) : (
+          /* Completion screen */
+          <motion.div 
+            key="completion"
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.25 }}
+            className="py-6 px-4 text-center space-y-4"
+          >
+            <div className="w-12 h-12 rounded bg-amber-50 text-amber-800 border border-amber-200 mx-auto flex items-center justify-center">
+              <Award className="w-7 h-7" />
+            </div>
+
+            <div className="space-y-1">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-900 border border-emerald-200 font-mono-code">
+                <Sparkles className="w-3 h-3 text-[#134E3A]" />
+                Assessment Complete
               </span>
+              <h4 className="text-2xl font-bold text-stone-900 font-editorial mt-2">
+                Score: {score} / {QUIZ_QUESTIONS.length}
+              </h4>
+              <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto leading-relaxed">
+                {score === 5
+                  ? 'Distinguished! Full compliance with Swachh Bharat campus protocols and municipal standards.'
+                  : score >= 3
+                  ? 'Proficient! You exhibit a strong grasp of campus waste streams and appropriate disposal channels.'
+                  : 'Review Recommended! Familiarize yourself with the waste classification guidelines provided below.'}
+              </p>
+            </div>
 
-              <button
-                onClick={handleNext}
-                className="px-4 py-1.5 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white text-xs font-semibold shadow-2xs flex items-center gap-1.5 cursor-pointer transition-colors"
+            {/* Quick summary metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-w-md mx-auto text-xs">
+              <div className="p-2.5 rounded bg-stone-50 border border-stone-200">
+                <span className="text-[10px] uppercase font-bold text-stone-500 block font-mono-code">Accuracy</span>
+                <span className="text-base font-bold text-stone-900 font-editorial">{Math.round((score / QUIZ_QUESTIONS.length) * 100)}%</span>
+              </div>
+              <div className="p-2.5 rounded bg-stone-50 border border-stone-200">
+                <span className="text-[10px] uppercase font-bold text-stone-500 block font-mono-code">Proficiency</span>
+                <span className="text-base font-bold text-[#134E3A] font-editorial">
+                  {score >= 4 ? 'Exemplary' : score >= 3 ? 'Compliant' : 'Foundational'}
+                </span>
+              </div>
+              <div className="p-2.5 rounded bg-stone-50 border border-stone-200 col-span-2 sm:col-span-1">
+                <span className="text-[10px] uppercase font-bold text-stone-500 block font-mono-code">Credits</span>
+                <span className="text-base font-bold text-stone-900 font-editorial">+50 SBM Pts</span>
+              </div>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={handleRestart}
+                className="px-4 py-1.5 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors border border-stone-200"
               >
-                <span>{currentIndex < QUIZ_QUESTIONS.length - 1 ? 'Proceed to Next Case' : 'View Final Evaluation'}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Retake Evaluation</span>
+              </motion.button>
             </div>
-          )}
-        </div>
-      ) : (
-        /* Completion screen */
-        <div className="py-6 px-4 text-center space-y-4 animate-in fade-in duration-150">
-          <div className="w-12 h-12 rounded bg-amber-50 text-amber-800 border border-amber-200 mx-auto flex items-center justify-center">
-            <Award className="w-7 h-7" />
-          </div>
-
-          <div className="space-y-1">
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-900 border border-emerald-200 font-mono-code">
-              <Sparkles className="w-3 h-3 text-[#134E3A]" />
-              Assessment Complete
-            </span>
-            <h4 className="text-2xl font-bold text-stone-900 font-editorial mt-2">
-              Score: {score} / {QUIZ_QUESTIONS.length}
-            </h4>
-            <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto leading-relaxed">
-              {score === 5
-                ? 'Distinguished! Full compliance with Swachh Bharat campus protocols and municipal standards.'
-                : score >= 3
-                ? 'Proficient! You exhibit a strong grasp of campus waste streams and appropriate disposal channels.'
-                : 'Review Recommended! Familiarize yourself with the waste classification guidelines provided below.'}
-            </p>
-          </div>
-
-          {/* Quick summary metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-w-md mx-auto text-xs">
-            <div className="p-2.5 rounded bg-stone-50 border border-stone-200">
-              <span className="text-[10px] uppercase font-bold text-stone-500 block font-mono-code">Accuracy</span>
-              <span className="text-base font-bold text-stone-900 font-editorial">{Math.round((score / QUIZ_QUESTIONS.length) * 100)}%</span>
-            </div>
-            <div className="p-2.5 rounded bg-stone-50 border border-stone-200">
-              <span className="text-[10px] uppercase font-bold text-stone-500 block font-mono-code">Proficiency</span>
-              <span className="text-base font-bold text-[#134E3A] font-editorial">
-                {score >= 4 ? 'Exemplary' : score >= 3 ? 'Compliant' : 'Foundational'}
-              </span>
-            </div>
-            <div className="p-2.5 rounded bg-stone-50 border border-stone-200 col-span-2 sm:col-span-1">
-              <span className="text-[10px] uppercase font-bold text-stone-500 block font-mono-code">Credits</span>
-              <span className="text-base font-bold text-stone-900 font-editorial">+50 SBM Pts</span>
-            </div>
-          </div>
-
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
-            <button
-              onClick={handleRestart}
-              className="px-4 py-1.5 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors border border-stone-200"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Retake Evaluation</span>
-            </button>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

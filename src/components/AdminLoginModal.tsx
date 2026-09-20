@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Shield, Lock, User, Eye, EyeOff, AlertCircle, PlusCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface AdminLoginModalProps {
   isOpen: boolean;
@@ -50,8 +51,21 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
   const isAddBinReason = reason === 'add_bin';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 animate-in fade-in duration-150 overflow-y-auto">
-      <div className="bg-white rounded-lg max-w-md w-full p-5 sm:p-6 shadow-xl border border-stone-200 relative my-auto max-h-[92vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 bg-stone-900/60"
+      />
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.2 }}
+        className="relative z-10 bg-white rounded-lg max-w-md w-full p-5 sm:p-6 shadow-xl border border-stone-200 my-auto max-h-[92vh] overflow-y-auto"
+      >
         {/* Close Button */}
         <button
           id="btn-close-admin-login-modal"
@@ -96,12 +110,20 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
         )}
 
         {/* Error notification */}
-        {errorMessage && (
-          <div className="mt-4 p-3 rounded bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-rose-700 shrink-0" />
-            <span>{errorMessage}</span>
-          </div>
-        )}
+        <AnimatePresence>
+          {errorMessage && (
+            <motion.div 
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0, x: [-4, 4, -3, 3, 0] }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.3 }}
+              className="mt-4 p-3 rounded bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2"
+            >
+              <AlertCircle className="w-4 h-4 text-rose-700 shrink-0" />
+              <span>{errorMessage}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Login Form */}
         <form onSubmit={handleLogin} className="mt-4 space-y-3.5">
@@ -155,7 +177,8 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
           </div>
 
           {/* Submit button */}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.98 }}
             id="btn-submit-admin-login"
             type="submit"
             disabled={isLoading}
@@ -169,13 +192,13 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
                 <span>{isAddBinReason ? 'Verify Clearance' : 'Authenticate Session'}</span>
               </>
             )}
-          </button>
+          </motion.button>
         </form>
 
         <p className="text-[11px] text-stone-400 text-center mt-4 pt-3 border-t border-stone-100 font-mono-code">
           Swachh Bharat Mission Sanitation Directorate &bull; NIT Patna
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 };

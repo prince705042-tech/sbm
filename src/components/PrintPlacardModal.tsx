@@ -1,6 +1,7 @@
 import React from 'react';
 import { CampusBin } from '../types';
 import { Printer, X, ShieldCheck, QrCode } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface PrintPlacardModalProps {
   isOpen: boolean;
@@ -28,12 +29,22 @@ export const PrintPlacardModal: React.FC<PrintPlacardModalProps> = ({
   return (
     <div 
       id="modal-print-placard-backdrop"
-      className="fixed inset-0 z-50 bg-stone-900/60 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
     >
-      <div className="bg-white w-full max-w-xl rounded-lg shadow-xl border border-stone-200 overflow-hidden my-auto animate-in fade-in duration-150">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 bg-stone-900/60"
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.2 }}
+        className="relative z-10 bg-white w-full max-w-xl rounded-lg shadow-xl border border-stone-200 overflow-hidden my-auto"
+      >
         {/* Top actions bar */}
         <div className="p-3.5 bg-stone-50 border-b border-stone-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -44,14 +55,15 @@ export const PrintPlacardModal: React.FC<PrintPlacardModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               type="button"
               onClick={handlePrint}
               className="px-3 py-1 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print Signage</span>
-            </button>
+            </motion.button>
             <button
               type="button"
               onClick={onClose}
@@ -185,7 +197,7 @@ export const PrintPlacardModal: React.FC<PrintPlacardModalProps> = ({
             Close
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

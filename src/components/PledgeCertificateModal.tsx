@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   RotateCcw
 } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface PledgeCertificateModalProps {
   isOpen: boolean;
@@ -58,12 +59,22 @@ export const PledgeCertificateModal: React.FC<PledgeCertificateModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-stone-900/60 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
     >
-      <div className="bg-white w-full max-w-xl rounded-lg shadow-xl border border-stone-200 overflow-hidden my-auto animate-in fade-in duration-150">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 bg-stone-900/60"
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.2 }}
+        className="relative z-10 bg-white w-full max-w-xl rounded-lg shadow-xl border border-stone-200 overflow-hidden my-auto"
+      >
         {/* Top actions bar */}
         <div className="p-3.5 bg-stone-50 border-b border-stone-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -74,15 +85,17 @@ export const PledgeCertificateModal: React.FC<PledgeCertificateModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={handlePrint}
               className="px-2.5 py-1 rounded bg-white border border-stone-200 text-stone-700 hover:text-stone-900 hover:bg-stone-100 flex items-center gap-1.5 text-xs font-medium transition-colors cursor-pointer"
               title="Print Certificate"
             >
               <Printer className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Print</span>
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={handleShare}
               className="px-2.5 py-1 rounded bg-white border border-stone-200 text-stone-700 hover:text-stone-900 hover:bg-stone-100 flex items-center gap-1.5 text-xs font-medium transition-colors cursor-pointer"
               title="Share Pledge"
@@ -98,7 +111,7 @@ export const PledgeCertificateModal: React.FC<PledgeCertificateModalProps> = ({
                   <span className="hidden sm:inline">Share</span>
                 </>
               )}
-            </button>
+            </motion.button>
             <button
               onClick={onClose}
               className="w-7 h-7 rounded bg-white hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors cursor-pointer border border-stone-200"
@@ -195,7 +208,7 @@ export const PledgeCertificateModal: React.FC<PledgeCertificateModalProps> = ({
             Close
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

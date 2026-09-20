@@ -12,6 +12,7 @@ import {
   Footprints,
   Sparkles
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface NearestBinFinderProps {
   bins: CampusBin[];
@@ -131,139 +132,155 @@ export const NearestBinFinder: React.FC<NearestBinFinderProps> = ({
       </div>
 
       {/* Closest Result Card */}
-      {closestBin ? (
-        <div className="bg-white rounded-lg p-5 sm:p-6 border border-stone-300 shadow-2xs relative">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-stone-100">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded bg-emerald-50 text-[#134E3A] border border-emerald-200 flex items-center justify-center shrink-0">
-                <Footprints className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="inline-flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-[#134E3A] border border-emerald-200 px-2 py-0.5 rounded font-mono-code">
-                    Optimal Routing
-                  </span>
-                  <span className="text-xs font-medium text-stone-500 font-mono-code">
-                    {closestBin.floor}
-                  </span>
+      <AnimatePresence mode="wait">
+        {closestBin ? (
+          <motion.div 
+            key={closestBin.id}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.2 }}
+            className="bg-white rounded-lg p-5 sm:p-6 border border-stone-300 shadow-2xs relative"
+          >
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-stone-100">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded bg-emerald-50 text-[#134E3A] border border-emerald-200 flex items-center justify-center shrink-0">
+                  <Footprints className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-stone-900 mt-1 font-editorial">
-                  {closestBin.name}
-                </h3>
-                <p className="text-xs text-stone-600 flex items-center gap-1.5 mt-0.5 font-medium">
-                  <MapPin className="w-3.5 h-3.5 text-[#134E3A]" />
-                  {closestBin.locationName}
+                <div>
+                  <div className="inline-flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-[#134E3A] border border-emerald-200 px-2 py-0.5 rounded font-mono-code">
+                      Optimal Routing
+                    </span>
+                    <span className="text-xs font-medium text-stone-500 font-mono-code">
+                      {closestBin.floor}
+                    </span>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-bold text-stone-900 mt-1 font-editorial">
+                    {closestBin.name}
+                  </h3>
+                  <p className="text-xs text-stone-600 flex items-center gap-1.5 mt-0.5 font-medium">
+                    <MapPin className="w-3.5 h-3.5 text-[#134E3A]" />
+                    {closestBin.locationName}
+                  </p>
+                </div>
+              </div>
+
+              {/* Walking Distance & Duration Pill */}
+              <div className="flex items-center gap-3 bg-stone-50 border border-stone-200 px-3.5 py-2 rounded font-mono-code">
+                <div className="text-right">
+                  <div className="text-xl font-bold text-stone-900 font-editorial">
+                    {closestBin.distanceMeters} m
+                  </div>
+                  <div className="text-[11px] font-medium text-stone-600 flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-stone-500" />
+                    ~{closestBin.walkingSeconds}s walk
+                  </div>
+                </div>
+                <div className="h-7 w-px bg-stone-200"></div>
+                <div>
+                  <div
+                    className={`text-xs font-bold ${
+                      closestBin.fillLevel >= 85
+                        ? 'text-rose-700'
+                        : closestBin.fillLevel >= 60
+                        ? 'text-amber-700'
+                        : 'text-[#134E3A]'
+                    }`}
+                  >
+                    {closestBin.fillLevel}% Volume
+                  </div>
+                  <div className="text-[10px] text-stone-500">
+                    {closestBin.fillLevel < 80 ? 'Capacity available' : 'Approaching full'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Details & Directions grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-4">
+              <div className="p-3 rounded bg-stone-50 border border-stone-200">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-1 font-mono-code">
+                  Access &amp; Landmark
+                </div>
+                <p className="text-xs font-medium text-stone-800 leading-relaxed">
+                  {closestBin.landmark}
                 </p>
               </div>
-            </div>
 
-            {/* Walking Distance & Duration Pill */}
-            <div className="flex items-center gap-3 bg-stone-50 border border-stone-200 px-3.5 py-2 rounded font-mono-code">
-              <div className="text-right">
-                <div className="text-xl font-bold text-stone-900 font-editorial">
-                  {closestBin.distanceMeters} m
+              <div className="p-3 rounded bg-stone-50 border border-stone-200">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-1 font-mono-code">
+                  Fractions Accepted
                 </div>
-                <div className="text-[11px] font-medium text-stone-600 flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-stone-500" />
-                  ~{closestBin.walkingSeconds}s walk
-                </div>
-              </div>
-              <div className="h-7 w-px bg-stone-200"></div>
-              <div>
-                <div
-                  className={`text-xs font-bold ${
-                    closestBin.fillLevel >= 85
-                      ? 'text-rose-700'
-                      : closestBin.fillLevel >= 60
-                      ? 'text-amber-700'
-                      : 'text-[#134E3A]'
-                  }`}
-                >
-                  {closestBin.fillLevel}% Volume
-                </div>
-                <div className="text-[10px] text-stone-500">
-                  {closestBin.fillLevel < 80 ? 'Capacity available' : 'Approaching full'}
+                <div className="flex flex-wrap gap-1 mt-1 font-mono-code">
+                  {closestBin.hasWet && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-900 border border-emerald-200">
+                      Wet Fraction
+                    </span>
+                  )}
+                  {closestBin.hasDry && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-50 text-sky-900 border border-sky-200">
+                      Dry Recyclable
+                    </span>
+                  )}
+                  {closestBin.hasEwaste && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-stone-800 text-stone-200 border border-stone-700">
+                      E-Waste Cell
+                    </span>
+                  )}
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Details & Directions grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-4">
-            <div className="p-3 rounded bg-stone-50 border border-stone-200">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-1 font-mono-code">
-                Access &amp; Landmark
-              </div>
-              <p className="text-xs font-medium text-stone-800 leading-relaxed">
-                {closestBin.landmark}
-              </p>
-            </div>
-
-            <div className="p-3 rounded bg-stone-50 border border-stone-200">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-1 font-mono-code">
-                Fractions Accepted
-              </div>
-              <div className="flex flex-wrap gap-1 mt-1 font-mono-code">
-                {closestBin.hasWet && (
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-900 border border-emerald-200">
-                    Wet Fraction
-                  </span>
-                )}
-                {closestBin.hasDry && (
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-50 text-sky-900 border border-sky-200">
-                    Dry Recyclable
-                  </span>
-                )}
-                {closestBin.hasEwaste && (
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-stone-800 text-stone-200 border border-stone-700">
-                    E-Waste Cell
-                  </span>
-                )}
+              <div className="p-3 rounded bg-stone-50 border border-stone-200">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-1 font-mono-code">
+                  Sanitation Cycle
+                </div>
+                <div className="flex items-center gap-1.5 text-xs font-medium text-stone-700">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#134E3A]" />
+                  <span>Cleared {closestBin.lastEmptied}</span>
+                </div>
+                <div className="text-[10px] text-stone-500 mt-0.5">
+                  Maintenance by Campus Estate Directorate
+                </div>
               </div>
             </div>
 
-            <div className="p-3 rounded bg-stone-50 border border-stone-200">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-1 font-mono-code">
-                Sanitation Cycle
-              </div>
-              <div className="flex items-center gap-1.5 text-xs font-medium text-stone-700">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#134E3A]" />
-                <span>Cleared {closestBin.lastEmptied}</span>
-              </div>
-              <div className="text-[10px] text-stone-500 mt-0.5">
-                Maintenance by Campus Estate Directorate
-              </div>
+            {/* Action CTAs */}
+            <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-stone-100">
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                id="btn-show-closest-map"
+                onClick={() => onSelectBinAndShowMap(closestBin)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white font-semibold text-xs shadow-2xs transition-colors cursor-pointer"
+              >
+                <span>View Coordinates on Campus Plan</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </motion.button>
+
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                id="btn-report-closest-bin"
+                onClick={() => onReportBin(closestBin)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs border border-stone-200 transition-colors cursor-pointer"
+              >
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-700" />
+                <span>Report Capacity Overflow</span>
+              </motion.button>
             </div>
-          </div>
-
-          {/* Action CTAs */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-stone-100">
-            <button
-              id="btn-show-closest-map"
-              onClick={() => onSelectBinAndShowMap(closestBin)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white font-semibold text-xs shadow-2xs transition-colors cursor-pointer"
-            >
-              <span>View Coordinates on Campus Plan</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-
-            <button
-              id="btn-report-closest-bin"
-              onClick={() => onReportBin(closestBin)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs border border-stone-200 transition-colors cursor-pointer"
-            >
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-700" />
-              <span>Report Capacity Overflow</span>
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg p-8 text-center border border-stone-200">
-          <AlertTriangle className="w-6 h-6 text-amber-700 mx-auto mb-2" />
-          <h3 className="text-sm font-semibold text-stone-800 font-editorial">No stations matching this stream in selected sector</h3>
-          <p className="text-xs text-stone-500 mt-1">Select &ldquo;All Campus Collection Points&rdquo; to survey all available bins.</p>
-        </div>
-      )}
+          </motion.div>
+        ) : (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="bg-white rounded-lg p-8 text-center border border-stone-200"
+          >
+            <AlertTriangle className="w-6 h-6 text-amber-700 mx-auto mb-2" />
+            <h3 className="text-sm font-semibold text-stone-800 font-editorial">No stations matching this stream in selected sector</h3>
+            <p className="text-xs text-stone-500 mt-1">Select &ldquo;All Campus Collection Points&rdquo; to survey all available bins.</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Nearby Alternatives */}
       {alternativeBins.length > 0 && (
@@ -272,9 +289,13 @@ export const NearestBinFinder: React.FC<NearestBinFinderProps> = ({
             Secondary Disposal Points
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {alternativeBins.map((bin) => (
-              <div
+            {alternativeBins.map((bin, idx) => (
+              <motion.div
                 key={bin.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05, duration: 0.2 }}
+                whileHover={{ y: -2 }}
                 className="bg-white rounded-lg p-3.5 border border-stone-200 shadow-2xs hover:border-stone-400 transition-colors flex flex-col justify-between"
               >
                 <div>
@@ -303,14 +324,15 @@ export const NearestBinFinder: React.FC<NearestBinFinderProps> = ({
                   </div>
                 </div>
 
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => onSelectBinAndShowMap(bin)}
                   className="w-full py-1.5 text-xs font-medium text-stone-700 bg-stone-100 hover:bg-stone-200 rounded transition-colors flex items-center justify-center gap-1 border border-stone-200 cursor-pointer"
                 >
                   <span>Highlight on Plan</span>
                   <ArrowRight className="w-3 h-3" />
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
             ))}
           </div>
         </div>

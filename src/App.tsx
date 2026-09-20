@@ -14,6 +14,7 @@ import { PrintPlacardModal } from './components/PrintPlacardModal';
 import { ExportAuditReportModal } from './components/ExportAuditReportModal';
 import { CampusSanitationScorecard } from './components/CampusSanitationScorecard';
 import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut, CheckCircle2, QrCode } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   fetchReportsFromSupabase, 
   insertReportToSupabase, 
@@ -536,12 +537,20 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col font-['Public_Sans',sans-serif] text-stone-800">
       {/* Toast popup */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-stone-900 text-stone-100 text-xs font-medium px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 border border-stone-700 animate-in slide-in-from-bottom-3">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+            className="fixed bottom-6 right-6 z-50 bg-stone-900 text-stone-100 text-xs font-medium px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 border border-stone-700 pointer-events-auto"
+          >
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main App Navbar */}
       <Navbar
@@ -561,86 +570,119 @@ export default function App() {
 
       {/* Main View Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7 pb-24 md:pb-10">
-        {activeTab === 'map' && (
-          <div className="space-y-4">
-            <CampusSanitationScorecard bins={bins} tickets={tickets} />
-            <CampusMap
-              bins={bins}
-              selectedBin={selectedBin}
-              onSelectBin={(bin) => {
-                setSelectedBin(bin);
-                setHighlightedBinId(null);
-              }}
-              userZone={userZone}
-              setUserZone={setUserZone}
-              highlightedBinId={highlightedBinId}
-              onReportBin={handleOpenReportForBin}
-            />
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          {activeTab === 'map' && (
+            <motion.div
+              key="tab-map"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+              className="space-y-4"
+            >
+              <CampusSanitationScorecard bins={bins} tickets={tickets} />
+              <CampusMap
+                bins={bins}
+                selectedBin={selectedBin}
+                onSelectBin={(bin) => {
+                  setSelectedBin(bin);
+                  setHighlightedBinId(null);
+                }}
+                userZone={userZone}
+                setUserZone={setUserZone}
+                highlightedBinId={highlightedBinId}
+                onReportBin={handleOpenReportForBin}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === 'finder' && (
-          <NearestBinFinder
-            bins={bins}
-            userZone={userZone}
-            setUserZone={setUserZone}
-            onSelectBinAndShowMap={handleSelectBinAndShowMap}
-            onReportBin={handleOpenReportForBin}
-          />
-        )}
+          {activeTab === 'finder' && (
+            <motion.div
+              key="tab-finder"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+            >
+              <NearestBinFinder
+                bins={bins}
+                userZone={userZone}
+                setUserZone={setUserZone}
+                onSelectBinAndShowMap={handleSelectBinAndShowMap}
+                onReportBin={handleOpenReportForBin}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === 'guide' && (
-          <WasteSegregationGuide
-            bins={bins}
-            onNavigateToFinder={(wasteType) => {
-              setActiveTab('finder');
-            }}
-            onNavigateToMap={(binId) => {
-              setActiveTab('map');
-              if (binId) {
-                const target = bins.find((b) => b.id === binId);
-                if (target) {
-                  setSelectedBin(target);
-                  setHighlightedBinId(target.id);
-                }
-              }
-            }}
-            onOpenReportModal={(bin) => {
-              setTargetBinForReport(bin || null);
-              setIsReportModalOpen(true);
-            }}
-          />
-        )}
+          {activeTab === 'guide' && (
+            <motion.div
+              key="tab-guide"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+            >
+              <WasteSegregationGuide
+                bins={bins}
+                onNavigateToFinder={(wasteType) => {
+                  setActiveTab('finder');
+                }}
+                onNavigateToMap={(binId) => {
+                  setActiveTab('map');
+                  if (binId) {
+                    const target = bins.find((b) => b.id === binId);
+                    if (target) {
+                      setSelectedBin(target);
+                      setHighlightedBinId(target.id);
+                    }
+                  }
+                }}
+                onOpenReportModal={(bin) => {
+                  setTargetBinForReport(bin || null);
+                  setIsReportModalOpen(true);
+                }}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === 'alerts' && (
-          <CampusAlertsView
-            tickets={tickets}
-            bins={bins}
-            isAdmin={isAdmin}
-            highlightedTicketId={highlightedTicketId}
-            supabaseSyncStatus={supabaseSyncStatus}
-            lastSyncedAt={lastSyncedAt}
-            onManualSync={() => syncWithSupabase(true)}
-            onAdminLogin={handleAdminLogin}
-            onAdminLogout={handleAdminLogout}
-            onResolveTicket={handleResolveTicket}
-            onDispatchCleaning={handleDispatchCleaning}
-            onReopenTicket={handleReopenTicket}
-            onDeleteTicket={handleDeleteTicket}
-            onDeleteResolvedTickets={handleDeleteResolvedTickets}
-            onDeleteBin={handleDeleteBin}
-            onOpenReportModal={() => {
-              setTargetBinForReport(selectedBin);
-              setIsReportModalOpen(true);
-            }}
-            onOpenAddBinModal={handleTriggerAddBin}
-            onOpenAuditModal={() => setIsAuditModalOpen(true)}
-            onOpenPlacardModal={(bin) => {
-              setSelectedBinForPlacard(bin);
-              setIsPlacardModalOpen(true);
-            }}
-          />
-        )}
+          {activeTab === 'alerts' && (
+            <motion.div
+              key="tab-alerts"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+            >
+              <CampusAlertsView
+                tickets={tickets}
+                bins={bins}
+                isAdmin={isAdmin}
+                highlightedTicketId={highlightedTicketId}
+                supabaseSyncStatus={supabaseSyncStatus}
+                lastSyncedAt={lastSyncedAt}
+                onManualSync={() => syncWithSupabase(true)}
+                onAdminLogin={handleAdminLogin}
+                onAdminLogout={handleAdminLogout}
+                onResolveTicket={handleResolveTicket}
+                onDispatchCleaning={handleDispatchCleaning}
+                onReopenTicket={handleReopenTicket}
+                onDeleteTicket={handleDeleteTicket}
+                onDeleteResolvedTickets={handleDeleteResolvedTickets}
+                onDeleteBin={handleDeleteBin}
+                onOpenReportModal={() => {
+                  setTargetBinForReport(selectedBin);
+                  setIsReportModalOpen(true);
+                }}
+                onOpenAddBinModal={handleTriggerAddBin}
+                onOpenAuditModal={() => setIsAuditModalOpen(true)}
+                onOpenPlacardModal={(bin) => {
+                  setSelectedBinForPlacard(bin);
+                  setIsPlacardModalOpen(true);
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Mobile Sticky Bottom Navigation Bar */}
@@ -712,60 +754,84 @@ export default function App() {
       </nav>
 
       {/* Modals */}
-      <ReportIssueModal
-        isOpen={isReportModalOpen}
-        onClose={() => setIsReportModalOpen(false)}
-        bins={bins}
-        preselectedBin={targetBinForReport}
-        onSubmitReport={handleSubmitReport}
-        isAdmin={isAdmin}
-      />
+      <AnimatePresence>
+        {isReportModalOpen && (
+          <ReportIssueModal
+            isOpen={isReportModalOpen}
+            onClose={() => setIsReportModalOpen(false)}
+            bins={bins}
+            preselectedBin={targetBinForReport}
+            onSubmitReport={handleSubmitReport}
+            isAdmin={isAdmin}
+          />
+        )}
+      </AnimatePresence>
 
-      <AddBinModal
-        isOpen={isAddBinModalOpen}
-        onClose={() => setIsAddBinModalOpen(false)}
-        onAddBin={handleAddNewBin}
-        isAdmin={isAdmin}
-        onRequestAdminLogin={() => {
-          setAdminLoginReason('add_bin');
-          setIsAdminLoginModalOpen(true);
-        }}
-      />
+      <AnimatePresence>
+        {isAddBinModalOpen && (
+          <AddBinModal
+            isOpen={isAddBinModalOpen}
+            onClose={() => setIsAddBinModalOpen(false)}
+            onAddBin={handleAddNewBin}
+            isAdmin={isAdmin}
+            onRequestAdminLogin={() => {
+              setAdminLoginReason('add_bin');
+              setIsAdminLoginModalOpen(true);
+            }}
+          />
+        )}
+      </AnimatePresence>
 
-      <AdminLoginModal
-        isOpen={isAdminLoginModalOpen}
-        onClose={() => {
-          setIsAdminLoginModalOpen(false);
-          setAdminLoginReason(null);
-        }}
-        reason={adminLoginReason}
-        onLoginSuccess={handleAdminLoginSuccess}
-      />
+      <AnimatePresence>
+        {isAdminLoginModalOpen && (
+          <AdminLoginModal
+            isOpen={isAdminLoginModalOpen}
+            onClose={() => {
+              setIsAdminLoginModalOpen(false);
+              setAdminLoginReason(null);
+            }}
+            reason={adminLoginReason}
+            onLoginSuccess={handleAdminLoginSuccess}
+          />
+        )}
+      </AnimatePresence>
 
-      <ScanBinModal
-        isOpen={isScanBinModalOpen}
-        onClose={() => setIsScanBinModalOpen(false)}
-        bins={bins}
-        onSelectBinAndShowMap={handleSelectBinAndShowMap}
-        onReportBin={handleOpenReportForBin}
-        onOpenPlacardModal={(bin) => {
-          setSelectedBinForPlacard(bin);
-          setIsPlacardModalOpen(true);
-        }}
-      />
+      <AnimatePresence>
+        {isScanBinModalOpen && (
+          <ScanBinModal
+            isOpen={isScanBinModalOpen}
+            onClose={() => setIsScanBinModalOpen(false)}
+            bins={bins}
+            onSelectBinAndShowMap={handleSelectBinAndShowMap}
+            onReportBin={handleOpenReportForBin}
+            onOpenPlacardModal={(bin) => {
+              setSelectedBinForPlacard(bin);
+              setIsPlacardModalOpen(true);
+            }}
+          />
+        )}
+      </AnimatePresence>
 
-      <PrintPlacardModal
-        isOpen={isPlacardModalOpen}
-        onClose={() => setIsPlacardModalOpen(false)}
-        bin={selectedBinForPlacard}
-      />
+      <AnimatePresence>
+        {isPlacardModalOpen && (
+          <PrintPlacardModal
+            isOpen={isPlacardModalOpen}
+            onClose={() => setIsPlacardModalOpen(false)}
+            bin={selectedBinForPlacard}
+          />
+        )}
+      </AnimatePresence>
 
-      <ExportAuditReportModal
-        isOpen={isAuditModalOpen}
-        onClose={() => setIsAuditModalOpen(false)}
-        bins={bins}
-        tickets={tickets}
-      />
+      <AnimatePresence>
+        {isAuditModalOpen && (
+          <ExportAuditReportModal
+            isOpen={isAuditModalOpen}
+            onClose={() => setIsAuditModalOpen(false)}
+            bins={bins}
+            tickets={tickets}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Institutional Civic Footer */}
       <footer className="bg-white border-t border-stone-200 mt-14 text-xs text-stone-500">

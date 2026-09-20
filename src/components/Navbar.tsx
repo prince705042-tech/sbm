@@ -12,6 +12,7 @@ import {
   Building2,
   QrCode
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface NavbarProps {
   activeTab: 'map' | 'finder' | 'guide' | 'alerts';
@@ -103,40 +104,61 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="tab-campus-map"
               onClick={() => handleTabClick('map')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'map'
-                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/80'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
+              className={`relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
+                activeTab === 'map' ? 'text-stone-900' : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              <MapPin className={`w-3.5 h-3.5 ${activeTab === 'map' ? 'text-[#134E3A]' : 'text-stone-500'}`} />
-              <span>Campus Map</span>
+              {activeTab === 'map' && (
+                <motion.div
+                  layoutId="navbar-active-tab"
+                  className="absolute inset-0 bg-white rounded-md shadow-2xs border border-stone-200/80 -z-0"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-1.5">
+                <MapPin className={`w-3.5 h-3.5 ${activeTab === 'map' ? 'text-[#134E3A]' : 'text-stone-500'}`} />
+                <span>Campus Map</span>
+              </span>
             </button>
 
             <button
               id="tab-nearest-bin"
               onClick={() => handleTabClick('finder')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'finder'
-                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/80'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
+              className={`relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
+                activeTab === 'finder' ? 'text-stone-900' : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              <Compass className={`w-3.5 h-3.5 ${activeTab === 'finder' ? 'text-[#134E3A]' : 'text-stone-500'}`} />
-              <span>Find Nearest</span>
+              {activeTab === 'finder' && (
+                <motion.div
+                  layoutId="navbar-active-tab"
+                  className="absolute inset-0 bg-white rounded-md shadow-2xs border border-stone-200/80 -z-0"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-1.5">
+                <Compass className={`w-3.5 h-3.5 ${activeTab === 'finder' ? 'text-[#134E3A]' : 'text-stone-500'}`} />
+                <span>Find Nearest</span>
+              </span>
             </button>
 
             <button
               id="tab-sorting-guide"
               onClick={() => handleTabClick('guide')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'guide'
-                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/80'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
+              className={`relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
+                activeTab === 'guide' ? 'text-stone-900' : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              <BookOpen className={`w-3.5 h-3.5 ${activeTab === 'guide' ? 'text-[#134E3A]' : 'text-stone-500'}`} />
-              <span>Segregation Guide</span>
+              {activeTab === 'guide' && (
+                <motion.div
+                  layoutId="navbar-active-tab"
+                  className="absolute inset-0 bg-white rounded-md shadow-2xs border border-stone-200/80 -z-0"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-1.5">
+                <BookOpen className={`w-3.5 h-3.5 ${activeTab === 'guide' ? 'text-[#134E3A]' : 'text-stone-500'}`} />
+                <span>Segregation Guide</span>
+              </span>
             </button>
 
             {isAdmin && (
@@ -144,18 +166,31 @@ export const Navbar: React.FC<NavbarProps> = ({
                 id="tab-campus-alerts"
                 onClick={() => handleTabClick('alerts')}
                 className={`relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
-                  activeTab === 'alerts'
-                    ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/80'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
+                  activeTab === 'alerts' ? 'text-stone-900' : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-[#134E3A]" />
-                <span>Admin Portal</span>
-                {activeAlertsCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[10px] font-bold font-mono-code">
-                    {activeAlertsCount}
-                  </span>
+                {activeTab === 'alerts' && (
+                  <motion.div
+                    layoutId="navbar-active-tab"
+                    className="absolute inset-0 bg-white rounded-md shadow-2xs border border-stone-200/80 -z-0"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
                 )}
+                <span className="relative z-10 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#134E3A]" />
+                  <span>Admin Portal</span>
+                  {activeAlertsCount > 0 && (
+                    <motion.span 
+                      key={activeAlertsCount}
+                      initial={{ scale: 0.6 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                      className="ml-1 px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[10px] font-bold font-mono-code"
+                    >
+                      {activeAlertsCount}
+                    </motion.span>
+                  )}
+                </span>
               </button>
             )}
           </nav>
@@ -163,7 +198,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Action Utilities */}
           <div className="flex items-center gap-2">
             {onOpenScanModal && (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 id="btn-scan-qr"
                 type="button"
                 onClick={onOpenScanModal}
@@ -173,10 +210,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <QrCode className="w-3.5 h-3.5 text-[#134E3A] shrink-0" />
                 <span className="hidden sm:inline">Scan QR / ID</span>
                 <span className="sm:hidden">QR</span>
-              </button>
+              </motion.button>
             )}
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               id="btn-report-issue"
               onClick={onOpenReportModal}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-amber-50 text-amber-900 hover:bg-amber-100/80 border border-amber-300 transition-colors cursor-pointer whitespace-nowrap shrink-0"
@@ -185,7 +224,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <AlertTriangle className="w-3.5 h-3.5 text-amber-700 shrink-0" />
               <span className="hidden sm:inline">Report Issue</span>
               <span className="sm:hidden">Report</span>
-            </button>
+            </motion.button>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -201,99 +240,107 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-stone-200 px-4 py-3 shadow-sm space-y-1">
-          <button
-            id="mobile-nav-map"
-            onClick={() => handleTabClick('map')}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
-              activeTab === 'map' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
-            }`}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden bg-white border-b border-stone-200 px-4 py-3 shadow-sm space-y-1 overflow-hidden"
           >
-            <div className="flex items-center gap-2.5">
-              <MapPin className="w-4 h-4 text-[#134E3A]" />
-              <span>Campus Map & Bins</span>
-            </div>
-            <span className="text-[10px] font-mono-code bg-stone-100 text-stone-600 px-2 py-0.5 rounded">
-              {totalBinsCount} Bins
-            </span>
-          </button>
-
-          <button
-            id="mobile-nav-finder"
-            onClick={() => handleTabClick('finder')}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
-              activeTab === 'finder' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <Compass className="w-4 h-4 text-[#134E3A]" />
-              <span>Find Nearest Dustbin</span>
-            </div>
-            <span className="text-[10px] text-stone-500">Walking routes</span>
-          </button>
-
-          <button
-            id="mobile-nav-guide"
-            onClick={() => handleTabClick('guide')}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
-              activeTab === 'guide' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <BookOpen className="w-4 h-4 text-[#134E3A]" />
-              <span>Waste Segregation Guide</span>
-            </div>
-            <span className="text-[10px] text-stone-500">Wet / Dry / E-Waste</span>
-          </button>
-
-          {isAdmin && (
             <button
-              id="mobile-nav-alerts"
-              onClick={() => handleTabClick('alerts')}
+              id="mobile-nav-map"
+              onClick={() => handleTabClick('map')}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
-                activeTab === 'alerts' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
+                activeTab === 'map' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <ShieldCheck className="w-4 h-4 text-[#134E3A]" />
-                <span>Admin Dispatch & Reports</span>
+                <MapPin className="w-4 h-4 text-[#134E3A]" />
+                <span>Campus Map & Bins</span>
               </div>
-              {activeAlertsCount > 0 && (
-                <span className="bg-rose-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded font-mono-code">
-                  {activeAlertsCount}
-                </span>
-              )}
+              <span className="text-[10px] font-mono-code bg-stone-100 text-stone-600 px-2 py-0.5 rounded">
+                {totalBinsCount} Bins
+              </span>
             </button>
-          )}
 
-          {onOpenScanModal && (
             <button
-              id="mobile-nav-scan-qr"
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenScanModal();
-              }}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
+              id="mobile-nav-finder"
+              onClick={() => handleTabClick('finder')}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
+                activeTab === 'finder' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
+              }`}
             >
               <div className="flex items-center gap-2.5">
-                <QrCode className="w-4 h-4 text-[#134E3A]" />
-                <span>Scan Station QR / ID</span>
+                <Compass className="w-4 h-4 text-[#134E3A]" />
+                <span>Find Nearest Dustbin</span>
               </div>
-              <span className="text-[10px] text-stone-500 font-mono-code">Live Lookup</span>
+              <span className="text-[10px] text-stone-500">Walking routes</span>
             </button>
-          )}
 
-          <div className="pt-2 mt-2 border-t border-stone-100 text-[11px] text-stone-500 flex items-center justify-between">
-            <span className="flex items-center gap-1">
-              <Building2 className="w-3.5 h-3.5 text-stone-400" />
-              NIT Patna Main Campus
-            </span>
-            <span className="text-emerald-700 font-semibold font-mono-code">SBM-Cell Active</span>
-          </div>
-        </div>
-      )}
+            <button
+              id="mobile-nav-guide"
+              onClick={() => handleTabClick('guide')}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
+                activeTab === 'guide' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <BookOpen className="w-4 h-4 text-[#134E3A]" />
+                <span>Waste Segregation Guide</span>
+              </div>
+              <span className="text-[10px] text-stone-500">Wet / Dry / E-Waste</span>
+            </button>
+
+            {isAdmin && (
+              <button
+                id="mobile-nav-alerts"
+                onClick={() => handleTabClick('alerts')}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
+                  activeTab === 'alerts' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck className="w-4 h-4 text-[#134E3A]" />
+                  <span>Admin Dispatch & Reports</span>
+                </div>
+                {activeAlertsCount > 0 && (
+                  <span className="bg-rose-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded font-mono-code">
+                    {activeAlertsCount}
+                  </span>
+                )}
+              </button>
+            )}
+
+            {onOpenScanModal && (
+              <button
+                id="mobile-nav-scan-qr"
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenScanModal();
+                }}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <QrCode className="w-4 h-4 text-[#134E3A]" />
+                  <span>Scan Station QR / ID</span>
+                </div>
+                <span className="text-[10px] text-stone-500 font-mono-code">Live Lookup</span>
+              </button>
+            )}
+
+            <div className="pt-2 mt-2 border-t border-stone-100 text-[11px] text-stone-500 flex items-center justify-between">
+              <span className="flex items-center gap-1">
+                <Building2 className="w-3.5 h-3.5 text-stone-400" />
+                NIT Patna Main Campus
+              </span>
+              <span className="text-emerald-700 font-semibold font-mono-code">SBM-Cell Active</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

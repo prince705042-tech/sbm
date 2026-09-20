@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   X
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface CampusMapProps {
   bins: CampusBin[];
@@ -1272,7 +1273,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 if (bin.hasEwaste) pinFill = '#1e293b';
 
                 return (
-                  <g
+                  <motion.g
                     key={bin.id}
                     id={`map-bin-${bin.id}`}
                     transform={`translate(${bx}, ${by})`}
@@ -1282,6 +1283,10 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                     }}
                     className="cursor-pointer group"
                     filter="url(#badgeShadow)"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: isSelected ? 1.15 : 1, opacity: 1 }}
+                    whileHover={{ scale: 1.25 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 22 }}
                   >
                     {/* Pulsing ring for selected bin */}
                     {(isSelected || isHighlighted) && (
@@ -1363,7 +1368,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                         {bin.name.length > 17 ? bin.name.substring(0, 15) + '..' : bin.name}
                       </text>
                     </g>
-                  </g>
+                  </motion.g>
                 );
               })}
 
@@ -1412,69 +1417,79 @@ export const CampusMap: React.FC<CampusMapProps> = ({
 
       {/* Selected Bin Details & Action Sidebar */}
       <div className="w-full xl:w-80 shrink-0 flex flex-col gap-4">
-        {selectedBin ? (
-          <div className="bg-white rounded-lg p-5 border border-stone-200 shadow-2xs flex flex-col justify-between">
-            <div>
-              {/* Header */}
-              <div className="flex items-start justify-between gap-2 pb-3 border-b border-stone-200">
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-900 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded font-mono-code">
-                      {selectedBin.floor}
-                    </span>
-                    <span className="text-[10px] font-mono-code text-stone-400">
-                      #{selectedBin.id.toUpperCase()}
+        <AnimatePresence mode="wait">
+          {selectedBin ? (
+            <motion.div 
+              key={selectedBin.id}
+              initial={{ opacity: 0, x: 14 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -14 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white rounded-lg p-5 border border-stone-200 shadow-2xs flex flex-col justify-between"
+            >
+              <div>
+                {/* Header */}
+                <div className="flex items-start justify-between gap-2 pb-3 border-b border-stone-200">
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-900 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded font-mono-code">
+                        {selectedBin.floor}
+                      </span>
+                      <span className="text-[10px] font-mono-code text-stone-400">
+                        #{selectedBin.id.toUpperCase()}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-bold text-stone-900 mt-1 font-editorial">
+                      {selectedBin.name}
+                    </h3>
+                    <p className="text-xs text-stone-500 flex items-center gap-1 mt-0.5">
+                      <MapPin className="w-3 h-3 text-stone-400 shrink-0" />
+                      {selectedBin.locationName}
+                    </p>
+                  </div>
+
+                  <div
+                    className={`px-2.5 py-1 rounded text-xs font-bold font-mono-code shrink-0 border ${
+                      selectedBin.fillLevel >= 85
+                        ? 'bg-rose-50 text-rose-800 border-rose-200'
+                        : selectedBin.fillLevel >= 60
+                        ? 'bg-amber-50 text-amber-900 border-amber-200'
+                        : 'bg-emerald-50 text-emerald-900 border-emerald-200'
+                    }`}
+                  >
+                    {selectedBin.fillLevel}% Full
+                  </div>
+                </div>
+
+                {/* Fill Level Meter */}
+                <div className="my-4 bg-stone-50 p-3 rounded-md border border-stone-200">
+                  <div className="flex items-center justify-between text-xs mb-1.5">
+                    <span className="font-semibold text-stone-700">Capacity &amp; Current Fill</span>
+                    <span className="text-stone-500 font-mono-code">
+                      {Math.round((selectedBin.fillLevel / 100) * selectedBin.capacityLiters)}L / {selectedBin.capacityLiters}L
                     </span>
                   </div>
-                  <h3 className="text-base font-bold text-stone-900 mt-1 font-editorial">
-                    {selectedBin.name}
-                  </h3>
-                  <p className="text-xs text-stone-500 flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3 h-3 text-stone-400 shrink-0" />
-                    {selectedBin.locationName}
-                  </p>
+                  <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${selectedBin.fillLevel}%` }}
+                      transition={{ duration: 0.5, ease: 'easeOut' }}
+                      className={`h-full ${
+                        selectedBin.fillLevel >= 85
+                          ? 'bg-rose-600'
+                          : selectedBin.fillLevel >= 60
+                          ? 'bg-amber-500'
+                          : 'bg-emerald-600'
+                      }`}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-stone-500 mt-1.5">
+                    <span>Last cleared: {selectedBin.lastEmptied}</span>
+                    <span className="font-medium">
+                      {selectedBin.fillLevel < 80 ? 'In Service' : 'Clearing Required'}
+                    </span>
+                  </div>
                 </div>
-
-                <div
-                  className={`px-2.5 py-1 rounded text-xs font-bold font-mono-code shrink-0 border ${
-                    selectedBin.fillLevel >= 85
-                      ? 'bg-rose-50 text-rose-800 border-rose-200'
-                      : selectedBin.fillLevel >= 60
-                      ? 'bg-amber-50 text-amber-900 border-amber-200'
-                      : 'bg-emerald-50 text-emerald-900 border-emerald-200'
-                  }`}
-                >
-                  {selectedBin.fillLevel}% Full
-                </div>
-              </div>
-
-              {/* Fill Level Meter */}
-              <div className="my-4 bg-stone-50 p-3 rounded-md border border-stone-200">
-                <div className="flex items-center justify-between text-xs mb-1.5">
-                  <span className="font-semibold text-stone-700">Capacity &amp; Current Fill</span>
-                  <span className="text-stone-500 font-mono-code">
-                    {Math.round((selectedBin.fillLevel / 100) * selectedBin.capacityLiters)}L / {selectedBin.capacityLiters}L
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-500 ${
-                      selectedBin.fillLevel >= 85
-                        ? 'bg-rose-600'
-                        : selectedBin.fillLevel >= 60
-                        ? 'bg-amber-500'
-                        : 'bg-emerald-600'
-                    }`}
-                    style={{ width: `${selectedBin.fillLevel}%` }}
-                  ></div>
-                </div>
-                <div className="flex items-center justify-between text-[11px] text-stone-500 mt-1.5">
-                  <span>Last cleared: {selectedBin.lastEmptied}</span>
-                  <span className="font-medium">
-                    {selectedBin.fillLevel < 80 ? 'In Service' : 'Clearing Required'}
-                  </span>
-                </div>
-              </div>
 
               {/* Supported Segregations */}
               <div className="mb-4">
@@ -1549,10 +1564,16 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 Report Full Station or Defect
               </button>
             </div>
-          </div>
+          </motion.div>
         ) : (
           /* Empty selection guide */
-          <div className="bg-white rounded-lg p-6 border border-stone-200 shadow-2xs flex flex-col items-center justify-center text-center">
+          <motion.div 
+            key="empty-selection"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="bg-white rounded-lg p-6 border border-stone-200 shadow-2xs flex flex-col items-center justify-center text-center"
+          >
             <div className="w-10 h-10 rounded-md bg-stone-100 text-stone-700 flex items-center justify-center mb-3 border border-stone-200">
               <Trash2 className="w-5 h-5" />
             </div>
@@ -1578,8 +1599,9 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 <span>Drop hazardous battery cells only in designated Computer Center boxes.</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         {/* Official Campus Directive Card */}
         <div className="bg-[#134E3A] rounded-lg p-4 text-stone-100 border border-[#0F3E2E] shadow-2xs">
@@ -1598,11 +1620,25 @@ export const CampusMap: React.FC<CampusMapProps> = ({
       </div>
 
       {/* Campus Sanitation & Feedback Mail Modal */}
-      {showMailModal && (
-        <div className="fixed inset-0 z-50 bg-stone-900/60 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-md w-full shadow-lg border border-stone-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="bg-[#134E3A] text-white p-4 flex items-center justify-between">
+      <AnimatePresence>
+        {showMailModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowMailModal(false)}
+              className="fixed inset-0 bg-stone-900/60"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className="relative z-10 bg-white rounded-lg max-w-md w-full shadow-lg border border-stone-200 overflow-hidden"
+            >
+              {/* Modal Header */}
+              <div className="bg-[#134E3A] text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded bg-white/15 flex items-center justify-center">
                   <Mail className="w-4 h-4 text-white" />
@@ -1719,9 +1755,10 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 </form>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+    </AnimatePresence>
     </div>
   );
 };

@@ -104,8 +104,21 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 animate-in fade-in duration-150 overflow-y-auto">
-      <div className="bg-white rounded-lg max-w-lg w-full p-5 sm:p-6 shadow-xl border border-stone-200 overflow-hidden relative my-auto max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={handleClose}
+        className="fixed inset-0 bg-stone-900/60"
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.2 }}
+        className="relative z-10 bg-white rounded-lg max-w-lg w-full p-5 sm:p-6 shadow-xl border border-stone-200 overflow-hidden my-auto max-h-[92vh] flex flex-col"
+      >
         {/* Header */}
         <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-stone-100 shrink-0">
           <div className="flex items-center gap-3">
@@ -375,7 +388,7 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
             </motion.form>
           )}
         </AnimatePresence>
-      </div>
+      </motion.div>
     </div>
   );
 };

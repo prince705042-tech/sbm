@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CampusBin, BuildingZone, WasteType } from '../types';
 import { CAMPUS_ZONES } from '../data/campusData';
 import { X, PlusCircle, Lock, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface AddBinModalProps {
   isOpen: boolean;
@@ -33,8 +34,21 @@ export const AddBinModal: React.FC<AddBinModalProps> = ({
   // If not logged in as Admin, show access gate
   if (!isAdmin) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 animate-in fade-in duration-150">
-        <div className="bg-white rounded-lg max-w-md w-full p-6 sm:p-7 shadow-xl border border-stone-200 relative text-center">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="fixed inset-0 bg-stone-900/60"
+        />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 10 }}
+          transition={{ duration: 0.2 }}
+          className="relative z-10 bg-white rounded-lg max-w-md w-full p-6 sm:p-7 shadow-xl border border-stone-200 text-center"
+        >
           <button
             id="btn-close-add-bin-gate"
             onClick={onClose}
@@ -61,15 +75,17 @@ export const AddBinModal: React.FC<AddBinModalProps> = ({
           </p>
 
           <div className="mt-6 flex flex-col sm:flex-row items-center gap-2">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.98 }}
               type="button"
               id="btn-cancel-add-bin-gate"
               onClick={onClose}
               className="w-full sm:w-1/2 py-2 rounded border border-stone-200 bg-stone-50 text-stone-700 hover:bg-stone-100 text-xs font-medium transition-colors cursor-pointer"
             >
               Cancel
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.98 }}
               type="button"
               id="btn-login-to-add-bin"
               onClick={() => {
@@ -80,9 +96,9 @@ export const AddBinModal: React.FC<AddBinModalProps> = ({
             >
               <Lock className="w-3.5 h-3.5" />
               <span>Admin Authentication</span>
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -124,8 +140,21 @@ export const AddBinModal: React.FC<AddBinModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 animate-in fade-in duration-150 overflow-y-auto">
-      <div className="bg-white rounded-lg max-w-lg w-full p-5 sm:p-6 shadow-xl border border-stone-200 overflow-hidden relative my-auto max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 bg-stone-900/60"
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.2 }}
+        className="relative z-10 bg-white rounded-lg max-w-lg w-full p-5 sm:p-6 shadow-xl border border-stone-200 overflow-hidden my-auto max-h-[92vh] flex flex-col"
+      >
         <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-stone-100 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded bg-emerald-50 text-[#134E3A] border border-emerald-200 flex items-center justify-center shrink-0">
@@ -282,17 +311,18 @@ export const AddBinModal: React.FC<AddBinModalProps> = ({
             >
               Cancel
             </button>
-            <button
+            <motion.button
+              whileTap={{ scale: 0.98 }}
               id="btn-submit-add-bin-form"
               type="submit"
               className="px-4 py-1.5 text-xs font-semibold text-white bg-[#134E3A] hover:bg-[#0F3E2E] rounded shadow-2xs flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               <PlusCircle className="w-3.5 h-3.5" />
               <span>Register Station</span>
-            </button>
+            </motion.button>
           </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 };
