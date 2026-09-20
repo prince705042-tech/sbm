@@ -18,7 +18,11 @@ export const ExportAuditReportModal: React.FC<ExportAuditReportModalProps> = ({
   if (!isOpen) return null;
 
   const handlePrint = () => {
-    window.print();
+    try {
+      window.print();
+    } catch (e) {
+      console.warn('Print not supported in current environment:', e);
+    }
   };
 
   const todayStr = new Date().toLocaleDateString('en-IN', {

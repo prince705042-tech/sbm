@@ -92,7 +92,7 @@ export default function App() {
     } catch {
       // Fallback
     }
-    return [
+    const fallbackTickets: ReportTicket[] = [
       {
         id: 't-1',
         binId: 'bin-chem-1',
@@ -126,7 +126,8 @@ export default function App() {
         status: 'pending',
         reportedBy: 'Ananya (B.Tech 3rd Year)',
       },
-    ].filter((t) => !deletedSet.has(t.id));
+    ];
+    return fallbackTickets.filter((t) => !deletedSet.has(t.id));
   });
 
   // Admin authentication state

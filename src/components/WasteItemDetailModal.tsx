@@ -134,58 +134,67 @@ export const WasteItemDetailModal: React.FC<WasteItemDetailModalProps> = ({
   // Audio Speech Synthesis state
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [audioLang, setAudioLang] = useState<'hi' | 'en'>('hi');
+  const [audioNotice, setAudioNotice] = useState<string | null>(null);
 
   // Stop speech when modal closes or item changes
   useEffect(() => {
     return () => {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
+      try {
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+      } catch {}
     };
   }, [item]);
 
   const handleToggleAudio = () => {
+    setAudioNotice(null);
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      alert('Speech audio is not supported in this browser.');
+      setAudioNotice('Speech audio is not supported in this browser environment.');
       return;
     }
 
-    if (isPlayingAudio) {
-      window.speechSynthesis.cancel();
-      setIsPlayingAudio(false);
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-
-    let textToSpeak = '';
-    if (audioLang === 'hi') {
-      if (item.category === 'wet') {
-        textToSpeak = `${item.name} गीला कचरा है। इसे हमेशा हरे डस्टबिन में डालें। ${item.tip}`;
-      } else if (item.category === 'dry') {
-        textToSpeak = `${item.name} सूखा कचरा है। इसे नीले डस्टबिन में डालें। ${item.tip}`;
-      } else if (item.category === 'e-waste') {
-        textToSpeak = `${item.name} ई-कचरा है। इसे कंप्यूटर साइंस डिपार्टमेंट के ई-वेस्ट ड्रॉप बॉक्स में डालें। ${item.tip}`;
-      } else {
-        textToSpeak = `${item.name} हानिकारक कचरा है। इसे सावधानी से लाल डस्टबिन या स्वास्थ्य केंद्र में दें।`;
+    try {
+      if (isPlayingAudio) {
+        window.speechSynthesis.cancel();
+        setIsPlayingAudio(false);
+        return;
       }
-    } else {
-      textToSpeak = `Official disposal guide for ${item.name}. Category: ${meta.label}. Protocol instruction: ${item.tip}`;
+
+      window.speechSynthesis.cancel();
+
+      let textToSpeak = '';
+      if (audioLang === 'hi') {
+        if (item.category === 'wet') {
+          textToSpeak = `${item.name} गीला कचरा है। इसे हमेशा हरे डस्टबिन में डालें। ${item.tip}`;
+        } else if (item.category === 'dry') {
+          textToSpeak = `${item.name} सूखा कचरा है। इसे नीले डस्टबिन में डालें। ${item.tip}`;
+        } else if (item.category === 'e-waste') {
+          textToSpeak = `${item.name} ई-कचरा है। इसे कंप्यूटर साइंस डिपार्टमेंट के ई-वेस्ट ड्रॉप बॉक्स में डालें। ${item.tip}`;
+        } else {
+          textToSpeak = `${item.name} हानिकारक कचरा है। इसे सावधानी से लाल डस्टबिन या स्वास्थ्य केंद्र में दें।`;
+        }
+      } else {
+        textToSpeak = `Official disposal guide for ${item.name}. Category: ${meta.label}. Protocol instruction: ${item.tip}`;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.lang = audioLang === 'hi' ? 'hi-IN' : 'en-IN';
+      utterance.rate = 0.95;
+
+      utterance.onend = () => {
+        setIsPlayingAudio(false);
+      };
+      utterance.onerror = () => {
+        setIsPlayingAudio(false);
+      };
+
+      setIsPlayingAudio(true);
+      window.speechSynthesis.speak(utterance);
+    } catch (err) {
+      setIsPlayingAudio(false);
+      setAudioNotice('Audio playback unavailable in this session.');
     }
-
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    utterance.lang = audioLang === 'hi' ? 'hi-IN' : 'en-IN';
-    utterance.rate = 0.95;
-
-    utterance.onend = () => {
-      setIsPlayingAudio(false);
-    };
-    utterance.onerror = () => {
-      setIsPlayingAudio(false);
-    };
-
-    setIsPlayingAudio(true);
-    window.speechSynthesis.speak(utterance);
   };
 
   // Find campus bins that accept this waste
@@ -282,6 +291,13 @@ export const WasteItemDetailModal: React.FC<WasteItemDetailModalProps> = ({
               </button>
             </div>
           </div>
+
+          {audioNotice && (
+            <div className="p-2 rounded bg-amber-50 border border-amber-200 text-amber-800 text-[11px] flex items-center gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <span>{audioNotice}</span>
+            </div>
+          )}
 
           {/* Quick specs grid */}
           <div className="grid grid-cols-2 gap-2">

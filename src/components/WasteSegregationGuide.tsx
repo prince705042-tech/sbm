@@ -66,23 +66,27 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
   const [tempDept, setTempDept] = useState('NIT Patna - Student');
   const [pledgeAgreement, setPledgeAgreement] = useState(true);
 
-  // Initialize pledge from localStorage
+  // Initialize pledge from localStorage safely
   useEffect(() => {
-    const isTaken = localStorage.getItem('swachh_campus_pledge_taken') === 'true';
-    const savedName = localStorage.getItem('swachh_campus_pledge_name') || '';
-    const savedDept = localStorage.getItem('swachh_campus_pledge_dept') || '';
-    const savedDate = localStorage.getItem('swachh_campus_pledge_date') || '';
-    const savedCount = localStorage.getItem('swachh_campus_pledge_count');
+    try {
+      const isTaken = localStorage.getItem('swachh_campus_pledge_taken') === 'true';
+      const savedName = localStorage.getItem('swachh_campus_pledge_name') || '';
+      const savedDept = localStorage.getItem('swachh_campus_pledge_dept') || '';
+      const savedDate = localStorage.getItem('swachh_campus_pledge_date') || '';
+      const savedCount = localStorage.getItem('swachh_campus_pledge_count');
 
-    if (isTaken) {
-      setPledgeTaken(true);
-      setPledgeName(savedName);
-      setPledgeDept(savedDept);
-      setPledgeDate(savedDate);
-    }
+      if (isTaken) {
+        setPledgeTaken(true);
+        setPledgeName(savedName);
+        setPledgeDept(savedDept);
+        setPledgeDate(savedDate);
+      }
 
-    if (savedCount) {
-      setPledgeCount(parseInt(savedCount, 10));
+      if (savedCount) {
+        setPledgeCount(parseInt(savedCount, 10));
+      }
+    } catch {
+      // Local storage fallback for restricted environments
     }
   }, []);
 
@@ -306,11 +310,13 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
 
     const newCount = pledgeCount + 1;
 
-    localStorage.setItem('swachh_campus_pledge_taken', 'true');
-    localStorage.setItem('swachh_campus_pledge_name', finalName);
-    localStorage.setItem('swachh_campus_pledge_dept', finalDept);
-    localStorage.setItem('swachh_campus_pledge_date', today);
-    localStorage.setItem('swachh_campus_pledge_count', String(newCount));
+    try {
+      localStorage.setItem('swachh_campus_pledge_taken', 'true');
+      localStorage.setItem('swachh_campus_pledge_name', finalName);
+      localStorage.setItem('swachh_campus_pledge_dept', finalDept);
+      localStorage.setItem('swachh_campus_pledge_date', today);
+      localStorage.setItem('swachh_campus_pledge_count', String(newCount));
+    } catch {}
 
     setPledgeTaken(true);
     setPledgeName(finalName);
@@ -323,10 +329,12 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
 
   // Reset pledge
   const handleResetPledge = () => {
-    localStorage.removeItem('swachh_campus_pledge_taken');
-    localStorage.removeItem('swachh_campus_pledge_name');
-    localStorage.removeItem('swachh_campus_pledge_dept');
-    localStorage.removeItem('swachh_campus_pledge_date');
+    try {
+      localStorage.removeItem('swachh_campus_pledge_taken');
+      localStorage.removeItem('swachh_campus_pledge_name');
+      localStorage.removeItem('swachh_campus_pledge_dept');
+      localStorage.removeItem('swachh_campus_pledge_date');
+    } catch {}
 
     setPledgeTaken(false);
     setPledgeName('');
@@ -972,11 +980,7 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
               </button>
 
               <button
-                onClick={() => {
-                  if (window.confirm('Do you want to retake or edit your pledge?')) {
-                    setIsPledgeFormOpen(true);
-                  }
-                }}
+                onClick={() => setIsPledgeFormOpen(true)}
                 className="p-2.5 rounded bg-white/10 hover:bg-white/20 text-stone-200 text-xs font-semibold cursor-pointer transition-colors"
                 title="Edit Pledge Info"
               >

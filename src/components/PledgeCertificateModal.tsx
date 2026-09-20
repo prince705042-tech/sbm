@@ -176,11 +176,10 @@ export const PledgeCertificateModal: React.FC<PledgeCertificateModalProps> = ({
         {/* Footer */}
         <div className="p-3 bg-stone-50 border-t border-stone-200 flex items-center justify-between">
           <button
+            type="button"
             onClick={() => {
-              if (window.confirm('Do you wish to reset your pledge record?')) {
-                onResetPledge();
-                onClose();
-              }
+              onResetPledge();
+              onClose();
             }}
             className="text-xs font-medium text-stone-500 hover:text-rose-700 flex items-center gap-1 cursor-pointer transition-colors"
           >
@@ -189,6 +188,7 @@ export const PledgeCertificateModal: React.FC<PledgeCertificateModalProps> = ({
           </button>
 
           <button
+            type="button"
             onClick={onClose}
             className="px-4 py-1.5 rounded bg-[#134E3A] hover:bg-[#0F3E2E] text-white font-semibold text-xs shadow-2xs cursor-pointer transition-colors"
           >

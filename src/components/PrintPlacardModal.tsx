@@ -16,7 +16,11 @@ export const PrintPlacardModal: React.FC<PrintPlacardModalProps> = ({
   if (!isOpen || !bin) return null;
 
   const handlePrint = () => {
-    window.print();
+    try {
+      window.print();
+    } catch (e) {
+      console.warn('Print not supported in current environment:', e);
+    }
   };
 
   const stationCode = `NITP-SBM-${bin.id.toUpperCase().replace('BIN-', '')}`;

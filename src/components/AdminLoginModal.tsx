@@ -172,7 +172,21 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
           </button>
         </form>
 
-        <p className="text-[11px] text-stone-400 text-center mt-4 font-mono-code">
+        <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500 font-mono-code">
+          <span>Demo: SBM / SBM@2612047</span>
+          <button
+            type="button"
+            onClick={() => {
+              setAdminId('SBM');
+              setPassword('SBM@2612047');
+            }}
+            className="px-2 py-0.5 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium transition-colors cursor-pointer"
+          >
+            Auto-fill
+          </button>
+        </div>
+
+        <p className="text-[11px] text-stone-400 text-center mt-2 font-mono-code">
           Swachh Bharat Mission Sanitation Directorate &bull; NIT Patna
         </p>
       </div>

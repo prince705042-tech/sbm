@@ -209,6 +209,21 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
             </button>
           </form>
 
+          {/* Quick Demo Autofill */}
+          <div className="mt-4 pt-3 border-t border-stone-100 max-w-sm mx-auto flex items-center justify-between text-[11px] text-stone-500 font-mono-code">
+            <span>Demo: SBM / SBM@2612047</span>
+            <button
+              type="button"
+              onClick={() => {
+                setAdminIdInput('SBM');
+                setPasswordInput('SBM@2612047');
+              }}
+              className="px-2 py-0.5 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium transition-colors cursor-pointer"
+            >
+              Auto-fill
+            </button>
+          </div>
+
           {/* Alternative action: regular user wanting to submit an issue */}
           <div className="mt-8 pt-5 border-t border-stone-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-500">
             <span>Reporting a full or damaged bin on campus?</span>
