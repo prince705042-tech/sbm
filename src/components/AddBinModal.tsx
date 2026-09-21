@@ -229,9 +229,10 @@ export const AddBinModal: React.FC<AddBinModalProps> = ({
                 onChange={(e) => setFloor(e.target.value)}
                 className="w-full bg-stone-50 border border-stone-200 rounded px-3 py-2 text-xs font-medium text-stone-900 focus:outline-hidden focus:border-[#134E3A] focus:bg-white transition-colors"
               >
-                <option value="Just Outside Building (Outdoor)">Just Outside Building (Outdoor) - Standard</option>
-                <option value="Outdoor / Grounds">Outdoor / Lawn &amp; Walkway</option>
-                <option value="Indoor (SAC Building Only)">Indoor (SAC Building Only)</option>
+                <option value="Outside Building Entrance (Sidewalk)">Outside Building Entrance (Sidewalk) - Standard</option>
+                <option value="Outside Building Entrance (Walkway)">Outside Building Entrance (Walkway / Pathway)</option>
+                <option value="Outside Building Entrance (Plaza)">Outside Building Entrance (Plaza / Courtyard)</option>
+                <option value="Outside Sports Pavilion (Roadway)">Outside Sports Pavilion (Roadway)</option>
               </select>
             </div>
           </div>
@@ -239,7 +240,7 @@ export const AddBinModal: React.FC<AddBinModalProps> = ({
           {/* Campus Placement Rule Note */}
           <div className="bg-stone-50 border border-stone-200 rounded p-2.5 text-[11px] text-stone-700 flex items-start gap-2">
             <span className="font-bold text-[#134E3A] shrink-0 font-mono-code">NOTICE:</span>
-            <span>Campus standard mandates dual stations (Wet + Dry) positioned immediately exterior to entrances. SAC Building is the only approved indoor station facility.</span>
+            <span>Campus standard mandates that all dustbin twin stations (Wet + Dry) must be located strictly OUTSIDE of buildings on exterior sidewalks, entrance walkways, roadways, or plazas.</span>
           </div>
 
           <div>

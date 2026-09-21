@@ -279,7 +279,7 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {onOpenAuditModal && (
             <button
               id="btn-admin-export-audit"

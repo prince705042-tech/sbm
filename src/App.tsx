@@ -29,7 +29,7 @@ import {
 export default function App() {
   // Persistence in localStorage
   // Version key to ensure updated campus locations load cleanly
-  const DATA_VERSION = 'v20_sanitized_keys';
+  const DATA_VERSION = 'v24_outside_dustbins_sports_removed';
 
   const [bins, setBins] = useState<CampusBin[]>(() => {
     try {
@@ -41,7 +41,7 @@ export default function App() {
           // Deduplicate keys in case old data was saved and filter removed bins
           const seen = new Set<string>();
           return parsed
-            .filter((b) => b.id !== 'bin-gandhighat-1')
+            .filter((b) => b.id !== 'bin-gandhighat-1' && b.id !== 'bin-kosi-ext-2' && b.id !== 'bin-sports-1')
             .map((b, idx) => {
               if (seen.has(b.id)) {
                 const uniqueId = `${b.id}-${idx}`;
@@ -535,7 +535,7 @@ export default function App() {
   const activeAlertsCount = tickets.filter((t) => t.status !== 'resolved').length;
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] flex flex-col font-['Public_Sans',sans-serif] text-stone-800">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#F8F9FA] flex flex-col font-['Public_Sans',sans-serif] text-stone-800">
       {/* Toast popup */}
       <AnimatePresence>
         {toastMessage && (
@@ -569,7 +569,7 @@ export default function App() {
       />
 
       {/* Main View Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7 pb-24 md:pb-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 lg:px-8 py-4 sm:py-7 pb-24 md:pb-10 min-w-0">
         <AnimatePresence mode="wait">
           {activeTab === 'map' && (
             <motion.div

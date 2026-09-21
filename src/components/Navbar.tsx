@@ -75,25 +75,25 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Main Navigation Row */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-3">
+        <div className="flex items-center justify-between h-16 gap-2 sm:gap-3">
           {/* Logo & Campus Identity */}
           <div 
             onClick={() => handleTabClick('map')}
-            className="flex items-center gap-3 cursor-pointer select-none shrink-0"
+            className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none min-w-0"
           >
-            <div className="w-10 h-10 rounded-lg bg-[#134E3A] text-white flex items-center justify-center border border-[#0F3E2E] shrink-0 shadow-xs">
-              <Trash2 className="w-5 h-5 text-emerald-300" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#134E3A] text-white flex items-center justify-center border border-[#0F3E2E] shrink-0 shadow-xs">
+              <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-300" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-bold text-stone-900 font-editorial tracking-tight">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="text-base sm:text-xl font-bold text-stone-900 font-editorial tracking-tight truncate">
                   Swachh Campus
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-700 px-1.5 py-0.5 rounded border border-stone-200">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-700 px-1 sm:px-1.5 py-0.5 rounded border border-stone-200 shrink-0">
                   NITP
                 </span>
               </div>
-              <p className="text-[11px] text-stone-500 hidden sm:block">
+              <p className="text-[11px] text-stone-500 hidden sm:block truncate">
                 Source Segregation & Infrastructure Map
               </p>
             </div>
@@ -196,41 +196,41 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Action Utilities */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {onOpenScanModal && (
               <motion.button
                 whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ scale: 0.96 }}
                 id="btn-scan-qr"
                 type="button"
                 onClick={onOpenScanModal}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-md bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                className="inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 h-9 text-xs font-semibold rounded-lg bg-stone-100 hover:bg-stone-200 active:bg-stone-300 text-stone-800 border border-stone-300 transition-colors cursor-pointer whitespace-nowrap shrink-0 shadow-2xs touch-manipulation"
                 title="Scan Dustbin QR Code or Direct Lookup"
               >
                 <QrCode className="w-3.5 h-3.5 text-[#134E3A] shrink-0" />
-                <span className="hidden sm:inline">Scan QR / ID</span>
-                <span className="sm:hidden">QR</span>
+                <span className="hidden sm:inline">Scan QR</span>
+                <span className="sm:hidden text-xs">QR</span>
               </motion.button>
             )}
 
             <motion.button
               whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.96 }}
               id="btn-report-issue"
               onClick={onOpenReportModal}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-amber-50 text-amber-900 hover:bg-amber-100/80 border border-amber-300 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+              className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-3 h-9 text-xs font-semibold rounded-lg bg-amber-50 hover:bg-amber-100 active:bg-amber-200 text-amber-950 border border-amber-300 transition-all cursor-pointer whitespace-nowrap shrink-0 shadow-2xs touch-manipulation"
               title="Report full bin or misplaced waste"
             >
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-              <span className="hidden sm:inline">Report Issue</span>
-              <span className="sm:hidden">Report</span>
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-800 shrink-0" />
+              <span className="text-xs font-semibold">Report</span>
+              <span className="hidden sm:inline font-semibold">Issue</span>
             </motion.button>
 
             {/* Mobile Menu Toggle */}
             <button
               id="btn-mobile-menu-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-md text-stone-700 hover:bg-stone-100 border border-stone-200 transition-colors cursor-pointer"
+              className="md:hidden h-9 w-9 flex items-center justify-center rounded-lg text-stone-700 hover:bg-stone-100 active:bg-stone-200 border border-stone-200 transition-colors cursor-pointer shrink-0 touch-manipulation"
               aria-label="Toggle Navigation Menu"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -330,6 +330,24 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span className="text-[10px] text-stone-500 font-mono-code">Live Lookup</span>
               </button>
             )}
+
+            <button
+              id="mobile-nav-report-issue"
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenReportModal();
+              }}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-950 hover:bg-amber-100 border border-amber-200/80 transition-colors"
+            >
+              <div className="flex items-center gap-2.5">
+                <AlertTriangle className="w-4 h-4 text-amber-700" />
+                <span>Report Issue or Full Bin</span>
+              </div>
+              <span className="text-[10px] font-bold bg-amber-200/80 text-amber-900 px-1.5 py-0.5 rounded">
+                Quick Ticket
+              </span>
+            </button>
 
             <div className="pt-2 mt-2 border-t border-stone-100 text-[11px] text-stone-500 flex items-center justify-between">
               <span className="flex items-center gap-1">

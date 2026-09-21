@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { CampusBin, CampusZoneInfo, BuildingZone } from '../types';
 import { CAMPUS_ZONES } from '../data/campusData';
 import { 
@@ -14,19 +14,49 @@ import {
   Mail,
   Send,
   CheckCircle2,
-  X
+  X,
+  Search,
+  ArrowRight,
+  Eye,
+  Layers,
+  Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface CampusMapProps {
   bins: CampusBin[];
   selectedBin: CampusBin | null;
-  onSelectBin: (bin: CampusBin) => void;
+  onSelectBin: (bin: CampusBin | null) => void;
   userZone: BuildingZone;
   setUserZone: (zone: BuildingZone) => void;
   highlightedBinId?: string | null;
   onReportBin: (bin: CampusBin) => void;
 }
+
+export const getShortStationName = (bin: CampusBin): string => {
+  const map: Record<string, string> = {
+    'bin-kosi-1': 'Koshi Outside',
+    'bin-bhagmati-1': 'Bhagmati Outside',
+    'bin-brahma-1': 'Brahmaputra Outside',
+    'bin-gangagirls-1': 'Ganga Girls Outside',
+    'bin-nano-1': 'Nano / Clinic Outside',
+    'bin-cse-1': 'CSE Dept Outside',
+    'bin-ece-1': 'ECE Dept Outside',
+    'bin-alak-1': 'Alak Nanda Outside',
+    'bin-itlab-1': 'I.T. Lab Outside',
+    'bin-sac-indoor-1': 'SAC Plaza Outside',
+    'bin-sac-1': 'SAC Porch Outside',
+    'bin-civil-1': 'Civil Dept Outside',
+    'bin-main-1': 'Main Block Outside',
+    'bin-lib-1': 'Library Outside',
+    'bin-cafeteria-1': 'Canteen Outside',
+    'bin-maingate-1': 'Main Gate Outside',
+    'bin-physics-1': 'Physics Outside',
+    'bin-chem-1': 'Chemistry Outside',
+    'bin-kosi-ext-1': 'Koshi Ext Outside',
+  };
+  return map[bin.id] || bin.name.split(' ')[0] + ' Outside';
+};
 
 export const CampusMap: React.FC<CampusMapProps> = ({
   bins,
@@ -41,20 +71,14 @@ export const CampusMap: React.FC<CampusMapProps> = ({
   const [hoveredZone, setHoveredZone] = useState<CampusZoneInfo | null>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [showLabels, setShowLabels] = useState<boolean>(true);
+  const [highlightAllDustbins, setHighlightAllDustbins] = useState<boolean>(true);
+  const [locatorSearch, setLocatorSearch] = useState<string>('');
+  const [sidebarTab, setSidebarTab] = useState<'selected' | 'locator'>('selected');
   const [showMailModal, setShowMailModal] = useState<boolean>(false);
   const [mailCategory, setMailCategory] = useState<string>('bin-clearance');
   const [mailMessage, setMailMessage] = useState<string>('');
   const [mailSender, setMailSender] = useState<string>('');
   const [mailSubmitted, setMailSubmitted] = useState<boolean>(false);
-
-  // Filter bins based on selected filter
-  const filteredBins = bins.filter((bin) => {
-    if (filterType === 'wet') return bin.hasWet;
-    if (filterType === 'dry') return bin.hasDry;
-    if (filterType === 'ewaste') return bin.hasEwaste;
-    if (filterType === 'full') return bin.fillLevel >= 80 || bin.status === 'full';
-    return true;
-  });
 
   const currentUserZoneInfo = CAMPUS_ZONES.find((z) => z.id === userZone) || CAMPUS_ZONES[0];
 
@@ -64,6 +88,47 @@ export const CampusMap: React.FC<CampusMapProps> = ({
     y: ((currentUserZoneInfo.coords.y + currentUserZoneInfo.coords.height / 2) / 100) * 1040,
   };
 
+  // Calculate distance in meters & walking time from user's current location to each bin
+  const rankedBins = useMemo(() => {
+    const userCenter = {
+      x: currentUserZoneInfo.coords.x + currentUserZoneInfo.coords.width / 2,
+      y: currentUserZoneInfo.coords.y + currentUserZoneInfo.coords.height / 2,
+    };
+
+    return bins
+      .map((bin) => {
+        const dx = (bin.coords.x - userCenter.x) * 2.2;
+        const dy = (bin.coords.y - userCenter.y) * 1.8;
+        const approxMeters = Math.max(10, Math.round(Math.sqrt(dx * dx + dy * dy) * 1.8));
+        const approxSeconds = Math.max(15, Math.round(approxMeters * 0.8));
+        return {
+          ...bin,
+          distanceMeters: approxMeters,
+          walkingSeconds: approxSeconds,
+        };
+      })
+      .sort((a, b) => a.distanceMeters - b.distanceMeters);
+  }, [bins, currentUserZoneInfo]);
+
+  // Filter bins based on selected filter
+  const filteredBins = useMemo(() => {
+    return bins.filter((bin) => {
+      if (filterType === 'wet') return bin.hasWet;
+      if (filterType === 'dry') return bin.hasDry;
+      if (filterType === 'ewaste') return bin.hasEwaste;
+      if (filterType === 'full') return bin.fillLevel >= 80 || bin.status === 'full';
+      return true;
+    });
+  }, [bins, filterType]);
+
+  // Find nearest dustbin
+  const handleFindNearestDustbin = () => {
+    if (rankedBins.length > 0) {
+      onSelectBin(rankedBins[0]);
+      setSidebarTab('selected');
+    }
+  };
+
   const selectedBinCoords = selectedBin && selectedBin.coords
     ? {
         x: (selectedBin.coords.x / 100) * 720,
@@ -71,10 +136,12 @@ export const CampusMap: React.FC<CampusMapProps> = ({
       }
     : null;
 
+  const isSelectedBinVisible = !selectedBin || filteredBins.some((b) => b.id === selectedBin.id);
+
   return (
-    <div className="flex flex-col xl:flex-row gap-6">
+    <div className="flex flex-col xl:flex-row gap-6 w-full max-w-full min-w-0">
       {/* Map Main Canvas Area */}
-      <div className="flex-1 bg-white rounded-lg p-4 sm:p-6 border border-stone-200 shadow-2xs flex flex-col">
+      <div className="flex-1 bg-white rounded-lg p-3 sm:p-6 border border-stone-200 shadow-2xs flex flex-col min-w-0 max-w-full">
         {/* Map Header & Filter Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-stone-200">
           <div>
@@ -165,7 +232,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
 
         {/* Current Location & Map Controls Bar */}
         <div className="py-2.5 px-3 my-3 rounded-lg bg-stone-50 border border-stone-200 flex flex-wrap items-center justify-between gap-2.5 text-xs">
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex flex-wrap items-center gap-2 min-w-0">
             <span className="flex items-center gap-1 font-semibold text-stone-700 shrink-0">
               <Navigation className="w-3.5 h-3.5 text-[#134E3A]" />
               My Current Location:
@@ -174,7 +241,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               id="select-user-zone"
               value={userZone}
               onChange={(e) => setUserZone(e.target.value as BuildingZone)}
-              className="bg-white border border-stone-300 rounded px-2.5 py-1 text-xs font-bold text-stone-800 focus:outline-hidden focus:border-[#134E3A] cursor-pointer shadow-2xs truncate max-w-[190px] sm:max-w-xs font-mono-code"
+              className="bg-white border border-stone-300 rounded px-2.5 py-1 text-xs font-bold text-stone-800 focus:outline-hidden focus:border-[#134E3A] cursor-pointer shadow-2xs truncate max-w-[145px] sm:max-w-xs font-mono-code"
             >
               {CAMPUS_ZONES.map((zone) => (
                 <option key={zone.id} value={zone.id} title={zone.name}>
@@ -182,9 +249,35 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 </option>
               ))}
             </select>
+
+            {/* Quick action: Locate Nearest Dustbin */}
+            <button
+              id="btn-find-nearest-dustbin"
+              onClick={handleFindNearestDustbin}
+              className="flex items-center gap-1.5 px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-xs font-bold transition-all shadow-2xs shrink-0 cursor-pointer"
+              title="Instantly locate and route to the closest dustbin from your current building"
+            >
+              <Navigation className="w-3.5 h-3.5 fill-current" />
+              <span>Nearest Dustbin</span>
+            </button>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {/* Toggle Highlight Dustbins */}
+            <button
+              id="btn-toggle-highlight-dustbins"
+              onClick={() => setHighlightAllDustbins((v) => !v)}
+              className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded border transition-colors cursor-pointer ${
+                highlightAllDustbins
+                  ? 'bg-emerald-50 text-[#134E3A] border-emerald-300 font-semibold'
+                  : 'bg-white text-stone-600 border-stone-200'
+              }`}
+              title="Toggle radar beacon rings around all mapped dustbins"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>Glow Pins</span>
+            </button>
+
             {/* Zoom Controls */}
             <div className="flex items-center bg-white border border-stone-200 rounded p-0.5 shadow-2xs">
               <button
@@ -246,10 +339,57 @@ export const CampusMap: React.FC<CampusMapProps> = ({
           </div>
         </div>
 
+        {/* Quick Dustbin Locator Strip */}
+        <div className="bg-stone-100/90 rounded-lg p-2 mb-3 border border-stone-200 w-full max-w-full min-w-0 overflow-hidden">
+          <div className="flex items-center justify-between text-[11px] font-bold text-stone-600 mb-1.5 px-1">
+            <span className="flex items-center gap-1.5 font-mono-code">
+              <Trash2 className="w-3.5 h-3.5 text-emerald-700" />
+              <span>QUICK LOCATE DUSTBINS ({bins.length} STATIONS):</span>
+            </span>
+            <span className="text-[10px] text-stone-400 font-normal">Click to highlight &amp; draw walking route</span>
+          </div>
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar touch-pan-x overscroll-x-contain">
+            {rankedBins.map((bin) => {
+              const isSelected = selectedBin?.id === bin.id;
+              const shortName = getShortStationName(bin);
+              return (
+                <button
+                  key={bin.id}
+                  id={`quick-locate-bin-${bin.id}`}
+                  onClick={() => {
+                    onSelectBin(bin);
+                    setSidebarTab('selected');
+                  }}
+                  className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-emerald-800 text-white shadow-xs scale-105 ring-2 ring-emerald-400'
+                      : 'bg-white hover:bg-stone-200 text-stone-700 border border-stone-300 shadow-2xs'
+                  }`}
+                  title={`Locate ${bin.name} (~${bin.distanceMeters}m away from ${currentUserZoneInfo.shortName})`}
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full shrink-0 ${
+                      bin.fillLevel >= 80
+                        ? 'bg-rose-500'
+                        : bin.fillLevel >= 60
+                        ? 'bg-amber-500'
+                        : 'bg-emerald-500'
+                    }`}
+                  />
+                  <span>{shortName}</span>
+                  <span className={`text-[10px] font-mono-code ${isSelected ? 'text-emerald-200' : 'text-stone-400'}`}>
+                    ~{bin.distanceMeters}m
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* SVG Campus Map Canvas */}
-        <div className="relative w-full max-w-3xl mx-auto rounded-xl overflow-x-auto overflow-y-hidden border-2 border-slate-900 bg-[#0c1f2e] shadow-xl select-none transition-all duration-300">
+        <div className={`relative w-full max-w-3xl mx-auto rounded-xl ${zoomLevel > 1 ? 'overflow-auto touch-pan-x touch-pan-y' : 'overflow-hidden touch-pan-y'} border-2 border-slate-900 bg-[#0c1f2e] shadow-xl select-none transition-all duration-300`}>
           <div 
-            className="min-w-[320px] sm:min-w-[480px] md:min-w-[600px] lg:min-w-[700px] w-full mx-auto"
+            className="w-full max-w-full mx-auto"
             style={{ 
               transform: `scale(${zoomLevel})`,
               transformOrigin: 'top center',
@@ -360,23 +500,13 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 </text>
               </g>
 
-              {/* J.P. Ganga Path Bridge (top left across Ganga) */}
-              <g id="jp-ganga-path">
-                <rect x="0" y="55" width="140" height="32" fill="#475569" stroke="#334155" strokeWidth="2" />
-                <line x1="0" y1="71" x2="140" y2="71" stroke="#facc15" strokeWidth="2" strokeDasharray="6 4" />
-                {/* Bridge piers */}
-                <rect x="25" y="87" width="12" height="16" fill="#1e293b" />
-                <rect x="80" y="87" width="12" height="16" fill="#1e293b" />
-                <g filter="url(#badgeShadow)">
-                  <rect x="14" y="60" width="86" height="18" rx="4" fill="#0f172a" />
-                  <text x="57" y="73" fill="#ffffff" textAnchor="middle" className="text-[9px] font-extrabold tracking-wider">
-                    J.P. Ganga Path
-                  </text>
-                </g>
-              </g>
 
               {/* Gandhi Ghat Promenade & River Stairs (Middle West) */}
-              <g id="gandhi-ghat-area">
+              <g 
+                id="zone-gandhighat"
+                onClick={() => setUserZone('gandhi-ghat')}
+                className="cursor-pointer transition-transform hover:opacity-95"
+              >
                 <rect x="105" y="440" width="28" height="420" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
                 {/* Ghat Stairs */}
                 {Array.from({ length: 18 }).map((_, i) => (
@@ -1142,13 +1272,6 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                         Boundary Wall
                       </text>
                     </g>
-                    {/* Southeast Boundary Wall Label directly beside Koshi Ext */}
-                    <g filter="url(#badgeShadow)">
-                      <rect x="635" y="890" width="82" height="18" rx="4" fill="#991b1b" stroke="#fca5a5" strokeWidth="1" />
-                      <text x="676" y="902" fill="#ffffff" textAnchor="middle" className="text-[7.5px] font-black tracking-wider">
-                        BOUNDARY WALL
-                      </text>
-                    </g>
                   </>
                 )}
               </g>
@@ -1185,8 +1308,8 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 </text>
               </g>
 
-              {/* Map Legend Box (matching the original visual) */}
-              <g transform="translate(615, 125)" filter="url(#badgeShadow)">
+              {/* Map Legend Box (situated cleanly in open lawn area) */}
+              <g transform="translate(615, 155)" filter="url(#badgeShadow)">
                 <rect x="0" y="0" width="95" height="96" rx="6" fill="#0f172a" opacity="0.92" stroke="#334155" strokeWidth="1" />
                 
                 {/* Item 1: Main Buildings */}
@@ -1229,7 +1352,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* ======================================================== */}
               {/* 6. ROUTE FROM USER TO SELECTED DUSTBIN                   */}
               {/* ======================================================== */}
-              {selectedBinCoords && (
+              {selectedBinCoords && isSelectedBinVisible && (
                 <g id="navigationRoute">
                   {/* Glowing underlay */}
                   <line
@@ -1265,110 +1388,126 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 const by = (bin.coords.y / 100) * 1040;
                 const isSelected = selectedBin?.id === bin.id;
                 const isHighlighted = highlightedBinId === bin.id;
-
-                // Color palette based on waste types
-                let pinFill = '#2563eb'; // default blue (dry)
-                if (bin.hasWet && !bin.hasDry) pinFill = '#16a34a'; // green
-                else if (bin.hasWet && bin.hasDry) pinFill = '#059669'; // dual
-                if (bin.hasEwaste) pinFill = '#1e293b';
+                const shortLabel = getShortStationName(bin);
 
                 return (
-                  <motion.g
+                  <g
                     key={bin.id}
                     id={`map-bin-${bin.id}`}
                     transform={`translate(${bx}, ${by})`}
                     onClick={(e) => {
                       e.stopPropagation();
                       onSelectBin(bin);
+                      setSidebarTab('selected');
                     }}
                     className="cursor-pointer group"
-                    filter="url(#badgeShadow)"
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: isSelected ? 1.15 : 1, opacity: 1 }}
-                    whileHover={{ scale: 1.25 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                    style={{ transition: 'transform 0.2s ease-out' }}
                   >
-                    {/* Pulsing ring for selected bin */}
-                    {(isSelected || isHighlighted) && (
+                    {/* Glowing beacon ring */}
+                    {(isSelected || isHighlighted || highlightAllDustbins) && (
                       <circle
                         cx="0"
-                        cy="-16"
-                        r="22"
-                        fill="none"
-                        stroke={bin.fillLevel >= 80 ? '#f43f5e' : '#10b981'}
-                        strokeWidth="3"
-                        strokeDasharray="4 3"
-                        className="animate-spin"
+                        cy="-12"
+                        r={isSelected ? 26 : 18}
+                        fill={isSelected ? (bin.fillLevel >= 80 ? '#f43f5e' : '#10b981') : '#0284c7'}
+                        fillOpacity={isSelected ? 0.28 : 0.12}
+                        stroke={isSelected ? (bin.fillLevel >= 80 ? '#f43f5e' : '#10b981') : '#38bdf8'}
+                        strokeWidth={isSelected ? 2.5 : 1.2}
+                        strokeDasharray={isSelected ? '4 3' : '2 2'}
+                        className={isSelected ? 'animate-spin' : ''}
                         style={{ animationDuration: '4s' }}
                       />
                     )}
 
-                    {/* Pin Drop SVG Icon */}
-                    <g transform="translate(0, -18) scale(1.15)">
-                      <path
-                        d="M0,0 C-10,-10 -14,-18 -14,-26 C-14,-34 -7,-41 0,-41 C7,-41 14,-34 14,-26 C14,-18 10,-10 0,0 Z"
-                        fill={bin.fillLevel >= 80 ? '#e11d48' : pinFill}
-                        stroke="#ffffff"
-                        strokeWidth="2"
-                      />
-                      {/* Inner circle badge */}
-                      <circle cx="0" cy="-26" r="9.5" fill="#ffffff" />
+                    {/* DUSTBIN STATION GRAPHIC: Dual / Triple Physical Receptacles */}
+                    <g transform="translate(0, -5)" filter="url(#badgeShadow)">
+                      {/* Concrete Station Foundation Pedestal */}
+                      <rect x="-18" y="-1" width="36" height="4" rx="2" fill="#0f172a" stroke="#475569" strokeWidth="0.8" />
 
-                      {/* Waste icon / text */}
-                      {bin.hasWet && bin.hasDry ? (
-                        <g>
-                          <path d="M-8,-26 A8,8 0 0,1 0,-34 L0,-18 A8,8 0 0,1 -8,-26 Z" fill="#16a34a" />
-                          <path d="M8,-26 A8,8 0 0,0 0,-34 L0,-18 A8,8 0 0,0 8,-26 Z" fill="#2563eb" />
+                      {/* 1. GREEN WET WASTE RECEPTACLE (Left) */}
+                      <g transform="translate(-16, -22)">
+                        {/* Bin Body */}
+                        <rect x="0" y="3" width="14" height="18" rx="2" fill="#15803d" stroke="#ffffff" strokeWidth="1" />
+                        {/* Bin Lid */}
+                        <rect x="-1" y="0" width="16" height="4" rx="1.5" fill="#166534" stroke="#ffffff" strokeWidth="0.8" />
+                        {/* Handle */}
+                        <line x1="5" y1="-1" x2="9" y2="-1" stroke="#ffffff" strokeWidth="1" strokeLinecap="round" />
+                        {/* Front Label W */}
+                        <rect x="2.5" y="8" width="9" height="8" rx="1.5" fill="#14532d" />
+                        <text x="7" y="14.5" fill="#86efac" textAnchor="middle" fontSize="6.5" fontWeight="900" fontFamily="sans-serif">
+                          W
+                        </text>
+                      </g>
+
+                      {/* 2. BLUE DRY WASTE RECEPTACLE (Right) */}
+                      <g transform="translate(2, -22)">
+                        {/* Bin Body */}
+                        <rect x="0" y="3" width="14" height="18" rx="2" fill="#0284c7" stroke="#ffffff" strokeWidth="1" />
+                        {/* Bin Lid */}
+                        <rect x="-1" y="0" width="16" height="4" rx="1.5" fill="#0369a1" stroke="#ffffff" strokeWidth="0.8" />
+                        {/* Handle */}
+                        <line x1="5" y1="-1" x2="9" y2="-1" stroke="#ffffff" strokeWidth="1" strokeLinecap="round" />
+                        {/* Front Label D */}
+                        <rect x="2.5" y="8" width="9" height="8" rx="1.5" fill="#0c4a6e" />
+                        <text x="7" y="14.5" fill="#bae6fd" textAnchor="middle" fontSize="6.5" fontWeight="900" fontFamily="sans-serif">
+                          D
+                        </text>
+                      </g>
+
+                      {/* 3. OPTIONAL E-WASTE BOX (for CSE, SAC, IT-Lab, ECE) */}
+                      {bin.hasEwaste && (
+                        <g transform="translate(-5, -29)">
+                          <rect x="0" y="0" width="10" height="7" rx="1.5" fill="#090d16" stroke="#f59e0b" strokeWidth="0.8" />
+                          <text x="5" y="5.5" fill="#fcd34d" textAnchor="middle" fontSize="5.5" fontWeight="bold">
+                            ⚡E
+                          </text>
                         </g>
-                      ) : bin.hasWet ? (
-                        <circle cx="0" cy="-26" r="7" fill="#16a34a" />
-                      ) : bin.hasEwaste ? (
-                        <circle cx="0" cy="-26" r="7" fill="#0f172a" />
-                      ) : (
-                        <circle cx="0" cy="-26" r="7" fill="#2563eb" />
                       )}
 
-                      {/* Fill Level Dot Indicator */}
-                      <circle
-                        cx="8"
-                        cy="-35"
-                        r="4.5"
-                        fill={
-                          bin.fillLevel >= 80
-                            ? '#e11d48'
-                            : bin.fillLevel >= 55
-                            ? '#f59e0b'
-                            : '#10b981'
-                        }
-                        stroke="#ffffff"
-                        strokeWidth="1.2"
-                      />
+                      {/* Fill Level Status Pill */}
+                      <g transform="translate(15, -26)">
+                        <circle
+                          cx="0"
+                          cy="0"
+                          r="5.5"
+                          fill={bin.fillLevel >= 80 ? '#e11d48' : bin.fillLevel >= 55 ? '#f59e0b' : '#10b981'}
+                          stroke="#ffffff"
+                          strokeWidth="1.2"
+                        />
+                        <text x="0" y="2.5" fill="#ffffff" textAnchor="middle" fontSize="5" fontWeight="bold">
+                          {bin.fillLevel >= 80 ? '!' : `${bin.fillLevel}%`}
+                        </text>
+                      </g>
                     </g>
 
-                    {/* Compact Title Label beneath */}
-                    <g transform="translate(0, 10)">
+                    {/* DUSTBIN STATION LABEL BADGE */}
+                    <g transform="translate(0, 9)" filter="url(#badgeShadow)">
                       <rect
-                        x="-45"
+                        x="-46"
                         y="0"
-                        width="90"
-                        height="16"
-                        rx="4"
+                        width="92"
+                        height="17"
+                        rx="4.5"
                         fill={isSelected ? '#0f172a' : '#1e293b'}
-                        stroke={isSelected ? '#10b981' : '#64748b'}
-                        strokeWidth={isSelected ? '1.5' : '0.8'}
-                        opacity="0.9"
+                        stroke={isSelected ? '#34d399' : isHighlighted ? '#38bdf8' : '#64748b'}
+                        strokeWidth={isSelected ? '2' : '1'}
                       />
+                      {/* Waste type color dots */}
+                      <circle cx="-37" cy="8.5" r="2.5" fill="#16a34a" />
+                      <circle cx="-30" cy="8.5" r="2.5" fill="#2563eb" />
+                      {bin.hasEwaste && <circle cx="-23" cy="8.5" r="2.5" fill="#f59e0b" />}
+
                       <text
-                        x="0"
-                        y="11"
+                        x={bin.hasEwaste ? '8' : '4'}
+                        y="12"
                         fill="#ffffff"
                         textAnchor="middle"
-                        className="text-[7.5px] font-bold"
+                        className="text-[8px] font-extrabold tracking-wide"
                       >
-                        {bin.name.length > 17 ? bin.name.substring(0, 15) + '..' : bin.name}
+                        {shortLabel}
                       </text>
                     </g>
-                  </motion.g>
+                  </g>
                 );
               })}
 
@@ -1404,8 +1543,8 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               <span className="w-3 h-3 rounded-full bg-slate-800 border border-white inline-block shadow-2xs"></span>
               <span className="font-semibold text-slate-800">E-Waste Box (Black)</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-indigo-50 text-indigo-800 px-2 py-0.5 rounded font-semibold text-[11px] border border-indigo-200/60">
-              <span>🏢 Indoor Station: SAC Building Only</span>
+            <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded font-semibold text-[11px] border border-emerald-200/60">
+              <span>📍 All Dustbins Located Outside Buildings (Entrances &amp; Walkways)</span>
             </div>
           </div>
           <div className="flex items-center gap-1 text-slate-400 text-[11px]">
@@ -1415,10 +1554,159 @@ export const CampusMap: React.FC<CampusMapProps> = ({
         </div>
       </div>
 
-      {/* Selected Bin Details & Action Sidebar */}
-      <div className="w-full xl:w-80 shrink-0 flex flex-col gap-4">
+      {/* Dustbin Locator & Inspector Sidebar */}
+      <div className="w-full xl:w-84 shrink-0 flex flex-col gap-4">
+        {/* Mode Switcher Tabs */}
+        <div className="flex bg-stone-100 p-1 rounded-lg border border-stone-200 text-xs">
+          <button
+            id="tab-view-all-locator"
+            onClick={() => setSidebarTab('locator')}
+            className={`flex-1 py-1.5 px-3 rounded-md font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              sidebarTab === 'locator'
+                ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/90'
+                : 'text-stone-600 hover:text-stone-900'
+            }`}
+          >
+            <Compass className="w-3.5 h-3.5 text-emerald-700" />
+            <span>Campus Locator ({bins.length})</span>
+          </button>
+          <button
+            id="tab-view-selected-bin"
+            onClick={() => setSidebarTab('selected')}
+            className={`flex-1 py-1.5 px-3 rounded-md font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              sidebarTab === 'selected'
+                ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/90'
+                : 'text-stone-600 hover:text-stone-900'
+            }`}
+          >
+            <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+            <span className="truncate max-w-[120px]">
+              {selectedBin ? getShortStationName(selectedBin) : 'Selected Bin'}
+            </span>
+          </button>
+        </div>
+
         <AnimatePresence mode="wait">
-          {selectedBin ? (
+          {sidebarTab === 'locator' || !selectedBin ? (
+            /* Directory of all dustbins sorted by distance from current location */
+            <motion.div
+              key="locator-directory"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white rounded-lg p-4 border border-stone-200 shadow-2xs flex flex-col"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-stone-200">
+                <div>
+                  <h3 className="text-sm font-bold text-stone-900 font-editorial">
+                    Campus Dustbin Stations
+                  </h3>
+                  <p className="text-[11px] text-stone-500">
+                    Distances from <strong>{currentUserZoneInfo.shortName}</strong>
+                  </p>
+                </div>
+                <button
+                  onClick={handleFindNearestDustbin}
+                  className="px-2.5 py-1 text-[11px] font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded cursor-pointer transition-colors"
+                >
+                  ⚡ Nearest
+                </button>
+              </div>
+
+              {/* Search input */}
+              <div className="relative my-3">
+                <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-2.5" />
+                <input
+                  type="text"
+                  placeholder="Search stations, buildings..."
+                  value={locatorSearch}
+                  onChange={(e) => setLocatorSearch(e.target.value)}
+                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-md focus:outline-hidden focus:border-emerald-600 focus:bg-white"
+                />
+              </div>
+
+              {/* Ranked list of stations */}
+              <div className="space-y-2 max-h-[460px] overflow-y-auto pr-1">
+                {rankedBins
+                  .filter((b) => {
+                    if (!locatorSearch.trim()) return true;
+                    const q = locatorSearch.toLowerCase();
+                    return (
+                      b.name.toLowerCase().includes(q) ||
+                      b.locationName.toLowerCase().includes(q) ||
+                      b.landmark.toLowerCase().includes(q)
+                    );
+                  })
+                  .map((bin) => {
+                    const isSelected = selectedBin?.id === bin.id;
+                    const shortName = getShortStationName(bin);
+                    return (
+                      <div
+                        key={bin.id}
+                        onClick={() => {
+                          onSelectBin(bin);
+                          setSidebarTab('selected');
+                        }}
+                        className={`p-2.5 rounded-lg border transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-emerald-50/90 border-emerald-400 ring-1 ring-emerald-400 shadow-2xs'
+                            : 'bg-stone-50/70 hover:bg-stone-100 border-stone-200'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-1.5">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full shrink-0 bg-linear-to-r from-emerald-500 to-sky-500" />
+                              <h4 className="text-xs font-bold text-stone-900 truncate">
+                                {shortName}
+                              </h4>
+                            </div>
+                            <p className="text-[11px] text-stone-500 truncate mt-0.5">
+                              {bin.locationName}
+                            </p>
+                          </div>
+
+                          <span
+                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 font-mono-code ${
+                              bin.fillLevel >= 80
+                                ? 'bg-rose-100 text-rose-800'
+                                : bin.fillLevel >= 60
+                                ? 'bg-amber-100 text-amber-900'
+                                : 'bg-emerald-100 text-emerald-900'
+                            }`}
+                          >
+                            {bin.fillLevel}%
+                          </span>
+                        </div>
+
+                        {/* Walking distance and tags */}
+                        <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-stone-200/60 text-[11px]">
+                          <span className="font-semibold text-emerald-800 font-mono-code flex items-center gap-1">
+                            <Navigation className="w-3 h-3 text-emerald-600" />
+                            ~{bin.distanceMeters}m ({bin.walkingSeconds}s walk)
+                          </span>
+
+                          <div className="flex items-center gap-1">
+                            <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-900 text-[10px] font-bold">
+                              W
+                            </span>
+                            <span className="px-1.5 py-0.5 rounded bg-sky-100 text-sky-900 text-[10px] font-bold">
+                              D
+                            </span>
+                            {bin.hasEwaste && (
+                              <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">
+                                E
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </motion.div>
+          ) : (
             <motion.div 
               key={selectedBin.id}
               initial={{ opacity: 0, x: 14 }}
@@ -1428,6 +1716,15 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               className="bg-white rounded-lg p-5 border border-stone-200 shadow-2xs flex flex-col justify-between"
             >
               <div>
+                {/* Back to All Dustbins Button */}
+                <button
+                  onClick={() => setSidebarTab('locator')}
+                  className="mb-3 text-[11px] font-bold text-stone-500 hover:text-stone-800 flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <ArrowRight className="w-3 h-3 rotate-180" />
+                  <span>View All {bins.length} Dustbins in Locator</span>
+                </button>
+
                 {/* Header */}
                 <div className="flex items-start justify-between gap-2 pb-3 border-b border-stone-200">
                   <div>
@@ -1461,6 +1758,23 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                   </div>
                 </div>
 
+                {/* Distance Callout from Current Location */}
+                {(() => {
+                  const distInfo = rankedBins.find((b) => b.id === selectedBin.id);
+                  if (!distInfo) return null;
+                  return (
+                    <div className="mt-3 p-2.5 bg-emerald-50/80 border border-emerald-200 rounded-md text-xs text-emerald-950 flex items-center justify-between">
+                      <span className="text-[11px] font-medium text-emerald-900">
+                        From <strong>{currentUserZoneInfo.shortName}</strong>:
+                      </span>
+                      <span className="font-bold font-mono-code text-emerald-800 flex items-center gap-1">
+                        <Navigation className="w-3 h-3" />
+                        ~{distInfo.distanceMeters}m ({distInfo.walkingSeconds}s walk)
+                      </span>
+                    </div>
+                  );
+                })()}
+
                 {/* Fill Level Meter */}
                 <div className="my-4 bg-stone-50 p-3 rounded-md border border-stone-200">
                   <div className="flex items-center justify-between text-xs mb-1.5">
@@ -1491,116 +1805,81 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                   </div>
                 </div>
 
-              {/* Supported Segregations */}
-              <div className="mb-4">
-                <h4 className="text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-2">
-                  Segregation Compartments:
-                </h4>
-                <div className="space-y-2">
-                  {selectedBin.hasWet && (
-                    <div className="flex items-center gap-2.5 p-2 rounded-md bg-emerald-50/70 border border-emerald-200 text-xs">
-                      <div className="w-5 h-5 rounded bg-emerald-700 text-white flex items-center justify-center font-bold text-[10px] shrink-0">
-                        W
-                      </div>
-                      <div>
-                        <div className="font-bold text-emerald-950">Green Bin: Wet / Biodegradable</div>
-                        <div className="text-[11px] text-emerald-800">
-                          Food scraps, canteen leftovers, leaves, tea waste
+                {/* Supported Segregations */}
+                <div className="mb-4">
+                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-2">
+                    Segregation Compartments:
+                  </h4>
+                  <div className="space-y-2">
+                    {selectedBin.hasWet && (
+                      <div className="flex items-center gap-2.5 p-2 rounded-md bg-emerald-50/70 border border-emerald-200 text-xs">
+                        <div className="w-5 h-5 rounded bg-emerald-700 text-white flex items-center justify-center font-bold text-[10px] shrink-0">
+                          W
+                        </div>
+                        <div>
+                          <div className="font-bold text-emerald-950">Green Bin: Wet / Biodegradable</div>
+                          <div className="text-[11px] text-emerald-800">
+                            Food scraps, canteen leftovers, leaves, tea waste
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {selectedBin.hasDry && (
-                    <div className="flex items-center gap-2.5 p-2 rounded-md bg-sky-50/70 border border-sky-200 text-xs">
-                      <div className="w-5 h-5 rounded bg-sky-700 text-white flex items-center justify-center font-bold text-[10px] shrink-0">
-                        D
-                      </div>
-                      <div>
-                        <div className="font-bold text-sky-950">Blue Bin: Dry / Recyclable</div>
-                        <div className="text-[11px] text-sky-800">
-                          Plastics, paper, cardboard, cans, stationery
+                    {selectedBin.hasDry && (
+                      <div className="flex items-center gap-2.5 p-2 rounded-md bg-sky-50/70 border border-sky-200 text-xs">
+                        <div className="w-5 h-5 rounded bg-sky-700 text-white flex items-center justify-center font-bold text-[10px] shrink-0">
+                          D
+                        </div>
+                        <div>
+                          <div className="font-bold text-sky-950">Blue Bin: Dry / Recyclable</div>
+                          <div className="text-[11px] text-sky-800">
+                            Plastics, paper, cardboard, cans, stationery
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {selectedBin.hasEwaste && (
-                    <div className="flex items-center gap-2.5 p-2 rounded-md bg-stone-100 border border-stone-300 text-xs">
-                      <div className="w-5 h-5 rounded bg-stone-800 text-amber-300 flex items-center justify-center font-bold text-[10px] shrink-0">
-                        E
-                      </div>
-                      <div>
-                        <div className="font-bold text-stone-900">E-Waste Containment Box</div>
-                        <div className="text-[11px] text-stone-600">
-                          Batteries, cables, circuit boards, small peripherals
+                    {selectedBin.hasEwaste && (
+                      <div className="flex items-center gap-2.5 p-2 rounded-md bg-stone-100 border border-stone-300 text-xs">
+                        <div className="w-5 h-5 rounded bg-stone-800 text-amber-300 flex items-center justify-center font-bold text-[10px] shrink-0">
+                          E
+                        </div>
+                        <div>
+                          <div className="font-bold text-stone-900">E-Waste Containment Box</div>
+                          <div className="text-[11px] text-stone-600">
+                            Batteries, cables, circuit boards, small peripherals
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                </div>
+
+                {/* Landmark directions */}
+                <div className="p-3 bg-stone-50 border border-stone-200 rounded-md text-xs text-stone-800 mb-4">
+                  <div className="font-bold flex items-center gap-1 text-stone-900 mb-0.5">
+                    <Compass className="w-3.5 h-3.5 text-stone-600" />
+                    Station Position
+                  </div>
+                  <p className="text-[11px] text-stone-600 leading-relaxed">
+                    {selectedBin.landmark} ({selectedBin.floor})
+                  </p>
                 </div>
               </div>
 
-              {/* Landmark directions */}
-              <div className="p-3 bg-stone-50 border border-stone-200 rounded-md text-xs text-stone-800 mb-4">
-                <div className="font-bold flex items-center gap-1 text-stone-900 mb-0.5">
-                  <Compass className="w-3.5 h-3.5 text-stone-600" />
-                  Station Position
-                </div>
-                <p className="text-[11px] text-stone-600 leading-relaxed">
-                  {selectedBin.landmark} ({selectedBin.floor})
-                </p>
+              {/* Actions */}
+              <div className="flex flex-col gap-2 pt-2 border-t border-stone-100">
+                <button
+                  id="btn-report-selected-bin"
+                  onClick={() => onReportBin(selectedBin)}
+                  className="w-full py-2 px-3 text-xs font-semibold rounded-md bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-700" />
+                  Report Full Station or Defect
+                </button>
               </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex flex-col gap-2 pt-2 border-t border-stone-100">
-              <button
-                id="btn-report-selected-bin"
-                onClick={() => onReportBin(selectedBin)}
-                className="w-full py-2 px-3 text-xs font-semibold rounded-md bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-700" />
-                Report Full Station or Defect
-              </button>
-            </div>
-          </motion.div>
-        ) : (
-          /* Empty selection guide */
-          <motion.div 
-            key="empty-selection"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="bg-white rounded-lg p-6 border border-stone-200 shadow-2xs flex flex-col items-center justify-center text-center"
-          >
-            <div className="w-10 h-10 rounded-md bg-stone-100 text-stone-700 flex items-center justify-center mb-3 border border-stone-200">
-              <Trash2 className="w-5 h-5" />
-            </div>
-            <h3 className="text-sm font-bold text-stone-900 font-editorial">
-              Select a Dustbin Station
-            </h3>
-            <p className="text-xs text-stone-500 mt-1 max-w-xs leading-relaxed">
-              Click any station on the campus master plan to view real-time capacity, compartment breakdown, and clearance schedules.
-            </p>
-
-            <div className="w-full mt-5 pt-4 border-t border-stone-200 text-left space-y-2.5">
-              <div className="text-xs font-bold text-stone-800">NIT Patna Cleanliness Protocols:</div>
-              <div className="text-[11px] text-stone-600 flex items-start gap-2">
-                <span className="text-[#134E3A] font-bold font-mono-code">1.</span>
-                <span>Compress plastic beverage bottles before placing in Blue Recyclable bins.</span>
-              </div>
-              <div className="text-[11px] text-stone-600 flex items-start gap-2">
-                <span className="text-[#134E3A] font-bold font-mono-code">2.</span>
-                <span>Hostel mess organic scraps belong in Green bins for the campus compost unit.</span>
-              </div>
-              <div className="text-[11px] text-stone-600 flex items-start gap-2">
-                <span className="text-[#134E3A] font-bold font-mono-code">3.</span>
-                <span>Drop hazardous battery cells only in designated Computer Center boxes.</span>
-              </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Official Campus Directive Card */}
