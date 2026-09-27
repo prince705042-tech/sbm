@@ -24,7 +24,8 @@ export const CampusSanitationScorecard: React.FC<CampusSanitationScorecardProps>
   tickets,
   compact = false,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(!compact);
+  // Institutional Cleanliness Index starts collapsed by default; opens only when tapped
+  const [isExpanded, setIsExpanded] = useState(false);
   const [timeUntilSweep, setTimeUntilSweep] = useState<string>('38m 20s');
 
   // Calculate dynamic statistics
@@ -96,20 +97,34 @@ export const CampusSanitationScorecard: React.FC<CampusSanitationScorecardProps>
     <div className="bg-white rounded-lg border border-stone-200 shadow-2xs overflow-hidden">
       {/* Header bar */}
       <div 
+        role="button"
+        tabIndex={0}
         onClick={() => setIsExpanded(!isExpanded)}
-        className="p-3 sm:p-4 bg-stone-50/90 border-b border-stone-200 flex items-center justify-between cursor-pointer select-none hover:bg-stone-100/70 transition-colors"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsExpanded(!isExpanded);
+          }
+        }}
+        className={`p-3 sm:p-4 bg-stone-50/90 flex items-center justify-between cursor-pointer select-none hover:bg-stone-100/80 transition-all ${
+          isExpanded ? 'border-b border-stone-200' : ''
+        }`}
+        title={isExpanded ? "Click or tap to collapse index" : "Click or tap to open institutional index"}
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded bg-[#134E3A] text-white flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded bg-[#134E3A] text-white flex items-center justify-center shrink-0 shadow-2xs">
             <ShieldCheck className="w-4 h-4 text-emerald-300" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs sm:text-sm font-bold text-stone-900 font-editorial">
                 NIT Patna SBM Cleanliness Index &amp; Sanitation Live Scorecard
               </span>
               <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-[#134E3A] border border-emerald-200 font-mono-code">
                 Grade A+ Star
+              </span>
+              <span className="text-[10px] font-medium text-stone-500 font-mono-code bg-stone-200/60 px-1.5 py-0.5 rounded">
+                {isExpanded ? 'Tap to close ▴' : 'Tap to open ▾'}
               </span>
             </div>
             <p className="text-[11px] text-stone-500">
@@ -126,13 +141,11 @@ export const CampusSanitationScorecard: React.FC<CampusSanitationScorecardProps>
             <span className="text-[10px] text-stone-500 font-mono-code">Institutional Index</span>
           </div>
 
-          <button
-            type="button"
-            className="p-1 text-stone-500 hover:text-stone-800 transition-colors"
-            title={isExpanded ? "Collapse" : "Expand"}
+          <div
+            className="p-1.5 rounded-md bg-stone-200/60 text-stone-600 hover:text-stone-900 transition-colors"
           >
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
+          </div>
         </div>
       </div>
 
@@ -147,6 +160,31 @@ export const CampusSanitationScorecard: React.FC<CampusSanitationScorecardProps>
             className="overflow-hidden"
           >
             <div className="p-4 sm:p-5 space-y-4 text-xs border-t border-stone-100">
+              {/* Swachh Bharat Mission Banner Card */}
+              <div className="rounded-lg border border-amber-200/90 bg-gradient-to-r from-amber-50/80 via-white to-emerald-50/80 p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3.5 shadow-2xs">
+                <div className="w-28 sm:w-32 h-16 shrink-0 rounded-md bg-white border border-stone-200 p-1 flex items-center justify-center shadow-xs overflow-hidden">
+                  <img
+                    src="/swachh-bharat-bg.jpg"
+                    alt="Swachh Bharat Abhiyan - एक कदम स्वच्छता की ओर"
+                    className="w-full h-full object-contain"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="flex-1 text-center sm:text-left min-w-0">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                    <span className="text-xs sm:text-sm font-bold text-stone-900 font-editorial">
+                      एक कदम स्वच्छता की ओर &bull; Swachh Bharat Mission (Higher Education)
+                    </span>
+                    <span className="text-[9px] font-bold uppercase tracking-wider bg-[#134E3A] text-white px-1.5 py-0.5 rounded font-mono-code">
+                      Active Campaign
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-600 mt-1 leading-relaxed">
+                    National Institute of Technology Patna campus segregation framework: 100% dual-stream collection (Green Wet / Blue Dry), automated overflow alerting, and institutional audit compliance.
+                  </p>
+                </div>
+              </div>
+
               {/* Top 4 Metrics Grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
                 <motion.div 

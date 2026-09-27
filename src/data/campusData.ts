@@ -12,8 +12,8 @@ export const CAMPUS_ZONES: CampusZoneInfo[] = [
   },
   {
     id: 'kosi-hostel',
-    name: 'Koshi Hostel',
-    shortName: 'Koshi Hostel',
+    name: 'Kosi Hostel',
+    shortName: 'Kosi Hostel',
     coords: { x: 38.9, y: 6.2, width: 25.0, height: 5.8 },
     color: '#ec4899',
     description: 'Senior boys hostel residential block, dining mess, beside Bhagmati Hostel along Common Road',
@@ -24,7 +24,7 @@ export const CAMPUS_ZONES: CampusZoneInfo[] = [
     shortName: 'Bhagmati Hostel',
     coords: { x: 66.0, y: 6.2, width: 25.0, height: 5.8 },
     color: '#fb7185',
-    description: 'Hostel residential block, mess kitchen, indoor games room beside Koshi Hostel',
+    description: 'Hostel residential block, mess kitchen, indoor games room beside Kosi Hostel',
   },
   {
     id: 'ganga-girls-hostel',
@@ -214,8 +214,8 @@ export const CAMPUS_ZONES: CampusZoneInfo[] = [
   },
   {
     id: 'kosi-ext',
-    name: 'Koshi Extension Hostel (Beside Chemistry Lab)',
-    shortName: 'Koshi Extension',
+    name: 'Kosi Extension Hostel (Beside Chemistry Lab)',
+    shortName: 'Kosi Extension',
     coords: { x: 75.0, y: 67.9, width: 20.0, height: 17.9 },
     color: '#e11d48',
     description: 'Multi-story student residential hostel wing situated beside Chemistry Lab along the eastern boundary wall, with rooms, inner quadrangle lawn & entrance porch',
@@ -231,14 +231,14 @@ export const CAMPUS_ZONES: CampusZoneInfo[] = [
 ];
 
 export const INITIAL_BINS: CampusBin[] = [
-  // 1. Koshi Hostel (On Common Road sidewalk outside Koshi Hostel entrance)
+  // 1. Kosi Hostel (On Common Road sidewalk outside Kosi Hostel entrance)
   {
     id: 'bin-kosi-1',
-    name: 'Koshi Hostel Outside Twin Station',
-    locationName: 'Koshi Hostel - Outside Entrance (Common Road)',
+    name: 'Kosi Hostel Outside Twin Station',
+    locationName: 'Kosi Hostel - Outside Entrance (Common Road)',
     zone: 'kosi-hostel',
     floor: 'Outside Building Entrance (Sidewalk)',
-    landmark: 'On Common Road sidewalk directly outside Koshi Hostel main entrance gate (Wet + Dry paired)',
+    landmark: 'On Common Road sidewalk directly outside Kosi Hostel main entrance gate (Wet + Dry paired)',
     coords: { x: 51.4, y: 13.7 },
     types: ['dry', 'wet'],
     fillLevel: 45,
@@ -591,14 +591,14 @@ export const INITIAL_BINS: CampusBin[] = [
     reportedCount: 1,
   },
 
-  // 20. Koshi Extension Hostel (On central paved avenue outside Koshi Extension porch)
+  // 20. Kosi Extension Hostel (On central paved avenue outside Kosi Extension porch)
   {
     id: 'bin-kosi-ext-1',
-    name: 'Koshi Extension Outside Twin Station',
-    locationName: 'Koshi Extension Hostel - Outside Central Avenue',
+    name: 'Kosi Extension Outside Twin Station',
+    locationName: 'Kosi Extension Hostel - Outside Central Avenue',
     zone: 'kosi-ext',
     floor: 'Outside Building Entrance (Avenue)',
-    landmark: 'On central paved avenue outside Koshi Extension main entrance porch',
+    landmark: 'On central paved avenue outside Kosi Extension main entrance porch',
     coords: { x: 73.9, y: 76.8 },
     types: ['dry', 'wet'],
     fillLevel: 35,

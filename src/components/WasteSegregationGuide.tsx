@@ -18,6 +18,7 @@ import {
   ChevronRight,
   RotateCcw,
   BookOpen,
+  FileText,
   Check,
   X
 } from 'lucide-react';
@@ -25,6 +26,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { WasteItemDetailModal } from './WasteItemDetailModal';
 import { WasteQuiz } from './WasteQuiz';
 import { PledgeCertificateModal } from './PledgeCertificateModal';
+import { BookHandbook3D } from './BookHandbook3D';
 
 interface WasteSegregationGuideProps {
   bins?: CampusBin[];
@@ -40,7 +42,7 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
   onOpenReportModal,
 }) => {
   // Navigation within guide
-  const [guideSubView, setGuideSubView] = useState<'catalog' | 'quiz'>('catalog');
+  const [guideSubView, setGuideSubView] = useState<'book' | 'catalog' | 'quiz'>('book');
 
   // Search and filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -362,22 +364,34 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
           {/* Sub-Navigation Tabs */}
           <div className="mt-5 flex flex-wrap gap-2">
             <button
-              onClick={() => setGuideSubView('catalog')}
-              className={`px-3.5 py-2 rounded-md font-semibold text-xs flex items-center gap-2 transition-colors cursor-pointer ${
-                guideSubView === 'catalog'
-                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200'
+              onClick={() => setGuideSubView('book')}
+              className={`px-3.5 py-2 rounded-md font-semibold text-xs flex items-center gap-2 transition-all cursor-pointer ${
+                guideSubView === 'book'
+                  ? 'bg-white text-stone-900 shadow-md border border-stone-200'
                   : 'bg-white/10 text-stone-200 hover:bg-white/20'
               }`}
             >
-              <BookOpen className="w-3.5 h-3.5" />
+              <BookOpen className="w-3.5 h-3.5 text-amber-300" />
+              <span>3D Folding Handbook</span>
+            </button>
+
+            <button
+              onClick={() => setGuideSubView('catalog')}
+              className={`px-3.5 py-2 rounded-md font-semibold text-xs flex items-center gap-2 transition-all cursor-pointer ${
+                guideSubView === 'catalog'
+                  ? 'bg-white text-stone-900 shadow-md border border-stone-200'
+                  : 'bg-white/10 text-stone-200 hover:bg-white/20'
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5" />
               <span>Waste Classification Index</span>
             </button>
 
             <button
               onClick={() => setGuideSubView('quiz')}
-              className={`px-3.5 py-2 rounded-md font-semibold text-xs flex items-center gap-2 transition-colors cursor-pointer ${
+              className={`px-3.5 py-2 rounded-md font-semibold text-xs flex items-center gap-2 transition-all cursor-pointer ${
                 guideSubView === 'quiz'
-                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200'
+                  ? 'bg-white text-stone-900 shadow-md border border-stone-200'
                   : 'bg-white/10 text-stone-200 hover:bg-white/20'
               }`}
             >
@@ -389,6 +403,13 @@ export const WasteSegregationGuide: React.FC<WasteSegregationGuideProps> = ({
       </div>
 
       {/* Main View Switching */}
+      {guideSubView === 'book' && (
+        <BookHandbook3D 
+          onOpenQuiz={() => setGuideSubView('quiz')}
+          onOpenPledge={() => setIsPledgeFormOpen(true)}
+        />
+      )}
+
       {guideSubView === 'quiz' && <WasteQuiz />}
 
       {guideSubView === 'catalog' && (

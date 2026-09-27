@@ -13,6 +13,7 @@ import { ScanBinModal } from './components/ScanBinModal';
 import { PrintPlacardModal } from './components/PrintPlacardModal';
 import { ExportAuditReportModal } from './components/ExportAuditReportModal';
 import { CampusSanitationScorecard } from './components/CampusSanitationScorecard';
+import { SplashScreen } from './components/SplashScreen';
 import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut, CheckCircle2, QrCode } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -167,6 +168,101 @@ export default function App() {
   // Supabase Sync State & Timestamp
   const [supabaseSyncStatus, setSupabaseSyncStatus] = useState<'connected' | 'syncing' | 'error'>('syncing');
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+
+  // Swachh Bharat Background artwork state
+  const [showSplash, setShowSplash] = useState(true);
+  const [bgStyle, setBgStyle] = useState<'watermark' | 'vibrant' | 'minimal'>(() => {
+    try {
+      const saved = localStorage.getItem('swachh_campus_bg_style');
+      if (saved === 'vibrant' || saved === 'minimal' || saved === 'watermark') return saved;
+    } catch {}
+    return 'watermark';
+  });
+
+  // Site-wide zoom state controlled exclusively via two-finger pinch gesture (0.6x to 2.5x)
+  const [siteZoom, setSiteZoom] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('swachh_campus_site_zoom');
+      if (saved) {
+        const val = parseFloat(saved);
+        if (!isNaN(val) && val >= 0.6 && val <= 2.5) return val;
+      }
+    } catch {}
+    return 1;
+  });
+
+  // Apply zoom to documentElement for full-site scaling without any on-screen button
+  useEffect(() => {
+    try {
+      (document.documentElement as HTMLElement).style.zoom = String(siteZoom);
+    } catch {}
+  }, [siteZoom]);
+
+  // Global 2-finger touch pinch handler on mobile phones
+  useEffect(() => {
+    let initialPinchDist: number | null = null;
+    let initialPinchZoom: number = 1;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      // Don't intercept if touching inside the campus map viewport (which has its own map pinch)
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('#campus-map-interactive-viewport')) return;
+
+      if (e.touches.length === 2) {
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        initialPinchDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        initialPinchZoom = siteZoom;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('#campus-map-interactive-viewport')) return;
+
+      if (e.touches.length === 2 && initialPinchDist !== null && initialPinchDist > 0) {
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const currentDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        const factor = currentDist / initialPinchDist;
+        const targetZoom = Math.min(2.5, Math.max(0.6, Number((initialPinchZoom * factor).toFixed(2))));
+        setSiteZoom(targetZoom);
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2 && initialPinchDist !== null) {
+        try { localStorage.setItem('swachh_campus_site_zoom', String(siteZoom)); } catch {}
+        initialPinchDist = null;
+      }
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('touchcancel', handleTouchEnd);
+
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchEnd);
+    };
+  }, [siteZoom]);
+
+  const handleBgStyleChange = (style: 'watermark' | 'vibrant' | 'minimal') => {
+    setBgStyle(style);
+    try {
+      localStorage.setItem('swachh_campus_bg_style', style);
+    } catch {}
+    if (style === 'vibrant') {
+      showToast('🎨 Swachh Bharat background set to Vibrant mode');
+    } else if (style === 'watermark') {
+      showToast('👓 Swachh Bharat background set to Watermark mode');
+    } else {
+      showToast('Background image hidden');
+    }
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -535,7 +631,48 @@ export default function App() {
   const activeAlertsCount = tickets.filter((t) => t.status !== 'resolved').length;
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#F8F9FA] flex flex-col font-['Public_Sans',sans-serif] text-stone-800">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#F8F9FA] relative flex flex-col font-['Public_Sans',sans-serif] text-stone-800">
+      {/* Opening Mahatma Gandhi Splash Screen on Initial Link Open */}
+      {showSplash && (
+        <SplashScreen 
+          durationMs={1350} 
+          onFinish={() => setShowSplash(false)} 
+        />
+      )}
+
+      {/* Official Swachh Bharat Abhiyan Background Artwork */}
+      {bgStyle !== 'minimal' && (
+        <div 
+          className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none" 
+          aria-hidden="true"
+        >
+          {/* Spectacles & Tricolor Artwork - Edge-to-Edge Cover & Deep Rich Darker Colors */}
+          <div 
+            className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-700 ${
+              bgStyle === 'vibrant' 
+                ? 'opacity-75' 
+                : 'opacity-50'
+            }`}
+            style={{
+              backgroundImage: `url('/swachh-bharat-bg.jpg')`,
+              backgroundPosition: 'center center',
+              backgroundSize: 'cover',
+              filter: bgStyle === 'vibrant' 
+                ? 'contrast(1.3) brightness(0.78) saturate(1.4)' 
+                : 'contrast(1.22) brightness(0.82) saturate(1.25)',
+            }}
+          />
+          {/* Subtle contrast grading to deepen shadows and ensure complete content readability */}
+          <div 
+            className={`absolute inset-0 transition-colors duration-700 ${
+              bgStyle === 'vibrant' 
+                ? 'bg-gradient-to-b from-stone-900/15 via-transparent to-stone-900/25' 
+                : 'bg-gradient-to-b from-stone-900/10 via-transparent to-stone-900/20'
+            }`} 
+          />
+        </div>
+      )}
+
       {/* Toast popup */}
       <AnimatePresence>
         {toastMessage && (
@@ -566,10 +703,12 @@ export default function App() {
         totalBinsCount={bins.length}
         isAdmin={isAdmin}
         onAdminLogout={handleAdminLogout}
+        bgStyle={bgStyle}
+        onBgStyleChange={handleBgStyleChange}
       />
 
       {/* Main View Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 lg:px-8 py-4 sm:py-7 pb-24 md:pb-10 min-w-0">
+      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 lg:px-8 py-4 sm:py-7 pb-24 md:pb-10 min-w-0">
         <AnimatePresence mode="wait">
           {activeTab === 'map' && (
             <motion.div
@@ -617,10 +756,11 @@ export default function App() {
           {activeTab === 'guide' && (
             <motion.div
               key="tab-guide"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.22, ease: 'easeOut' }}
+              initial={{ opacity: 0, rotateY: -16, scale: 0.98 }}
+              animate={{ opacity: 1, rotateY: 0, scale: 1 }}
+              exit={{ opacity: 0, rotateY: 16, scale: 0.98 }}
+              transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+              style={{ transformOrigin: 'left center', perspective: 1200 }}
             >
               <WasteSegregationGuide
                 bins={bins}
@@ -688,7 +828,7 @@ export default function App() {
       {/* Mobile Sticky Bottom Navigation Bar */}
       <nav 
         id="mobile-bottom-navbar" 
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-stone-200 px-3 py-2 shadow-xs flex items-center justify-around"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 px-3 py-2 shadow-xs flex items-center justify-around"
       >
         <button
           id="btn-mobile-nav-map"
@@ -834,7 +974,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* Institutional Civic Footer */}
-      <footer className="bg-white border-t border-stone-200 mt-14 text-xs text-stone-500">
+      <footer className="relative z-10 bg-white/95 backdrop-blur-sm border-t border-stone-200 mt-14 text-xs text-stone-500">
         <div className="border-b border-stone-200 bg-stone-50/70 py-4 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-3 text-center sm:text-left">

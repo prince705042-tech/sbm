@@ -24,6 +24,8 @@ interface NavbarProps {
   totalBinsCount: number;
   isAdmin: boolean;
   onAdminLogout: () => void;
+  bgStyle?: 'watermark' | 'vibrant' | 'minimal';
+  onBgStyleChange?: (style: 'watermark' | 'vibrant' | 'minimal') => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -35,6 +37,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeAlertsCount,
   totalBinsCount,
   isAdmin,
+  bgStyle = 'watermark',
+  onBgStyleChange,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -44,7 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white border-b border-stone-200">
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200">
       {/* Institutional Top Header Strip */}
       <div className="bg-[#134E3A] text-stone-100 px-3 sm:px-6 py-1.5 text-[11px] font-medium tracking-tight">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
@@ -60,7 +64,44 @@ export const Navbar: React.FC<NavbarProps> = ({
             </span>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0 text-[11px] text-stone-300 font-mono-code">
+          <div className="flex items-center gap-2.5 sm:gap-4 shrink-0 text-[11px] text-stone-300 font-mono-code">
+            {/* Background Theme Mode Selector */}
+            {onBgStyleChange && (
+              <div className="flex items-center gap-1 bg-black/25 px-2 py-0.5 rounded text-[10px]">
+                <span className="text-stone-300 hidden md:inline mr-0.5">SBM Bg:</span>
+                <button
+                  type="button"
+                  onClick={() => onBgStyleChange('watermark')}
+                  className={`px-1.5 py-0.2 rounded transition-colors cursor-pointer ${
+                    bgStyle === 'watermark' ? 'bg-white/25 text-white font-bold' : 'text-stone-300 hover:text-white'
+                  }`}
+                  title="Subtle Swachh Bharat background watermark"
+                >
+                  Watermark
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onBgStyleChange('vibrant')}
+                  className={`px-1.5 py-0.2 rounded transition-colors cursor-pointer ${
+                    bgStyle === 'vibrant' ? 'bg-white/25 text-white font-bold' : 'text-stone-300 hover:text-white'
+                  }`}
+                  title="Vibrant Swachh Bharat background artwork"
+                >
+                  Vibrant
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onBgStyleChange('minimal')}
+                  className={`px-1.5 py-0.2 rounded transition-colors cursor-pointer ${
+                    bgStyle === 'minimal' ? 'bg-white/25 text-white font-bold' : 'text-stone-300 hover:text-white'
+                  }`}
+                  title="Hide background image"
+                >
+                  Off
+                </button>
+              </div>
+            )}
+
             <span className="inline-flex items-center gap-1.5 text-stone-100">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
               <span>Sanitation Index: <strong>94%</strong></span>
@@ -81,8 +122,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => handleTabClick('map')}
             className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none min-w-0"
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#134E3A] text-white flex items-center justify-center border border-[#0F3E2E] shrink-0 shadow-xs">
-              <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-300" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-white text-stone-900 flex items-center justify-center border border-stone-200 shrink-0 shadow-xs overflow-hidden p-0.5 hover:scale-105 transition-transform">
+              <img 
+                src="/swachh-bharat-bg.jpg" 
+                alt="Swachh Bharat Abhiyan Logo" 
+                className="w-full h-full object-contain"
+                referrerPolicy="no-referrer"
+              />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
@@ -94,29 +140,29 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </span>
               </div>
               <p className="text-[11px] text-stone-500 hidden sm:block truncate">
-                Source Segregation & Infrastructure Map
+                एक कदम स्वच्छता की ओर &bull; Source Segregation
               </p>
             </div>
           </div>
 
-          {/* Desktop Navigation Tabs */}
-          <nav className="hidden md:flex items-center gap-1 bg-stone-100/90 p-1 rounded-lg border border-stone-200">
+          {/* Desktop Navigation Tabs - Prominently Highlighted with 3D Book Fold Aesthetics */}
+          <nav className="hidden md:flex items-center gap-1 bg-gradient-to-r from-stone-100 via-stone-50 to-stone-100 p-1 rounded-xl border-2 border-[#134E3A] shadow-md ring-2 ring-[#134E3A]/20 [perspective:1000px]">
             <button
               id="tab-campus-map"
               onClick={() => handleTabClick('map')}
-              className={`relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'map' ? 'text-stone-900' : 'text-stone-600 hover:text-stone-900'
+              className={`relative flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                activeTab === 'map' ? 'text-white shadow-xs' : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/70'
               }`}
             >
               {activeTab === 'map' && (
                 <motion.div
                   layoutId="navbar-active-tab"
-                  className="absolute inset-0 bg-white rounded-md shadow-2xs border border-stone-200/80 -z-0"
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  className="absolute inset-0 bg-[#134E3A] rounded-lg shadow-sm -z-0"
+                  transition={{ type: 'spring', stiffness: 420, damping: 32 }}
                 />
               )}
               <span className="relative z-10 flex items-center gap-1.5">
-                <MapPin className={`w-3.5 h-3.5 ${activeTab === 'map' ? 'text-[#134E3A]' : 'text-stone-500'}`} />
+                <MapPin className={`w-3.5 h-3.5 ${activeTab === 'map' ? 'text-emerald-300' : 'text-[#134E3A]'}`} />
                 <span>Campus Map</span>
               </span>
             </button>
@@ -124,19 +170,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="tab-nearest-bin"
               onClick={() => handleTabClick('finder')}
-              className={`relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'finder' ? 'text-stone-900' : 'text-stone-600 hover:text-stone-900'
+              className={`relative flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                activeTab === 'finder' ? 'text-white shadow-xs' : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/70'
               }`}
             >
               {activeTab === 'finder' && (
                 <motion.div
                   layoutId="navbar-active-tab"
-                  className="absolute inset-0 bg-white rounded-md shadow-2xs border border-stone-200/80 -z-0"
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  className="absolute inset-0 bg-[#134E3A] rounded-lg shadow-sm -z-0"
+                  transition={{ type: 'spring', stiffness: 420, damping: 32 }}
                 />
               )}
               <span className="relative z-10 flex items-center gap-1.5">
-                <Compass className={`w-3.5 h-3.5 ${activeTab === 'finder' ? 'text-[#134E3A]' : 'text-stone-500'}`} />
+                <Compass className={`w-3.5 h-3.5 ${activeTab === 'finder' ? 'text-emerald-300' : 'text-[#134E3A]'}`} />
                 <span>Find Nearest</span>
               </span>
             </button>
@@ -144,20 +190,29 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="tab-sorting-guide"
               onClick={() => handleTabClick('guide')}
-              className={`relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'guide' ? 'text-stone-900' : 'text-stone-600 hover:text-stone-900'
+              className={`relative flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer whitespace-nowrap group ${
+                activeTab === 'guide' ? 'text-white shadow-xs' : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/70'
               }`}
+              title="Open Segregation Handbook with 3D Folding Book Mode"
             >
               {activeTab === 'guide' && (
                 <motion.div
                   layoutId="navbar-active-tab"
-                  className="absolute inset-0 bg-white rounded-md shadow-2xs border border-stone-200/80 -z-0"
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  className="absolute inset-0 bg-[#134E3A] rounded-lg shadow-sm -z-0"
+                  transition={{ type: 'spring', stiffness: 420, damping: 32 }}
                 />
               )}
+              {/* Dog-ear corner fold effect on the Guide tab */}
+              <div 
+                className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-400 shadow-2xs group-hover:w-3.5 group-hover:h-3.5 transition-all duration-200 pointer-events-none rounded-bl-xs"
+                style={{ clipPath: 'polygon(0 0, 100% 100%, 100% 0)' }}
+              />
               <span className="relative z-10 flex items-center gap-1.5">
-                <BookOpen className={`w-3.5 h-3.5 ${activeTab === 'guide' ? 'text-[#134E3A]' : 'text-stone-500'}`} />
+                <BookOpen className={`w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-115 ${activeTab === 'guide' ? 'text-emerald-300' : 'text-[#134E3A]'}`} />
                 <span>Segregation Guide</span>
+                <span className="text-[9px] px-1 py-0.2 rounded bg-amber-400/25 text-amber-900 font-mono-code border border-amber-500/30">
+                  Book
+                </span>
               </span>
             </button>
 
@@ -165,19 +220,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="tab-campus-alerts"
                 onClick={() => handleTabClick('alerts')}
-                className={`relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
-                  activeTab === 'alerts' ? 'text-stone-900' : 'text-stone-600 hover:text-stone-900'
+                className={`relative flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                  activeTab === 'alerts' ? 'text-white shadow-xs' : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/70'
                 }`}
               >
                 {activeTab === 'alerts' && (
                   <motion.div
                     layoutId="navbar-active-tab"
-                    className="absolute inset-0 bg-white rounded-md shadow-2xs border border-stone-200/80 -z-0"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    className="absolute inset-0 bg-[#134E3A] rounded-lg shadow-sm -z-0"
+                    transition={{ type: 'spring', stiffness: 420, damping: 32 }}
                   />
                 )}
                 <span className="relative z-10 flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#134E3A]" />
+                  <ShieldCheck className={`w-3.5 h-3.5 ${activeTab === 'alerts' ? 'text-emerald-300' : 'text-[#134E3A]'}`} />
                   <span>Admin Portal</span>
                   {activeAlertsCount > 0 && (
                     <motion.span 

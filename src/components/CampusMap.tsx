@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { CampusBin, CampusZoneInfo, BuildingZone } from '../types';
 import { CAMPUS_ZONES } from '../data/campusData';
 import { 
@@ -35,7 +35,7 @@ interface CampusMapProps {
 
 export const getShortStationName = (bin: CampusBin): string => {
   const map: Record<string, string> = {
-    'bin-kosi-1': 'Koshi Outside',
+    'bin-kosi-1': 'Kosi Outside',
     'bin-bhagmati-1': 'Bhagmati Outside',
     'bin-brahma-1': 'Brahmaputra Outside',
     'bin-gangagirls-1': 'Ganga Girls Outside',
@@ -53,7 +53,7 @@ export const getShortStationName = (bin: CampusBin): string => {
     'bin-maingate-1': 'Main Gate Outside',
     'bin-physics-1': 'Physics Outside',
     'bin-chem-1': 'Chemistry Outside',
-    'bin-kosi-ext-1': 'Koshi Ext Outside',
+    'bin-kosi-ext-1': 'Kosi Ext Outside',
   };
   return map[bin.id] || bin.name.split(' ')[0] + ' Outside';
 };
@@ -70,6 +70,8 @@ export const CampusMap: React.FC<CampusMapProps> = ({
   const [filterType, setFilterType] = useState<'all' | 'wet' | 'dry' | 'ewaste' | 'full'>('all');
   const [hoveredZone, setHoveredZone] = useState<CampusZoneInfo | null>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [panOffset, setPanOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState<boolean>(false);
   const [showLabels, setShowLabels] = useState<boolean>(true);
   const [highlightAllDustbins, setHighlightAllDustbins] = useState<boolean>(true);
   const [locatorSearch, setLocatorSearch] = useState<string>('');
@@ -79,6 +81,142 @@ export const CampusMap: React.FC<CampusMapProps> = ({
   const [mailMessage, setMailMessage] = useState<string>('');
   const [mailSender, setMailSender] = useState<string>('');
   const [mailSubmitted, setMailSubmitted] = useState<boolean>(false);
+
+  // References for touch pinch-to-zoom and pan calculations
+  const mapViewportRef = useRef<HTMLDivElement>(null);
+  const pinchStartDistRef = useRef<number | null>(null);
+  const initialZoomRef = useRef<number>(1);
+  const dragStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const initialPanRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const lastTapTimeRef = useRef<number>(0);
+  const hasMovedSignificantRef = useRef<boolean>(false);
+
+  const MIN_ZOOM = 0.65;
+  const MAX_ZOOM = 2.6;
+
+  const handleZoomIn = () => {
+    setZoomLevel((z) => Math.min(MAX_ZOOM, Number((z + 0.25).toFixed(2))));
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel((z) => {
+      const next = Math.max(MIN_ZOOM, Number((z - 0.25).toFixed(2)));
+      if (next <= 1) {
+        setPanOffset({ x: 0, y: 0 });
+      }
+      return next;
+    });
+  };
+
+  const handleResetZoom = () => {
+    setZoomLevel(1);
+    setPanOffset({ x: 0, y: 0 });
+  };
+
+  // Touch Handlers for Pinch-to-Zoom and Drag-to-Pan on Mobile
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 2) {
+      // 2 fingers: Pinch to zoom
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const dist = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+      pinchStartDistRef.current = dist;
+      initialZoomRef.current = zoomLevel;
+      hasMovedSignificantRef.current = true;
+    } else if (e.touches.length === 1) {
+      // 1 finger: Drag / pan if zoomed, or track double-tap
+      const touch = e.touches[0];
+      dragStartRef.current = { x: touch.clientX, y: touch.clientY };
+      initialPanRef.current = { ...panOffset };
+      hasMovedSignificantRef.current = false;
+
+      // Double-tap detection
+      const now = Date.now();
+      if (now - lastTapTimeRef.current < 320) {
+        if (zoomLevel < 1.35) {
+          setZoomLevel(1.6);
+        } else {
+          setZoomLevel(1);
+          setPanOffset({ x: 0, y: 0 });
+        }
+        lastTapTimeRef.current = 0;
+      } else {
+        lastTapTimeRef.current = now;
+      }
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 2 && pinchStartDistRef.current !== null) {
+      // Pinch to zoom in progress
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const dist = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+      const scaleFactor = dist / pinchStartDistRef.current;
+      const targetZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number((initialZoomRef.current * scaleFactor).toFixed(2))));
+      setZoomLevel(targetZoom);
+      hasMovedSignificantRef.current = true;
+    } else if (e.touches.length === 1 && zoomLevel > 1.05) {
+      // Panning when zoomed in
+      const touch = e.touches[0];
+      const dx = touch.clientX - dragStartRef.current.x;
+      const dy = touch.clientY - dragStartRef.current.y;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+        hasMovedSignificantRef.current = true;
+        setIsPanning(true);
+      }
+      const maxPan = (zoomLevel - 1) * 380;
+      const newX = Math.max(-maxPan, Math.min(maxPan, initialPanRef.current.x + dx));
+      const newY = Math.max(-maxPan, Math.min(maxPan, initialPanRef.current.y + dy));
+      setPanOffset({ x: newX, y: newY });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    pinchStartDistRef.current = null;
+    setIsPanning(false);
+  };
+
+  // Mouse pan handlers for desktop when zoomed in
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (zoomLevel > 1.05) {
+      dragStartRef.current = { x: e.clientX, y: e.clientY };
+      initialPanRef.current = { ...panOffset };
+      setIsPanning(true);
+      hasMovedSignificantRef.current = false;
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isPanning && zoomLevel > 1.05) {
+      const dx = e.clientX - dragStartRef.current.x;
+      const dy = e.clientY - dragStartRef.current.y;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+        hasMovedSignificantRef.current = true;
+      }
+      const maxPan = (zoomLevel - 1) * 380;
+      const newX = Math.max(-maxPan, Math.min(maxPan, initialPanRef.current.x + dx));
+      const newY = Math.max(-maxPan, Math.min(maxPan, initialPanRef.current.y + dy));
+      setPanOffset({ x: newX, y: newY });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsPanning(false);
+  };
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.15 : -0.15;
+      setZoomLevel((z) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number((z + delta).toFixed(2)))));
+    }
+  };
+
+  const handleZoneSelect = (zone: BuildingZone) => {
+    if (hasMovedSignificantRef.current) return;
+    setUserZone(zone);
+  };
 
   const currentUserZoneInfo = CAMPUS_ZONES.find((z) => z.id === userZone) || CAMPUS_ZONES[0];
 
@@ -282,29 +420,34 @@ export const CampusMap: React.FC<CampusMapProps> = ({
             <div className="flex items-center bg-white border border-stone-200 rounded p-0.5 shadow-2xs">
               <button
                 id="btn-zoom-out"
-                onClick={() => setZoomLevel((z) => Math.max(0.85, Number((z - 0.15).toFixed(2))))}
-                disabled={zoomLevel <= 0.85}
-                className="p-1 text-stone-600 hover:bg-stone-100 rounded disabled:opacity-40 cursor-pointer"
-                title="Zoom Out"
+                onClick={handleZoomOut}
+                disabled={zoomLevel <= MIN_ZOOM}
+                className="p-1 text-stone-600 hover:bg-stone-100 active:bg-stone-200 rounded disabled:opacity-40 cursor-pointer"
+                title="Zoom Out (-)"
               >
                 <ZoomOut className="w-3.5 h-3.5" />
               </button>
-              <span className="px-1.5 text-[11px] font-bold text-stone-700 select-none font-mono-code">
+              <button
+                type="button"
+                onClick={handleResetZoom}
+                className="px-1.5 text-[11px] font-bold text-stone-700 hover:text-emerald-700 cursor-pointer select-none font-mono-code"
+                title="Click to reset zoom to 100%"
+              >
                 {Math.round(zoomLevel * 100)}%
-              </span>
+              </button>
               <button
                 id="btn-zoom-in"
-                onClick={() => setZoomLevel((z) => Math.min(1.45, Number((z + 0.15).toFixed(2))))}
-                disabled={zoomLevel >= 1.45}
-                className="p-1 text-stone-600 hover:bg-stone-100 rounded disabled:opacity-40 cursor-pointer"
-                title="Zoom In"
+                onClick={handleZoomIn}
+                disabled={zoomLevel >= MAX_ZOOM}
+                className="p-1 text-stone-600 hover:bg-stone-100 active:bg-stone-200 rounded disabled:opacity-40 cursor-pointer"
+                title="Zoom In (+)"
               >
                 <ZoomIn className="w-3.5 h-3.5" />
               </button>
               <button
                 id="btn-zoom-reset"
-                onClick={() => setZoomLevel(1)}
-                className="p-1 text-stone-600 hover:bg-stone-100 rounded ml-0.5 cursor-pointer"
+                onClick={handleResetZoom}
+                className="p-1 text-stone-600 hover:bg-stone-100 active:bg-stone-200 rounded ml-0.5 cursor-pointer"
                 title="Reset View"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -387,13 +530,88 @@ export const CampusMap: React.FC<CampusMapProps> = ({
         </div>
 
         {/* SVG Campus Map Canvas */}
-        <div className={`relative w-full max-w-3xl mx-auto rounded-xl ${zoomLevel > 1 ? 'overflow-auto touch-pan-x touch-pan-y' : 'overflow-hidden touch-pan-y'} border-2 border-slate-900 bg-[#0c1f2e] shadow-xl select-none transition-all duration-300`}>
+        <div 
+          ref={mapViewportRef}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onWheel={handleWheel}
+          className={`relative w-full max-w-3xl mx-auto rounded-xl overflow-hidden border-2 border-slate-900 bg-[#0c1f2e] shadow-xl select-none transition-all duration-300 ${
+            zoomLevel > 1.05 ? (isPanning ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'
+          }`}
+          style={{ touchAction: zoomLevel > 1.05 ? 'none' : 'pan-y' }}
+        >
+          {/* Floating On-Map Mobile Zoom Controls (Always accessible, right on the map canvas) */}
+          <div className="absolute bottom-3 right-3 z-30 flex flex-col items-center bg-white/95 backdrop-blur-md border border-stone-300/80 rounded-xl shadow-lg p-1 gap-1">
+            <button
+              id="map-floating-zoom-in"
+              type="button"
+              onClick={handleZoomIn}
+              disabled={zoomLevel >= MAX_ZOOM}
+              aria-label="Zoom In"
+              className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-stone-50 hover:bg-stone-100 active:bg-stone-200 text-stone-800 disabled:opacity-35 transition-colors cursor-pointer"
+              title="Zoom In (+)"
+            >
+              <ZoomIn className="w-5 h-5 sm:w-4 sm:h-4 text-[#134E3A]" />
+            </button>
+
+            {/* Current Zoom Indicator */}
+            <button
+              type="button"
+              onClick={handleResetZoom}
+              aria-label="Reset zoom"
+              className="px-1.5 py-0.5 text-[10px] sm:text-[11px] font-bold font-mono-code text-stone-700 hover:text-emerald-700 cursor-pointer text-center select-none"
+              title="Click to reset zoom to 100%"
+            >
+              {Math.round(zoomLevel * 100)}%
+            </button>
+
+            <button
+              id="map-floating-zoom-out"
+              type="button"
+              onClick={handleZoomOut}
+              disabled={zoomLevel <= MIN_ZOOM}
+              aria-label="Zoom Out"
+              className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-stone-50 hover:bg-stone-100 active:bg-stone-200 text-stone-800 disabled:opacity-35 transition-colors cursor-pointer"
+              title="Zoom Out (-)"
+            >
+              <ZoomOut className="w-5 h-5 sm:w-4 sm:h-4 text-[#134E3A]" />
+            </button>
+
+            <div className="w-full h-px bg-stone-200 my-0.5" />
+
+            <button
+              id="map-floating-zoom-reset"
+              type="button"
+              onClick={handleResetZoom}
+              aria-label="Reset View"
+              className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-stone-50 hover:bg-stone-100 active:bg-stone-200 text-stone-600 transition-colors cursor-pointer"
+              title="Reset Zoom & Center View"
+            >
+              <RotateCcw className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+            </button>
+          </div>
+
+          {/* Mobile Gestures Guidance Chip */}
+          <div className="absolute top-2.5 left-2.5 z-20 pointer-events-none flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900/85 backdrop-blur-xs text-[10px] text-stone-200 font-mono-code border border-white/10 shadow-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Pinch 2 fingers to zoom &bull; Drag to pan</span>
+            </span>
+          </div>
+
+          {/* Scaled & Panned Inner Map Container */}
           <div 
             className="w-full max-w-full mx-auto"
             style={{ 
-              transform: `scale(${zoomLevel})`,
-              transformOrigin: 'top center',
-              transition: 'transform 0.2s ease-out'
+              transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
+              transformOrigin: 'center center',
+              transition: isPanning ? 'none' : 'transform 0.2s ease-out'
             }}
           >
             <svg
@@ -504,7 +722,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Gandhi Ghat Promenade & River Stairs (Middle West) */}
               <g 
                 id="zone-gandhighat"
-                onClick={() => setUserZone('gandhi-ghat')}
+                onClick={() => handleZoneSelect('gandhi-ghat')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="105" y="440" width="28" height="420" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
@@ -630,7 +848,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Brahmaputra Hostel (Top Right) */}
               <g 
                 id="zone-brahmaputra"
-                onClick={() => setUserZone('brahmaputra-hostel')}
+                onClick={() => handleZoneSelect('brahmaputra-hostel')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="420" y="10" width="115" height="52" rx="4" fill="#fda4af" stroke="#e11d48" strokeWidth="2" />
@@ -645,10 +863,10 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 )}
               </g>
 
-              {/* Koshi Hostel (Interchanged to West side along Common Road) */}
+              {/* Kosi Hostel (Interchanged to West side along Common Road) */}
               <g 
                 id="zone-kosi"
-                onClick={() => setUserZone('kosi-hostel')}
+                onClick={() => handleZoneSelect('kosi-hostel')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="280" y="64" width="180" height="60" rx="5" fill="#fff1f2" stroke="#e11d48" strokeWidth="2.5" />
@@ -659,19 +877,19 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                   <g filter="url(#badgeShadow)">
                     <rect x="318" y="80" width="105" height="20" rx="4" fill="#1e40af" stroke="#60a5fa" strokeWidth="1" />
                     <text x="370" y="94" fill="#ffffff" textAnchor="middle" className="text-[10px] font-black tracking-wide">
-                      Koshi Hostel
+                      Kosi Hostel
                     </text>
                   </g>
                 )}
               </g>
 
-              {/* Connecting Courtyard Walkway between Koshi & Bhagmati */}
+              {/* Connecting Courtyard Walkway between Kosi & Bhagmati */}
               <rect x="460" y="78" width="15" height="32" rx="2" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
 
               {/* Bhagmati Hostel (Interchanged to East side along Common Road) */}
               <g 
                 id="zone-bhagmati"
-                onClick={() => setUserZone('bhagmati-hostel')}
+                onClick={() => handleZoneSelect('bhagmati-hostel')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="475" y="64" width="180" height="60" rx="5" fill="#ffe4e6" stroke="#e11d48" strokeWidth="2" />
@@ -690,7 +908,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Ganga Girls Hostel (West edge by river) */}
               <g 
                 id="zone-gangagirls"
-                onClick={() => setUserZone('ganga-girls-hostel')}
+                onClick={() => handleZoneSelect('ganga-girls-hostel')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="156" y="168" width="86" height="68" rx="5" fill="#fbcfe8" stroke="#db2777" strokeWidth="2" />
@@ -708,7 +926,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Nano Building (Health Centre) - Fully clear of central road */}
               <g 
                 id="zone-nano"
-                onClick={() => setUserZone('nano-building')}
+                onClick={() => handleZoneSelect('nano-building')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="250" y="168" width="72" height="68" rx="4" fill="#fef3c7" stroke="#d97706" strokeWidth="2" />
@@ -731,7 +949,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Computer Science Department (CSE) */}
               <g 
                 id="zone-cse"
-                onClick={() => setUserZone('cse-dept')}
+                onClick={() => handleZoneSelect('cse-dept')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="366" y="168" width="98" height="68" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
@@ -754,7 +972,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* ALAK NANDA BHAWAN */}
               <g 
                 id="zone-alaknanda"
-                onClick={() => setUserZone('alaknanda-bhawan')}
+                onClick={() => handleZoneSelect('alaknanda-bhawan')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="176" y="248" width="124" height="98" rx="5" fill="#ffe4e6" stroke="#e11d48" strokeWidth="2" />
@@ -777,7 +995,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* ECE DEPARTMENT */}
               <g 
                 id="zone-ece"
-                onClick={() => setUserZone('ece-dept')}
+                onClick={() => handleZoneSelect('ece-dept')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="364" y="248" width="96" height="98" rx="5" fill="#fef3c7" stroke="#d97706" strokeWidth="2" />
@@ -800,7 +1018,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Auditorium CWRS */}
               <g 
                 id="zone-audi"
-                onClick={() => setUserZone('auditorium-cwrs')}
+                onClick={() => handleZoneSelect('auditorium-cwrs')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="456" y="226" width="118" height="88" rx="5" fill="#e0e7ff" stroke="#4338ca" strokeWidth="2" />
@@ -821,7 +1039,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* AMPHITHEATRE (stepped semicircle) */}
               <g 
                 id="zone-amphi"
-                onClick={() => setUserZone('amphitheatre')}
+                onClick={() => handleZoneSelect('amphitheatre')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <path
@@ -846,7 +1064,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* I.T. Lab */}
               <g 
                 id="zone-itlab"
-                onClick={() => setUserZone('it-lab')}
+                onClick={() => handleZoneSelect('it-lab')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="170" y="374" width="56" height="70" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
@@ -866,7 +1084,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Basketball Court */}
               <g 
                 id="zone-basketball"
-                onClick={() => setUserZone('basketball-court')}
+                onClick={() => handleZoneSelect('basketball-court')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="236" y="374" width="64" height="70" rx="4" fill="#0284c7" stroke="#0369a1" strokeWidth="2" />
@@ -890,7 +1108,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 )}
               </g>
 
-              {/* Open Sports Lawn & Seating Plaza (Replacing old Koshi Hostel block) */}
+              {/* Open Sports Lawn & Seating Plaza (Replacing old Kosi Hostel block) */}
               <g id="zone-sports-plaza" className="opacity-90">
                 <rect x="232" y="440" width="84" height="64" rx="6" fill="#16a34a" fillOpacity="0.15" stroke="#15803d" strokeWidth="1.5" strokeDasharray="4 3" />
                 <rect x="240" y="448" width="68" height="6" rx="2" fill="#94a3b8" />
@@ -905,7 +1123,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* PLAY GROUND (Center Athletic Grounds) */}
               <g 
                 id="zone-playground"
-                onClick={() => setUserZone('play-ground')}
+                onClick={() => handleZoneSelect('play-ground')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="360" y="374" width="134" height="120" rx="8" fill="url(#playgroundTurf)" stroke="#15803d" strokeWidth="2" />
@@ -929,7 +1147,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* SAC BUILDING */}
               <g 
                 id="zone-sac"
-                onClick={() => setUserZone('sac-building')}
+                onClick={() => handleZoneSelect('sac-building')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="515" y="380" width="70" height="88" rx="5" fill="#fef3c7" stroke="#d97706" strokeWidth="2" />
@@ -949,7 +1167,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Main Gate (Internal) - The Campus Main Gate */}
               <g 
                 id="zone-maingate-internal"
-                onClick={() => setUserZone('main-gate-internal')}
+                onClick={() => handleZoneSelect('main-gate-internal')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="515" y="472" width="70" height="24" rx="4" fill="#dbeafe" stroke="#2563eb" strokeWidth="2" />
@@ -970,7 +1188,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Civil Dept. */}
               <g 
                 id="zone-civil"
-                onClick={() => setUserZone('civil-dept')}
+                onClick={() => handleZoneSelect('civil-dept')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="152" y="498" width="64" height="88" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
@@ -990,7 +1208,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Main Building (Historic colonnade & plaza) - West of central road */}
               <g 
                 id="zone-mainbuilding"
-                onClick={() => setUserZone('main-building')}
+                onClick={() => handleZoneSelect('main-building')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="222" y="514" width="100" height="84" rx="5" fill="#fef3c7" stroke="#b45309" strokeWidth="2.5" />
@@ -1015,7 +1233,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Central Library (with prominent dome) - East of central road */}
               <g 
                 id="zone-library"
-                onClick={() => setUserZone('central-library')}
+                onClick={() => handleZoneSelect('central-library')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="372" y="516" width="104" height="88" rx="5" fill="#fef3c7" stroke="#b45309" strokeWidth="2.5" />
@@ -1039,7 +1257,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Indian Bank (ATM) */}
               <g 
                 id="zone-bank"
-                onClick={() => setUserZone('indian-bank-atm')}
+                onClick={() => handleZoneSelect('indian-bank-atm')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="488" y="532" width="50" height="58" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="2" />
@@ -1059,7 +1277,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Cafeteria */}
               <g 
                 id="zone-cafeteria"
-                onClick={() => setUserZone('cafeteria')}
+                onClick={() => handleZoneSelect('cafeteria')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="548" y="516" width="70" height="102" rx="4" fill="#ffe4e6" stroke="#f43f5e" strokeWidth="2" />
@@ -1076,7 +1294,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Stationery */}
               <g 
                 id="zone-stationery"
-                onClick={() => setUserZone('stationery')}
+                onClick={() => handleZoneSelect('stationery')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="376" y="622" width="96" height="58" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="2" />
@@ -1093,7 +1311,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Shop 2 */}
               <g 
                 id="zone-shop2"
-                onClick={() => setUserZone('shop-2')}
+                onClick={() => handleZoneSelect('shop-2')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="548" y="632" width="70" height="58" rx="4" fill="#dcfce7" stroke="#16a34a" strokeWidth="2" />
@@ -1110,7 +1328,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* Parking area (Large unified parking lot on west, clear of central road) */}
               <g 
                 id="zone-parking"
-                onClick={() => setUserZone('parking-area')}
+                onClick={() => handleZoneSelect('parking-area')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="142" y="658" width="180" height="182" rx="6" fill="#1e293b" stroke="#475569" strokeWidth="2" />
@@ -1144,7 +1362,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               {/* PHYSICS DEPARTMENT */}
               <g 
                 id="zone-physics"
-                onClick={() => setUserZone('physics-dept')}
+                onClick={() => handleZoneSelect('physics-dept')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="376" y="708" width="144" height="64" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
@@ -1162,10 +1380,10 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 )}
               </g>
 
-              {/* CHEMISTRY DEPARTMENT (LAB) - Situated beside Koshi Ext */}
+              {/* CHEMISTRY DEPARTMENT (LAB) - Situated beside Kosi Ext */}
               <g 
                 id="zone-chem"
-                onClick={() => setUserZone('chemistry-dept')}
+                onClick={() => handleZoneSelect('chemistry-dept')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 <rect x="376" y="784" width="144" height="74" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
@@ -1182,16 +1400,16 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                       CHEMISTRY LAB
                     </text>
                     <text x="448" y="825" fill="#93c5fd" textAnchor="middle" className="text-[7.5px] font-bold">
-                      Beside Koshi Ext ➔
+                      Beside Kosi Ext ➔
                     </text>
                   </g>
                 )}
               </g>
 
-              {/* KOSHI EXTENSION HOSTEL (Residential Block beside Chemistry Lab) */}
+              {/* KOSI EXTENSION HOSTEL (Residential Block beside Chemistry Lab) */}
               <g 
                 id="zone-kosi-ext"
-                onClick={() => setUserZone('kosi-ext')}
+                onClick={() => handleZoneSelect('kosi-ext')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
                 {/* Main Hostel structural block */}
@@ -1222,13 +1440,13 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                     <g filter="url(#badgeShadow)">
                       <rect x="548" y="715" width="128" height="22" rx="4" fill="#be123c" stroke="#fecdd3" strokeWidth="1" />
                       <text x="612" y="730" fill="#ffffff" textAnchor="middle" className="text-[9.5px] font-black tracking-wide">
-                        KOSHI EXTENSION
+                        KOSI EXTENSION
                       </text>
                     </g>
                     <g filter="url(#badgeShadow)">
                       <rect x="550" y="828" width="124" height="24" rx="4" fill="#1e3a8a" stroke="#60a5fa" strokeWidth="1" />
                       <text x="612" y="841" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
-                        KOSHI EXT HOSTEL
+                        KOSI EXT HOSTEL
                       </text>
                       <text x="612" y="850" fill="#93c5fd" textAnchor="middle" className="text-[7px] font-bold">
                         Student Residential Wing
@@ -1238,7 +1456,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                 )}
               </g>
 
-              {/* Eastern Campus Boundary Wall (Running alongside Koshi Ext & Chem Lab) */}
+              {/* Eastern Campus Boundary Wall (Running alongside Kosi Ext & Chem Lab) */}
               <g id="east-campus-boundary-wall">
                 {/* Brick Boundary Wall Structure along East Edge */}
                 <rect x="686" y="700" width="12" height="224" rx="2" fill="#b91c1c" stroke="#7f1d1d" strokeWidth="1.5" />
@@ -1396,6 +1614,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
                     id={`map-bin-${bin.id}`}
                     transform={`translate(${bx}, ${by})`}
                     onClick={(e) => {
+                      if (hasMovedSignificantRef.current) return;
                       e.stopPropagation();
                       onSelectBin(bin);
                       setSidebarTab('selected');
