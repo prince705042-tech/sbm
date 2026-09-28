@@ -164,7 +164,7 @@ export const CampusSanitationScorecard: React.FC<CampusSanitationScorecardProps>
               <div className="rounded-lg border border-amber-200/90 bg-gradient-to-r from-amber-50/80 via-white to-emerald-50/80 p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3.5 shadow-2xs">
                 <div className="w-28 sm:w-32 h-16 shrink-0 rounded-md bg-white border border-stone-200 p-1 flex items-center justify-center shadow-xs overflow-hidden">
                   <img
-                    src="/swachh-bharat-bg.jpg"
+                    src="/swachh-bharat-bg.webp"
                     alt="Swachh Bharat Abhiyan - एक कदम स्वच्छता की ओर"
                     className="w-full h-full object-contain"
                     referrerPolicy="no-referrer"

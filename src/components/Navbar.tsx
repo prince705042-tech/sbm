@@ -48,7 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200">
+    <header className="sticky top-0 z-30 bg-white border-b border-stone-200">
       {/* Institutional Top Header Strip */}
       <div className="bg-[#134E3A] text-stone-100 px-3 sm:px-6 py-1.5 text-[11px] font-medium tracking-tight">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
@@ -124,7 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-white text-stone-900 flex items-center justify-center border border-stone-200 shrink-0 shadow-xs overflow-hidden p-0.5 hover:scale-105 transition-transform">
               <img 
-                src="/swachh-bharat-bg.jpg" 
+                src="/swachh-bharat-bg.webp" 
                 alt="Swachh Bharat Abhiyan Logo" 
                 className="w-full h-full object-contain"
                 referrerPolicy="no-referrer"

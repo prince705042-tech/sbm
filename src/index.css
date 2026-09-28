@@ -29,3 +29,22 @@
     stroke-dashoffset: -24;
   }
 }
+
+/* Pause animations during map interactions to guarantee 60fps pan/zoom */
+.is-interacting .animate-pulse,
+.is-interacting .animate-ping,
+.is-interacting .animate-spin,
+.is-interacting [class*="animate-[dash"],
+.is-interacting .animate-dash {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse,
+  .animate-ping,
+  .animate-spin,
+  [class*="animate-[dash"],
+  .animate-dash {
+    animation: none !important;
+  }
+}
