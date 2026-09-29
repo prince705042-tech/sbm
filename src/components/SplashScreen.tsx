@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { getAssetUrl } from '../utils/assets';
 
 interface SplashScreenProps {
   onFinish?: () => void;
@@ -77,7 +78,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
               <div className="absolute inset-0 bg-gradient-to-tr from-amber-100/50 via-emerald-100/30 to-transparent rounded-full filter blur-xl -z-10" />
 
               <img
-                src="/gandhi-splash.webp"
+                src={getAssetUrl('gandhi-splash.webp')}
                 alt="Mahatma Gandhi - Swachh Bharat Abhiyan"
                 className="w-full h-full object-contain drop-shadow-md"
                 referrerPolicy="no-referrer"

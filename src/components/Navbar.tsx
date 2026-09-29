@@ -13,6 +13,7 @@ import {
   QrCode
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { getAssetUrl } from '../utils/assets';
 
 interface NavbarProps {
   activeTab: 'map' | 'finder' | 'guide' | 'alerts';
@@ -124,7 +125,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-white text-stone-900 flex items-center justify-center border border-stone-200 shrink-0 shadow-xs overflow-hidden p-0.5 hover:scale-105 transition-transform">
               <img 
-                src="/swachh-bharat-bg.webp" 
+                src={getAssetUrl('swachh-bharat-bg.webp')} 
                 alt="Swachh Bharat Abhiyan Logo" 
                 className="w-full h-full object-contain"
                 referrerPolicy="no-referrer"

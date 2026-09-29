@@ -12,11 +12,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,400&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/assets/index-C6M7_Hhi.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/icons-BZlD5msN.js">
-    <link rel="modulepreload" crossorigin href="/assets/vendor-Bn_yWfS7.js">
-    <link rel="modulepreload" crossorigin href="/assets/motion-dqxZtb-e.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-Bw1C8w0y.css">
+    <link rel="preload" as="image" href="./gandhi-splash.webp" />
+    <script>
+      (function() {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect !== location.href) {
+          history.replaceState(null, null, redirect);
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="./assets/index-B_sZy2zC.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/icons-BFYIb3Rh.js">
+    <link rel="modulepreload" crossorigin href="./assets/vendor-Da_eQl7W.js">
+    <link rel="modulepreload" crossorigin href="./assets/motion-dqxZtb-e.js">
+    <link rel="stylesheet" crossorigin href="./assets/index-BUJRYT4-.css">
   </head>
   <body class="bg-[#F8F9FA] text-[#1E293B] antialiased font-['Public_Sans',sans-serif]">
     <div id="root"></div>

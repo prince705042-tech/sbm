@@ -14,6 +14,7 @@ import { PrintPlacardModal } from './components/PrintPlacardModal';
 import { ExportAuditReportModal } from './components/ExportAuditReportModal';
 import { CampusSanitationScorecard } from './components/CampusSanitationScorecard';
 import { SplashScreen } from './components/SplashScreen';
+import { getAssetUrl } from './utils/assets';
 import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut, CheckCircle2, QrCode } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -592,7 +593,7 @@ export default function App() {
                 : 'opacity-50'
             }`}
             style={{
-              backgroundImage: `url('/swachh-bharat-bg.webp')`,
+              backgroundImage: `url('${getAssetUrl('swachh-bharat-bg.webp')}')`,
               backgroundPosition: 'center center',
               backgroundSize: 'cover',
               transform: 'translateZ(0)',
