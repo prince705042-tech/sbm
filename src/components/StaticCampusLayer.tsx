@@ -343,30 +343,6 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 )}
               </g>
 
-              {/* Computer Science Department (CSE) */}
-              <g 
-                id="zone-cse"
-                onClick={() => handleZoneSelect('cse-dept')}
-                className="cursor-pointer transition-transform hover:opacity-95"
-              >
-                <rect x="366" y="168" width="98" height="68" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
-                <rect x="374" y="174" width="82" height="16" rx="2" fill="#c2410c" opacity="0.25" />
-                {/* Entrance path */}
-                <rect x="358" y="194" width="10" height="16" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
-                {showLabels && (
-                  <g>
-                    <rect x="373" y="183.5" width="86" height="28" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="373" y="182" width="86" height="28" rx="4" fill="#1e40af" />
-                    <text x="416" y="195" fill="#ffffff" textAnchor="middle" className="text-[8px] font-black">
-                      Computer Science
-                    </text>
-                    <text x="416" y="206" fill="#93c5fd" textAnchor="middle" className="text-[7.5px] font-bold">
-                      Department (CSE)
-                    </text>
-                  </g>
-                )}
-              </g>
-
               {/* ALAK NANDA BHAWAN */}
               <g 
                 id="zone-alaknanda"

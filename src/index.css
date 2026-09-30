@@ -30,6 +30,15 @@
   }
 }
 
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
 /* Pause animations during map interactions to guarantee 60fps pan/zoom */
 .is-interacting .animate-pulse,
 .is-interacting .animate-ping,

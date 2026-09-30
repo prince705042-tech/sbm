@@ -189,7 +189,7 @@ export const BookHandbook3D: React.FC<BookHandbook3DProps> = ({
                   National Institute of Technology Patna
                 </span>
                 <p className="text-[11px] text-emerald-200/80 font-mono-code tracking-wider">
-                  Swachh Bharat Mission (Urban) &bull; Campus Cell
+                  Swachh Bharat Mission &bull; Campus Cell
                 </p>
               </div>
 

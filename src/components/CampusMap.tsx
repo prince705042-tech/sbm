@@ -32,6 +32,7 @@ interface CampusMapProps {
   setUserZone: (zone: BuildingZone) => void;
   highlightedBinId?: string | null;
   onReportBin: (bin: CampusBin) => void;
+  onEmptyBin?: (binId: string) => void;
 }
 
 export const getShortStationName = (bin: CampusBin): string => {
@@ -67,6 +68,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
   setUserZone,
   highlightedBinId,
   onReportBin,
+  onEmptyBin,
 }) => {
   const [filterType, setFilterType] = useState<'all' | 'wet' | 'dry' | 'ewaste' | 'full'>('all');
   const [hoveredZone, setHoveredZone] = useState<CampusZoneInfo | null>(null);
@@ -1229,6 +1231,18 @@ export const CampusMap: React.FC<CampusMapProps> = ({
 
               {/* Actions */}
               <div className="flex flex-col gap-2 pt-2 border-t border-stone-100">
+                {(selectedBin.status === 'full' || selectedBin.fillLevel >= 80) && onEmptyBin && (
+                  <button
+                    id="btn-empty-selected-bin"
+                    type="button"
+                    onClick={() => onEmptyBin(selectedBin.id)}
+                    className="w-full py-2 px-3 text-xs font-semibold rounded-md bg-[#046A38] hover:bg-[#03532c] text-white transition-colors flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                    title="Mark dustbin as cleared and empty (0%)"
+                  >
+                    <Check className="w-3.5 h-3.5 text-emerald-200" />
+                    <span>Set as Empty (Cleared)</span>
+                  </button>
+                )}
                 <button
                   id="btn-report-selected-bin"
                   onClick={() => onReportBin(selectedBin)}

@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
 import { 
-  Trash2, 
   MapPin, 
   Compass, 
   BookOpen, 
   AlertTriangle, 
-  CheckCircle2, 
   ShieldCheck, 
   Menu, 
   X,
-  Building2,
-  QrCode
+  QrCode,
+  Award,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { getAssetUrl } from '../utils/assets';
 
 interface NavbarProps {
   activeTab: 'map' | 'finder' | 'guide' | 'alerts';
@@ -21,12 +19,12 @@ interface NavbarProps {
   onOpenReportModal: () => void;
   onOpenAddBinModal?: () => void;
   onOpenScanModal?: () => void;
+  onOpenPledgeModal?: () => void;
   activeAlertsCount: number;
   totalBinsCount: number;
   isAdmin: boolean;
   onAdminLogout: () => void;
-  bgStyle?: 'watermark' | 'vibrant' | 'minimal';
-  onBgStyleChange?: (style: 'watermark' | 'vibrant' | 'minimal') => void;
+  currentLang?: 'en' | 'hi';
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -35,11 +33,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenReportModal,
   onOpenAddBinModal,
   onOpenScanModal,
+  onOpenPledgeModal,
   activeAlertsCount,
   totalBinsCount,
   isAdmin,
-  bgStyle = 'watermark',
-  onBgStyleChange,
+  currentLang = 'en',
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -49,244 +47,145 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white border-b border-stone-200">
-      {/* Institutional Top Header Strip */}
-      <div className="bg-[#134E3A] text-stone-100 px-3 sm:px-6 py-1.5 text-[11px] font-medium tracking-tight">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 truncate">
-            <span className="inline-flex items-center font-bold px-1.5 py-0.5 rounded bg-white/15 text-[10px] tracking-wider shrink-0 uppercase">
-              SBM • NIT Patna
-            </span>
-            <span className="hidden sm:inline text-stone-200 truncate">
-              National Institute of Technology Patna — Swachh Bharat Sanitation & Segregation Registry
-            </span>
-            <span className="sm:hidden text-stone-200 truncate">
-              NIT Patna — Swachh Campus
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2.5 sm:gap-4 shrink-0 text-[11px] text-stone-300 font-mono-code">
-            {/* Background Theme Mode Selector */}
-            {onBgStyleChange && (
-              <div className="flex items-center gap-1 bg-black/25 px-2 py-0.5 rounded text-[10px]">
-                <span className="text-stone-300 hidden md:inline mr-0.5">SBM Bg:</span>
-                <button
-                  type="button"
-                  onClick={() => onBgStyleChange('watermark')}
-                  className={`px-1.5 py-0.2 rounded transition-colors cursor-pointer ${
-                    bgStyle === 'watermark' ? 'bg-white/25 text-white font-bold' : 'text-stone-300 hover:text-white'
-                  }`}
-                  title="Subtle Swachh Bharat background watermark"
-                >
-                  Watermark
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onBgStyleChange('vibrant')}
-                  className={`px-1.5 py-0.2 rounded transition-colors cursor-pointer ${
-                    bgStyle === 'vibrant' ? 'bg-white/25 text-white font-bold' : 'text-stone-300 hover:text-white'
-                  }`}
-                  title="Vibrant Swachh Bharat background artwork"
-                >
-                  Vibrant
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onBgStyleChange('minimal')}
-                  className={`px-1.5 py-0.2 rounded transition-colors cursor-pointer ${
-                    bgStyle === 'minimal' ? 'bg-white/25 text-white font-bold' : 'text-stone-300 hover:text-white'
-                  }`}
-                  title="Hide background image"
-                >
-                  Off
-                </button>
-              </div>
-            )}
-
-            <span className="inline-flex items-center gap-1.5 text-stone-100">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              <span>Sanitation Index: <strong>94%</strong></span>
-            </span>
-            <span className="hidden md:inline text-stone-400">|</span>
-            <span className="hidden md:inline text-stone-300">
-              {totalBinsCount} Active Stations
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Navigation Row */}
+    <nav className="sticky top-0 z-30 bg-[#0A2540] text-white shadow-md border-b-2 border-[#FF671F] select-none">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-2 sm:gap-3">
-          {/* Logo & Campus Identity */}
-          <div 
-            onClick={() => handleTabClick('map')}
-            className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none min-w-0"
-          >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-white text-stone-900 flex items-center justify-center border border-stone-200 shrink-0 shadow-xs overflow-hidden p-0.5 hover:scale-105 transition-transform">
-              <img 
-                src={getAssetUrl('swachh-bharat-bg.webp')} 
-                alt="Swachh Bharat Abhiyan Logo" 
-                className="w-full h-full object-contain"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="text-base sm:text-xl font-bold text-stone-900 font-editorial tracking-tight truncate">
-                  Swachh Campus
-                </span>
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-700 px-1 sm:px-1.5 py-0.5 rounded border border-stone-200 shrink-0">
-                  NITP
-                </span>
-              </div>
-              <p className="text-[11px] text-stone-500 hidden sm:block truncate">
-                एक कदम स्वच्छता की ओर &bull; Source Segregation
-              </p>
-            </div>
-          </div>
-
-          {/* Desktop Navigation Tabs - Prominently Highlighted with 3D Book Fold Aesthetics */}
-          <nav className="hidden md:flex items-center gap-1 bg-gradient-to-r from-stone-100 via-stone-50 to-stone-100 p-1 rounded-xl border-2 border-[#134E3A] shadow-md ring-2 ring-[#134E3A]/20 [perspective:1000px]">
+        <div className="flex items-center justify-between h-14 sm:h-15 gap-2 sm:gap-4">
+          {/* Left: Desktop Tab Links (Government Navigation Bar Style) */}
+          <div className="hidden md:flex items-center space-x-1 lg:space-x-1.5 h-full overflow-x-auto no-scrollbar">
+            {/* Tab 1: Campus Map */}
             <button
               id="tab-campus-map"
+              type="button"
               onClick={() => handleTabClick('map')}
-              className={`relative flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer whitespace-nowrap ${
-                activeTab === 'map' ? 'text-white shadow-xs' : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/70'
+              className={`relative h-full flex items-center gap-1.5 px-3 lg:px-3.5 text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                activeTab === 'map'
+                  ? 'text-white bg-white/10'
+                  : 'text-stone-300 hover:text-white hover:bg-white/5'
               }`}
             >
+              <MapPin className={`w-3.5 h-3.5 ${activeTab === 'map' ? 'text-[#FF9E4A]' : 'text-stone-300'}`} />
+              <span>{currentLang === 'hi' ? 'परिसर मानचित्र' : 'Campus Map & Bins'}</span>
               {activeTab === 'map' && (
-                <motion.div
-                  layoutId="navbar-active-tab"
-                  className="absolute inset-0 bg-[#134E3A] rounded-lg shadow-sm -z-0"
-                  transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                />
+                <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#FF671F]" />
               )}
-              <span className="relative z-10 flex items-center gap-1.5">
-                <MapPin className={`w-3.5 h-3.5 ${activeTab === 'map' ? 'text-emerald-300' : 'text-[#134E3A]'}`} />
-                <span>Campus Map</span>
-              </span>
             </button>
 
+            {/* Tab 2: Find Nearest Dustbin */}
             <button
               id="tab-nearest-bin"
+              type="button"
               onClick={() => handleTabClick('finder')}
-              className={`relative flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer whitespace-nowrap ${
-                activeTab === 'finder' ? 'text-white shadow-xs' : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/70'
+              className={`relative h-full flex items-center gap-1.5 px-3 lg:px-3.5 text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                activeTab === 'finder'
+                  ? 'text-white bg-white/10'
+                  : 'text-stone-300 hover:text-white hover:bg-white/5'
               }`}
             >
+              <Compass className={`w-3.5 h-3.5 ${activeTab === 'finder' ? 'text-[#FF9E4A]' : 'text-stone-300'}`} />
+              <span>{currentLang === 'hi' ? 'निकटतम डस्टबिन' : 'Find Nearest'}</span>
               {activeTab === 'finder' && (
-                <motion.div
-                  layoutId="navbar-active-tab"
-                  className="absolute inset-0 bg-[#134E3A] rounded-lg shadow-sm -z-0"
-                  transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                />
+                <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#FF671F]" />
               )}
-              <span className="relative z-10 flex items-center gap-1.5">
-                <Compass className={`w-3.5 h-3.5 ${activeTab === 'finder' ? 'text-emerald-300' : 'text-[#134E3A]'}`} />
-                <span>Find Nearest</span>
-              </span>
             </button>
 
+            {/* Tab 3: Waste Segregation Guide */}
             <button
               id="tab-sorting-guide"
+              type="button"
               onClick={() => handleTabClick('guide')}
-              className={`relative flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer whitespace-nowrap group ${
-                activeTab === 'guide' ? 'text-white shadow-xs' : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/70'
+              className={`relative h-full flex items-center gap-1.5 px-3 lg:px-3.5 text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                activeTab === 'guide'
+                  ? 'text-white bg-white/10'
+                  : 'text-stone-300 hover:text-white hover:bg-white/5'
               }`}
-              title="Open Segregation Handbook with 3D Folding Book Mode"
             >
+              <BookOpen className={`w-3.5 h-3.5 ${activeTab === 'guide' ? 'text-[#FF9E4A]' : 'text-stone-300'}`} />
+              <span>{currentLang === 'hi' ? 'पृथक्करण गाइड' : 'Segregation Manual'}</span>
               {activeTab === 'guide' && (
-                <motion.div
-                  layoutId="navbar-active-tab"
-                  className="absolute inset-0 bg-[#134E3A] rounded-lg shadow-sm -z-0"
-                  transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                />
+                <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#FF671F]" />
               )}
-              {/* Dog-ear corner fold effect on the Guide tab */}
-              <div 
-                className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-400 shadow-2xs group-hover:w-3.5 group-hover:h-3.5 transition-all duration-200 pointer-events-none rounded-bl-xs"
-                style={{ clipPath: 'polygon(0 0, 100% 100%, 100% 0)' }}
-              />
-              <span className="relative z-10 flex items-center gap-1.5">
-                <BookOpen className={`w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-115 ${activeTab === 'guide' ? 'text-emerald-300' : 'text-[#134E3A]'}`} />
-                <span>Segregation Guide</span>
-                <span className="text-[9px] px-1 py-0.2 rounded bg-amber-400/25 text-amber-900 font-mono-code border border-amber-500/30">
-                  Book
-                </span>
-              </span>
             </button>
 
-            {isAdmin && (
-              <button
-                id="tab-campus-alerts"
-                onClick={() => handleTabClick('alerts')}
-                className={`relative flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer whitespace-nowrap ${
-                  activeTab === 'alerts' ? 'text-white shadow-xs' : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/70'
-                }`}
-              >
-                {activeTab === 'alerts' && (
-                  <motion.div
-                    layoutId="navbar-active-tab"
-                    className="absolute inset-0 bg-[#134E3A] rounded-lg shadow-sm -z-0"
-                    transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                  />
-                )}
-                <span className="relative z-10 flex items-center gap-1.5">
-                  <ShieldCheck className={`w-3.5 h-3.5 ${activeTab === 'alerts' ? 'text-emerald-300' : 'text-[#134E3A]'}`} />
-                  <span>Admin Portal</span>
-                  {activeAlertsCount > 0 && (
-                    <motion.span 
-                      key={activeAlertsCount}
-                      initial={{ scale: 0.6 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                      className="ml-1 px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[10px] font-bold font-mono-code"
-                    >
-                      {activeAlertsCount}
-                    </motion.span>
-                  )}
+            {/* Tab 4: Swachh Grievance Portal (Alerts & Citizen Reports) */}
+            <button
+              id="tab-campus-alerts"
+              type="button"
+              onClick={() => handleTabClick('alerts')}
+              className={`relative h-full flex items-center gap-1.5 px-3 lg:px-3.5 text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                activeTab === 'alerts'
+                  ? 'text-white bg-white/10'
+                  : 'text-stone-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <ShieldCheck className={`w-3.5 h-3.5 ${activeTab === 'alerts' ? 'text-[#FF9E4A]' : 'text-stone-300'}`} />
+              <span>{currentLang === 'hi' ? 'स्वच्छता शिकायत निवारण' : 'Grievance Portal'}</span>
+              {activeAlertsCount > 0 && (
+                <span className="ml-1 px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[10px] font-bold font-mono-code">
+                  {activeAlertsCount}
                 </span>
+              )}
+              {activeTab === 'alerts' && (
+                <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#FF671F]" />
+              )}
+            </button>
+          </div>
+
+          {/* Mobile Identity View */}
+          <div className="md:hidden flex items-center gap-2 min-w-0">
+            <span className="font-bold text-white text-xs truncate font-editorial">
+              {currentLang === 'hi' ? 'स्वच्छ परिसर पोर्टल' : 'SBM Swachh Campus'}
+            </span>
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-600 text-white font-mono-code">
+              {totalBinsCount} Bins
+            </span>
+          </div>
+
+          {/* Right: Quick Action Controls */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* Swachhata Pledge Button */}
+            {onOpenPledgeModal && (
+              <button
+                type="button"
+                onClick={onOpenPledgeModal}
+                className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-white/15 hover:bg-white/25 text-amber-300 border border-white/20 transition-all cursor-pointer whitespace-nowrap shadow-2xs"
+                title="Take Swachhata Pledge & Generate Official Certificate"
+              >
+                <Award className="w-3.5 h-3.5 text-amber-300" />
+                <span>{currentLang === 'hi' ? 'शपथ लें' : 'Pledge'}</span>
               </button>
             )}
-          </nav>
 
-          {/* Action Utilities */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Scan QR Code Button */}
             {onOpenScanModal && (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.96 }}
-                id="btn-scan-qr"
+              <button
                 type="button"
                 onClick={onOpenScanModal}
-                className="inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 h-9 text-xs font-semibold rounded-lg bg-stone-100 hover:bg-stone-200 active:bg-stone-300 text-stone-800 border border-stone-300 transition-colors cursor-pointer whitespace-nowrap shrink-0 shadow-2xs touch-manipulation"
-                title="Scan Dustbin QR Code or Direct Lookup"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md bg-white/10 hover:bg-white/20 text-stone-200 border border-white/15 transition-all cursor-pointer whitespace-nowrap shadow-2xs"
+                title="Scan Dustbin QR Code or Search ID"
               >
-                <QrCode className="w-3.5 h-3.5 text-[#134E3A] shrink-0" />
-                <span className="hidden sm:inline">Scan QR</span>
-                <span className="sm:hidden text-xs">QR</span>
-              </motion.button>
+                <QrCode className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="hidden sm:inline">{currentLang === 'hi' ? 'क्यूआर' : 'Scan QR'}</span>
+              </button>
             )}
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.96 }}
+            {/* Report Grievance (Primary CTA styled in SBM-Urban Alert Gold) */}
+            <button
               id="btn-report-issue"
+              type="button"
               onClick={onOpenReportModal}
-              className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-3 h-9 text-xs font-semibold rounded-lg bg-amber-50 hover:bg-amber-100 active:bg-amber-200 text-amber-950 border border-amber-300 transition-all cursor-pointer whitespace-nowrap shrink-0 shadow-2xs touch-manipulation"
-              title="Report full bin or misplaced waste"
+              className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-md bg-[#FF671F] hover:bg-[#e65a15] active:bg-[#cc4f10] text-white shadow-xs transition-all cursor-pointer whitespace-nowrap"
+              title="Report overflowing bin or litter"
             >
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-800 shrink-0" />
-              <span className="text-xs font-semibold">Report</span>
-              <span className="hidden sm:inline font-semibold">Issue</span>
-            </motion.button>
+              <AlertTriangle className="w-3.5 h-3.5 text-white" />
+              <span>{currentLang === 'hi' ? 'शिकायत दर्ज करें' : 'Report Issue'}</span>
+            </button>
 
-            {/* Mobile Menu Toggle */}
+            {/* Mobile Menu Toggle Button */}
             <button
               id="btn-mobile-menu-toggle"
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden h-9 w-9 flex items-center justify-center rounded-lg text-stone-700 hover:bg-stone-100 active:bg-stone-200 border border-stone-200 transition-colors cursor-pointer shrink-0 touch-manipulation"
+              className="md:hidden h-8 w-8 flex items-center justify-center rounded-md text-stone-200 hover:bg-white/10 transition-colors cursor-pointer"
               aria-label="Toggle Navigation Menu"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -295,127 +194,120 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer Navigation Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden bg-white border-b border-stone-200 px-4 py-3 shadow-sm space-y-1 overflow-hidden"
+            className="md:hidden bg-[#071A2E] border-t border-stone-800 px-4 py-3 space-y-1.5 shadow-lg overflow-hidden"
           >
             <button
               id="mobile-nav-map"
+              type="button"
               onClick={() => handleTabClick('map')}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
-                activeTab === 'map' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
+                activeTab === 'map' ? 'bg-[#FF671F] text-white' : 'text-stone-300 hover:bg-white/10'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <MapPin className="w-4 h-4 text-[#134E3A]" />
-                <span>Campus Map & Bins</span>
+                <MapPin className="w-4 h-4" />
+                <span>{currentLang === 'hi' ? 'परिसर मानचित्र' : 'Campus Map & Bins'}</span>
               </div>
-              <span className="text-[10px] font-mono-code bg-stone-100 text-stone-600 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-mono-code bg-black/30 px-2 py-0.5 rounded">
                 {totalBinsCount} Bins
               </span>
             </button>
 
             <button
               id="mobile-nav-finder"
+              type="button"
               onClick={() => handleTabClick('finder')}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
-                activeTab === 'finder' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
+                activeTab === 'finder' ? 'bg-[#FF671F] text-white' : 'text-stone-300 hover:bg-white/10'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <Compass className="w-4 h-4 text-[#134E3A]" />
-                <span>Find Nearest Dustbin</span>
+                <Compass className="w-4 h-4" />
+                <span>{currentLang === 'hi' ? 'निकटतम डस्टबिन खोजें' : 'Find Nearest Dustbin'}</span>
               </div>
-              <span className="text-[10px] text-stone-500">Walking routes</span>
+              <span className="text-[10px] text-stone-400">Walking ETA</span>
             </button>
 
             <button
               id="mobile-nav-guide"
+              type="button"
               onClick={() => handleTabClick('guide')}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
-                activeTab === 'guide' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
+                activeTab === 'guide' ? 'bg-[#FF671F] text-white' : 'text-stone-300 hover:bg-white/10'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <BookOpen className="w-4 h-4 text-[#134E3A]" />
-                <span>Waste Segregation Guide</span>
+                <BookOpen className="w-4 h-4" />
+                <span>{currentLang === 'hi' ? 'कचरा पृथक्करण गाइड' : 'Waste Segregation Manual'}</span>
               </div>
-              <span className="text-[10px] text-stone-500">Wet / Dry / E-Waste</span>
+              <span className="text-[10px] text-emerald-400">Wet &amp; Dry</span>
             </button>
 
-            {isAdmin && (
+            <button
+              id="mobile-nav-alerts"
+              type="button"
+              onClick={() => handleTabClick('alerts')}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
+                activeTab === 'alerts' ? 'bg-[#FF671F] text-white' : 'text-stone-300 hover:bg-white/10'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="w-4 h-4" />
+                <span>{currentLang === 'hi' ? 'स्वच्छता शिकायत निवारण' : 'Grievance Redressal'}</span>
+              </div>
+              {activeAlertsCount > 0 && (
+                <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded font-mono-code">
+                  {activeAlertsCount}
+                </span>
+              )}
+            </button>
+
+            {onOpenPledgeModal && (
               <button
-                id="mobile-nav-alerts"
-                onClick={() => handleTabClick('alerts')}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
-                  activeTab === 'alerts' ? 'bg-[#134E3A]/10 text-[#134E3A]' : 'text-stone-700 hover:bg-stone-100'
-                }`}
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenPledgeModal();
+                }}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold bg-white/10 text-amber-300 hover:bg-white/20 transition-colors"
               >
                 <div className="flex items-center gap-2.5">
-                  <ShieldCheck className="w-4 h-4 text-[#134E3A]" />
-                  <span>Admin Dispatch & Reports</span>
+                  <Award className="w-4 h-4 text-amber-300" />
+                  <span>{currentLang === 'hi' ? 'स्वच्छता प्रतिज्ञा एवं प्रमाण पत्र' : 'Swachhata Pledge & Certificate'}</span>
                 </div>
-                {activeAlertsCount > 0 && (
-                  <span className="bg-rose-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded font-mono-code">
-                    {activeAlertsCount}
-                  </span>
-                )}
+                <span className="text-[10px] font-mono-code bg-amber-400/20 px-1.5 py-0.5 rounded text-amber-300">
+                  Citizen
+                </span>
               </button>
             )}
 
             {onOpenScanModal && (
               <button
-                id="mobile-nav-scan-qr"
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   onOpenScanModal();
                 }}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold text-stone-300 hover:bg-white/10 transition-colors"
               >
                 <div className="flex items-center gap-2.5">
-                  <QrCode className="w-4 h-4 text-[#134E3A]" />
-                  <span>Scan Station QR / ID</span>
+                  <QrCode className="w-4 h-4 text-emerald-400" />
+                  <span>{currentLang === 'hi' ? 'डस्टबिन क्यूआर स्कैन' : 'Scan Bin QR Code'}</span>
                 </div>
-                <span className="text-[10px] text-stone-500 font-mono-code">Live Lookup</span>
+                <span className="text-[10px] font-mono-code text-stone-400">Camera / ID</span>
               </button>
             )}
-
-            <button
-              id="mobile-nav-report-issue"
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenReportModal();
-              }}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-950 hover:bg-amber-100 border border-amber-200/80 transition-colors"
-            >
-              <div className="flex items-center gap-2.5">
-                <AlertTriangle className="w-4 h-4 text-amber-700" />
-                <span>Report Issue or Full Bin</span>
-              </div>
-              <span className="text-[10px] font-bold bg-amber-200/80 text-amber-900 px-1.5 py-0.5 rounded">
-                Quick Ticket
-              </span>
-            </button>
-
-            <div className="pt-2 mt-2 border-t border-stone-100 text-[11px] text-stone-500 flex items-center justify-between">
-              <span className="flex items-center gap-1">
-                <Building2 className="w-3.5 h-3.5 text-stone-400" />
-                NIT Patna Main Campus
-              </span>
-              <span className="text-emerald-700 font-semibold font-mono-code">SBM-Cell Active</span>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </nav>
   );
 };
-

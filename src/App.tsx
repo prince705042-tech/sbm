@@ -14,6 +14,12 @@ import { PrintPlacardModal } from './components/PrintPlacardModal';
 import { ExportAuditReportModal } from './components/ExportAuditReportModal';
 import { CampusSanitationScorecard } from './components/CampusSanitationScorecard';
 import { SplashScreen } from './components/SplashScreen';
+import { SbmUrbanTopBar } from './components/SbmUrbanTopBar';
+import { SbmUrbanHeader } from './components/SbmUrbanHeader';
+import { SbmUrbanHero } from './components/SbmUrbanHero';
+import { SbmUrbanFooter } from './components/SbmUrbanFooter';
+import { TakePledgeModal } from './components/TakePledgeModal';
+import { PledgeCertificateModal } from './components/PledgeCertificateModal';
 import { getAssetUrl } from './utils/assets';
 import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut, CheckCircle2, QrCode } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -105,7 +111,7 @@ export default function App() {
         details: 'Lab rough paper and test wrappers full near prep room entrance.',
         reportedAt: '25 mins ago',
         status: 'cleaning_dispatched',
-        reportedBy: 'Dr. Verma (Chemistry Faculty)',
+        reportedBy: 'Chemistry Lab In-Charge',
       },
       {
         id: 't-2',
@@ -162,6 +168,78 @@ export default function App() {
   const [isPlacardModalOpen, setIsPlacardModalOpen] = useState(false);
   const [selectedBinForPlacard, setSelectedBinForPlacard] = useState<CampusBin | null>(null);
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
+
+  // Language & Accessibility State (English / Hindi matching sbmurban.org)
+  const [currentLang, setCurrentLang] = useState<'en' | 'hi'>(() => {
+    try {
+      const saved = localStorage.getItem('swachh_campus_lang');
+      if (saved === 'hi' || saved === 'en') return saved;
+    } catch {}
+    return 'en';
+  });
+
+  const handleLangChange = (lang: 'en' | 'hi') => {
+    setCurrentLang(lang);
+    try {
+      localStorage.setItem('swachh_campus_lang', lang);
+    } catch {}
+    showToast(lang === 'hi' ? '🇮🇳 भाषा बदलकर हिन्दी कर दी गई है' : '🌐 Language set to English');
+  };
+
+  const handleFontSizeChange = (size: 'small' | 'normal' | 'large') => {
+    if (size === 'small') {
+      document.documentElement.style.fontSize = '14px';
+      showToast('Text size set to Small');
+    } else if (size === 'large') {
+      document.documentElement.style.fontSize = '18px';
+      showToast('Text size set to Large');
+    } else {
+      document.documentElement.style.fontSize = '16px';
+      showToast('Text size set to Normal');
+    }
+  };
+
+  // Swachhata Pledge Modal State & Stored Record
+  const [isTakePledgeModalOpen, setIsTakePledgeModalOpen] = useState(false);
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
+  const [pledgeRecord, setPledgeRecord] = useState<{ name: string; dept: string; date: string } | null>(() => {
+    try {
+      const saved = localStorage.getItem('swachh_campus_pledge');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return null;
+  });
+
+  const handleOpenPledge = () => {
+    if (pledgeRecord) {
+      setIsCertificateModalOpen(true);
+    } else {
+      setIsTakePledgeModalOpen(true);
+    }
+  };
+
+  const handlePledgeCompleted = (name: string, dept: string) => {
+    const record = {
+      name,
+      dept,
+      date: new Date().toLocaleDateString('en-IN'),
+    };
+    setPledgeRecord(record);
+    try {
+      localStorage.setItem('swachh_campus_pledge', JSON.stringify(record));
+    } catch {}
+    setIsTakePledgeModalOpen(false);
+    setIsCertificateModalOpen(true);
+    showToast('🏅 Swachhata Pledge registered! Official certificate generated.');
+  };
+
+  const handleResetPledge = () => {
+    setPledgeRecord(null);
+    try {
+      localStorage.removeItem('swachh_campus_pledge');
+    } catch {}
+    showToast('Pledge record cleared.');
+  };
 
   // Toast notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -566,6 +644,50 @@ export default function App() {
     showToast('🗑️ Dustbin station deleted from campus registry.');
   };
 
+  const handleEmptyBin = (binId: string) => {
+    setBins((prev) => {
+      const updated = prev.map((b) =>
+        b.id === binId
+          ? {
+              ...b,
+              fillLevel: 5,
+              status: 'normal' as const,
+              lastEmptied: 'Just now',
+            }
+          : b
+      );
+      try {
+        localStorage.setItem('swachh_campus_bins', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    // Automatically resolve any active report tickets for this dustbin
+    setTickets((prev) => {
+      const hasActive = prev.some((t) => t.binId === binId && t.status !== 'resolved');
+      if (!hasActive) return prev;
+      const updatedTickets = prev.map((t) => {
+        if (t.binId === binId && t.status !== 'resolved') {
+          updateReportStatusInSupabase(t.id, 'resolved', { ...t, status: 'resolved' }).catch(() => {});
+          return { ...t, status: 'resolved' as const };
+        }
+        return t;
+      });
+      try {
+        localStorage.setItem('swachh_campus_tickets', JSON.stringify(updatedTickets));
+      } catch {}
+      return updatedTickets;
+    });
+
+    if (selectedBin?.id === binId) {
+      setSelectedBin((prev) =>
+        prev ? { ...prev, fillLevel: 5, status: 'normal', lastEmptied: 'Just now' } : null
+      );
+    }
+
+    showToast('✨ Dustbin emptied & set to Normal (5% fill). Campus registry updated.');
+  };
+
   const activeAlertsCount = tickets.filter((t) => t.status !== 'resolved').length;
 
   return (
@@ -618,7 +740,17 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Main App Navbar */}
+      {/* SBM Urban Official Government of India Top Ribbon & Accessibility */}
+      <SbmUrbanTopBar 
+        currentLang={currentLang} 
+        onLangChange={handleLangChange} 
+        onFontSizeChange={handleFontSizeChange} 
+      />
+
+      {/* SBM Urban Official Header with Gandhi Specs Logo & Initiatives */}
+      <SbmUrbanHeader currentLang={currentLang} />
+
+      {/* Main SBM Urban Navy Navigation Bar */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -628,12 +760,12 @@ export default function App() {
         }}
         onOpenAddBinModal={handleTriggerAddBin}
         onOpenScanModal={() => setIsScanBinModalOpen(true)}
+        onOpenPledgeModal={handleOpenPledge}
         activeAlertsCount={activeAlertsCount}
         totalBinsCount={bins.length}
         isAdmin={isAdmin}
         onAdminLogout={handleAdminLogout}
-        bgStyle={bgStyle}
-        onBgStyleChange={handleBgStyleChange}
+        currentLang={currentLang}
       />
 
       {/* Main View Container */}
@@ -648,6 +780,18 @@ export default function App() {
               transition={{ duration: 0.22, ease: 'easeOut' }}
               className="space-y-4"
             >
+              <SbmUrbanHero
+                currentLang={currentLang}
+                onNavigateTab={setActiveTab}
+                onOpenReportModal={() => {
+                  setTargetBinForReport(selectedBin);
+                  setIsReportModalOpen(true);
+                }}
+                onOpenScanModal={() => setIsScanBinModalOpen(true)}
+                onOpenPledgeModal={handleOpenPledge}
+                totalBinsCount={bins.length}
+                activeAlertsCount={activeAlertsCount}
+              />
               <CampusSanitationScorecard bins={bins} tickets={tickets} />
               <CampusMap
                 bins={bins}
@@ -660,6 +804,7 @@ export default function App() {
                 setUserZone={setUserZone}
                 highlightedBinId={highlightedBinId}
                 onReportBin={handleOpenReportForBin}
+                onEmptyBin={handleEmptyBin}
               />
             </motion.div>
           )}
@@ -748,6 +893,7 @@ export default function App() {
                   setSelectedBinForPlacard(bin);
                   setIsPlacardModalOpen(true);
                 }}
+                onEmptyBin={handleEmptyBin}
               />
             </motion.div>
           )}
@@ -902,104 +1048,52 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Institutional Civic Footer */}
-      <footer className="relative z-10 bg-white border-t border-stone-200 mt-14 text-xs text-stone-500">
-        <div className="border-b border-stone-200 bg-stone-50/70 py-4 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-3 text-center sm:text-left">
-              <div className="w-9 h-9 rounded-md bg-stone-200 text-stone-700 flex items-center justify-center shrink-0 border border-stone-300">
-                <Shield className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
-                  <span className="font-bold text-stone-800 text-xs">
-                    Campus Sanitation Registry & Supervisory Console
-                  </span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-stone-200 text-stone-700 font-mono-code">
-                    NITP-SBM v2.4
-                  </span>
-                </div>
-                <p className="text-[11px] text-stone-500 mt-0.5">
-                  {isAdmin
-                    ? 'Authenticated as SBM Administrator. Bin registry modifications and housekeeping dispatch tickets enabled.'
-                    : 'Designated administrative portal for Swachh Bharat Mission supervisors, wardens, and sanitary superintendents.'}
-                </p>
-              </div>
-            </div>
+      {/* Swachhata Pledge Input Modal */}
+      <AnimatePresence>
+        {isTakePledgeModalOpen && (
+          <TakePledgeModal
+            isOpen={isTakePledgeModalOpen}
+            onClose={() => setIsTakePledgeModalOpen(false)}
+            onPledgeCompleted={handlePledgeCompleted}
+            initialName={pledgeRecord?.name || ''}
+            initialDept={pledgeRecord?.dept || ''}
+            currentLang={currentLang}
+          />
+        )}
+      </AnimatePresence>
 
-            <div className="flex items-center gap-2.5 shrink-0">
-              {isAdmin ? (
-                <>
-                  <button
-                    type="button"
-                    id="btn-footer-admin-dashboard"
-                    onClick={() => {
-                      setActiveTab('alerts');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
-                      activeTab === 'alerts'
-                        ? 'bg-[#134E3A] text-white shadow-2xs'
-                        : 'bg-emerald-100 text-emerald-900 hover:bg-emerald-200'
-                    }`}
-                  >
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Open Dashboard</span>
-                    {activeAlertsCount > 0 && (
-                      <span className="w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center font-mono-code">
-                        {activeAlertsCount}
-                      </span>
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    id="btn-footer-admin-logout"
-                    onClick={handleAdminLogout}
-                    className="px-3 py-1.5 rounded-md text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors flex items-center gap-1.5 cursor-pointer"
-                    title="Log out from Admin"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>Log Out</span>
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  id="btn-footer-admin-login"
-                  onClick={() => {
-                    setAdminLoginReason('reports');
-                    setIsAdminLoginModalOpen(true);
-                  }}
-                  className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-white bg-stone-900 hover:bg-stone-800 transition-colors flex items-center gap-2 cursor-pointer shadow-2xs"
-                  title="Supervisor Authentication"
-                >
-                  <Lock className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Supervisor Login</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
+      {/* Official SBM-Urban Swachhata Pledge Certificate Modal */}
+      <AnimatePresence>
+        {isCertificateModalOpen && (
+          <PledgeCertificateModal
+            isOpen={isCertificateModalOpen}
+            onClose={() => setIsCertificateModalOpen(false)}
+            pledgeName={pledgeRecord?.name || 'Campus Citizen'}
+            pledgeDept={pledgeRecord?.dept || 'NIT Patna'}
+            pledgeDate={pledgeRecord?.date || new Date().toLocaleDateString('en-IN')}
+            onResetPledge={handleResetPledge}
+            currentLang={currentLang}
+          />
+        )}
+      </AnimatePresence>
 
-        {/* NIT Patna Campus info & official mandate */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-stone-500">
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-            <span className="font-semibold text-stone-700">
-              National Institute of Technology Patna
-            </span>
-            <span>•</span>
-            <span>Ashok Rajpath, Mahendru, Patna, Bihar 800005</span>
-            <span>•</span>
-            <span className="text-emerald-800 font-medium">Swachh Bharat Abhiyan Cell</span>
-          </div>
-
-          <div className="flex items-center gap-4 text-[11px] text-stone-400 font-mono-code">
-            <span>Clean Campus Standard IS:10001</span>
-            <span>•</span>
-            <span>Daily Clearance: 07:00 &amp; 15:30 IST</span>
-          </div>
-        </div>
-      </footer>
+      {/* Official SBM-Urban Government of India 4-Column Footer */}
+      <SbmUrbanFooter
+        currentLang={currentLang}
+        isAdmin={isAdmin}
+        onAdminLoginClick={() => {
+          setAdminLoginReason('reports');
+          setIsAdminLoginModalOpen(true);
+        }}
+        onAdminLogoutClick={handleAdminLogout}
+        onOpenDashboardClick={() => {
+          setActiveTab('alerts');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        activeAlertsCount={activeAlertsCount}
+        onNavigateTab={setActiveTab}
+        onOpenPledgeModal={handleOpenPledge}
+      />
     </div>
   );
 }
