@@ -1,12 +1,45 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig} from 'vite';
+import fs from 'fs';
+import {defineConfig, Plugin} from 'vite';
+
+function imageUploadPlugin(): Plugin {
+  return {
+    name: 'image-upload-plugin',
+    configureServer(server) {
+      server.middlewares.use('/api/upload-hero', (req, res) => {
+        if (req.method === 'POST') {
+          const chunks: Buffer[] = [];
+          req.on('data', chunk => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+          req.on('end', () => {
+            try {
+              const buf = Buffer.concat(chunks);
+              const pubPath = path.resolve(__dirname, 'public/hero-bg.jpg');
+              const assetPath = path.resolve(__dirname, 'src/assets/images/nit_patna_stadium.jpg');
+              fs.writeFileSync(pubPath, buf);
+              fs.writeFileSync(assetPath, buf);
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true, url: '/hero-bg.jpg' }));
+            } catch (err) {
+              res.statusCode = 500;
+              res.end(JSON.stringify({ error: String(err) }));
+            }
+          });
+          return;
+        }
+        res.statusCode = 405;
+        res.end();
+      });
+    },
+  };
+}
 
 export default defineConfig(() => {
   return {
     base: process.env.BASE_URL || './',
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), imageUploadPlugin()],
     resolve: {
       dedupe: ['react', 'react-dom'],
       alias: {

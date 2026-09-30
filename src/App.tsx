@@ -21,8 +21,8 @@ import { SbmUrbanFooter } from './components/SbmUrbanFooter';
 import { TakePledgeModal } from './components/TakePledgeModal';
 import { PledgeCertificateModal } from './components/PledgeCertificateModal';
 import { getAssetUrl } from './utils/assets';
-import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut, CheckCircle2, QrCode } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut, CheckCircle2, QrCode, ArrowUp } from 'lucide-react';
+import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
 import { 
   fetchReportsFromSupabase, 
   insertReportToSupabase, 
@@ -690,8 +690,37 @@ export default function App() {
 
   const activeAlertsCount = tickets.filter((t) => t.status !== 'resolved').length;
 
+  // Real-time scroll progress tracking & spring physics
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [scrollPercent, setScrollPercent] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const current = window.scrollY;
+      setShowScrollTop(current > 240);
+      if (totalScroll > 0) {
+        setScrollPercent(Math.min(100, Math.round((current / totalScroll) * 100)));
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#F8F9FA] relative flex flex-col font-['Public_Sans',sans-serif] text-stone-800">
+      {/* Real-time Tricolor Scroll Progress Bar */}
+      <motion.div
+        style={{ scaleX }}
+        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF671F] via-[#F4B400] to-[#046A38] z-50 origin-left shadow-sm pointer-events-none"
+      />
       {/* Opening Mahatma Gandhi Splash Screen on Initial Link Open */}
       {showSplash && (
         <SplashScreen 
@@ -792,20 +821,34 @@ export default function App() {
                 totalBinsCount={bins.length}
                 activeAlertsCount={activeAlertsCount}
               />
-              <CampusSanitationScorecard bins={bins} tickets={tickets} />
-              <CampusMap
-                bins={bins}
-                selectedBin={selectedBin}
-                onSelectBin={(bin) => {
-                  setSelectedBin(bin);
-                  setHighlightedBinId(null);
-                }}
-                userZone={userZone}
-                setUserZone={setUserZone}
-                highlightedBinId={highlightedBinId}
-                onReportBin={handleOpenReportForBin}
-                onEmptyBin={handleEmptyBin}
-              />
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-30px' }}
+                transition={{ duration: 0.4 }}
+              >
+                <CampusSanitationScorecard bins={bins} tickets={tickets} />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-30px' }}
+                transition={{ duration: 0.4 }}
+              >
+                <CampusMap
+                  bins={bins}
+                  selectedBin={selectedBin}
+                  onSelectBin={(bin) => {
+                    setSelectedBin(bin);
+                    setHighlightedBinId(null);
+                  }}
+                  userZone={userZone}
+                  setUserZone={setUserZone}
+                  highlightedBinId={highlightedBinId}
+                  onReportBin={handleOpenReportForBin}
+                  onEmptyBin={handleEmptyBin}
+                />
+              </motion.div>
             </motion.div>
           )}
 
@@ -1094,6 +1137,43 @@ export default function App() {
         onNavigateTab={setActiveTab}
         onOpenPledgeModal={handleOpenPledge}
       />
+
+      {/* Floating Scroll to Top Action with Live Circular Progress */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 16 }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            aria-label="Scroll to top"
+            className="fixed bottom-6 right-6 z-40 p-1.5 rounded-full bg-[#0A2540] text-white shadow-2xl border border-white/20 hover:bg-[#0E355C] transition-all cursor-pointer flex items-center justify-center group"
+          >
+            {/* SVG Circular Progress Ring */}
+            <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
+              <path
+                className="text-white/20"
+                strokeWidth="3"
+                stroke="currentColor"
+                fill="none"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              <path
+                className="text-emerald-400 transition-all duration-150 ease-out"
+                strokeDasharray={`${scrollPercent}, 100`}
+                strokeWidth="3.2"
+                strokeLinecap="round"
+                stroke="currentColor"
+                fill="none"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+            </svg>
+            <ArrowUp className="w-4 h-4 absolute text-white group-hover:-translate-y-0.5 transition-transform" />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
