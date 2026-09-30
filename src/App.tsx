@@ -20,9 +20,12 @@ import { SbmUrbanHero } from './components/SbmUrbanHero';
 import { SbmUrbanFooter } from './components/SbmUrbanFooter';
 import { TakePledgeModal } from './components/TakePledgeModal';
 import { PledgeCertificateModal } from './components/PledgeCertificateModal';
+import { ScrollToTopButton } from './components/ScrollToTopButton';
 import { getAssetUrl } from './utils/assets';
 import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut, CheckCircle2, QrCode, ArrowUp } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
+import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
 import { 
   fetchReportsFromSupabase, 
   insertReportToSupabase, 
@@ -698,20 +701,28 @@ export default function App() {
     restDelta: 0.001,
   });
 
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const [scrollPercent, setScrollPercent] = useState(0);
-
+  // Lag-free inertial momentum scrolling (Lenis)
+  // touchMultiplier: 0 guarantees that mobile phones use 120Hz/60Hz native hardware touch scrolling without any JS interception lag!
   useEffect(() => {
-    const handleScroll = () => {
-      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const current = window.scrollY;
-      setShowScrollTop(current > 240);
-      if (totalScroll > 0) {
-        setScrollPercent(Math.min(100, Math.round((current / totalScroll) * 100)));
-      }
+    const lenis = new Lenis({
+      duration: 0.9,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      touchMultiplier: 0,
+      syncTouch: false,
+    });
+
+    let animationFrameId: number;
+    function raf(time: number) {
+      lenis.raf(time);
+      animationFrameId = requestAnimationFrame(raf);
+    }
+    animationFrameId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      lenis.destroy();
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
@@ -943,72 +954,81 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      {/* Mobile Sticky Bottom Navigation Bar */}
+      {/* Mobile Sticky Bottom Navigation Bar (Optimized for Student Thumb Access) */}
       <nav 
         id="mobile-bottom-navbar" 
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-stone-200 px-3 py-2 shadow-xs flex items-center justify-around"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200/90 px-2 pt-1 pb-2 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] flex items-center justify-around select-none"
       >
+        {/* Tab 1: Map */}
         <button
           id="btn-mobile-nav-map"
           onClick={() => setActiveTab('map')}
-          className={`flex flex-col items-center justify-center py-1 px-3 rounded-md transition-colors cursor-pointer ${
-            activeTab === 'map' ? 'text-[#134E3A] font-bold' : 'text-stone-500 hover:text-stone-800'
+          className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors cursor-pointer min-h-[44px] ${
+            activeTab === 'map' ? 'text-[#046A38] font-bold' : 'text-stone-500 hover:text-stone-800'
           }`}
         >
-          <MapPin className="w-4 h-4" />
-          <span className="text-[10px] mt-0.5">Map</span>
+          <MapPin className={`w-5 h-5 ${activeTab === 'map' ? 'text-[#046A38]' : 'text-stone-400'}`} />
+          <span className="text-[10px] mt-0.5 tracking-tight font-medium">Map</span>
         </button>
 
+        {/* Tab 2: Nearest */}
         <button
           id="btn-mobile-nav-finder"
           onClick={() => setActiveTab('finder')}
-          className={`flex flex-col items-center justify-center py-1 px-3 rounded-md transition-colors cursor-pointer ${
-            activeTab === 'finder' ? 'text-[#134E3A] font-bold' : 'text-stone-500 hover:text-stone-800'
+          className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors cursor-pointer min-h-[44px] ${
+            activeTab === 'finder' ? 'text-[#046A38] font-bold' : 'text-stone-500 hover:text-stone-800'
           }`}
         >
-          <Search className="w-4 h-4" />
-          <span className="text-[10px] mt-0.5">Nearest</span>
+          <Search className={`w-5 h-5 ${activeTab === 'finder' ? 'text-[#046A38]' : 'text-stone-400'}`} />
+          <span className="text-[10px] mt-0.5 tracking-tight font-medium">Nearest</span>
         </button>
 
-        <button
-          id="btn-mobile-nav-scan"
-          type="button"
-          onClick={() => setIsScanBinModalOpen(true)}
-          className="flex flex-col items-center justify-center py-1 px-3 rounded-md text-stone-500 hover:text-stone-800 transition-colors cursor-pointer"
-          title="Scan Station QR / Lookup"
-        >
-          <QrCode className="w-4 h-4 text-[#134E3A]" />
-          <span className="text-[10px] mt-0.5 font-medium">Scan QR</span>
-        </button>
+        {/* Center Prominent Action: Quick QR Scanner FAB */}
+        <div className="flex-1 flex items-center justify-center -mt-5">
+          <button
+            id="btn-mobile-nav-scan"
+            type="button"
+            onClick={() => setIsScanBinModalOpen(true)}
+            className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#0A2540] to-[#134E3A] text-white flex flex-col items-center justify-center shadow-lg border-2 border-white ring-2 ring-emerald-500/30 active:scale-95 transition-transform cursor-pointer"
+            title="Scan Station QR / Lookup"
+          >
+            <QrCode className="w-5 h-5 text-amber-300" />
+            <span className="text-[8px] font-bold leading-none mt-0.5 uppercase tracking-wider">Scan</span>
+          </button>
+        </div>
 
+        {/* Tab 3: Guide */}
         <button
           id="btn-mobile-nav-guide"
           onClick={() => setActiveTab('guide')}
-          className={`flex flex-col items-center justify-center py-1 px-3 rounded-md transition-colors cursor-pointer ${
-            activeTab === 'guide' ? 'text-[#134E3A] font-bold' : 'text-stone-500 hover:text-stone-800'
+          className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors cursor-pointer min-h-[44px] ${
+            activeTab === 'guide' ? 'text-[#046A38] font-bold' : 'text-stone-500 hover:text-stone-800'
           }`}
         >
-          <Sparkles className="w-4 h-4" />
-          <span className="text-[10px] mt-0.5">Guide</span>
+          <Sparkles className={`w-5 h-5 ${activeTab === 'guide' ? 'text-[#046A38]' : 'text-stone-400'}`} />
+          <span className="text-[10px] mt-0.5 tracking-tight font-medium">Guide</span>
         </button>
 
-        {isAdmin && (
-          <button
-            id="btn-mobile-nav-alerts"
-            onClick={() => setActiveTab('alerts')}
-            className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-md transition-colors cursor-pointer ${
-              activeTab === 'alerts' ? 'text-[#134E3A] font-bold' : 'text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            <ShieldCheck className="w-4 h-4" />
-            <span className="text-[10px] mt-0.5">Admin</span>
+        {/* Tab 4: Grievance / Alerts (Open to all students & admins) */}
+        <button
+          id="btn-mobile-nav-alerts"
+          onClick={() => setActiveTab('alerts')}
+          className={`flex-1 relative flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors cursor-pointer min-h-[44px] ${
+            activeTab === 'alerts' ? 'text-[#046A38] font-bold' : 'text-stone-500 hover:text-stone-800'
+          }`}
+        >
+          <div className="relative">
+            <ShieldCheck className={`w-5 h-5 ${activeTab === 'alerts' ? 'text-[#046A38]' : 'text-stone-400'}`} />
             {activeAlertsCount > 0 && (
-              <span className="absolute top-0 right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center font-mono-code">
+              <span className="absolute -top-1 -right-2.5 min-w-[16px] h-4 px-1 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center font-mono-code shadow-xs">
                 {activeAlertsCount}
               </span>
             )}
-          </button>
-        )}
+          </div>
+          <span className="text-[10px] mt-0.5 tracking-tight font-medium">
+            {isAdmin ? 'Admin' : 'Grievance'}
+          </span>
+        </button>
       </nav>
 
       {/* Modals */}
@@ -1138,42 +1158,8 @@ export default function App() {
         onOpenPledgeModal={handleOpenPledge}
       />
 
-      {/* Floating Scroll to Top Action with Live Circular Progress */}
-      <AnimatePresence>
-        {showScrollTop && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 16 }}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.92 }}
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            aria-label="Scroll to top"
-            className="fixed bottom-6 right-6 z-40 p-1.5 rounded-full bg-[#0A2540] text-white shadow-2xl border border-white/20 hover:bg-[#0E355C] transition-all cursor-pointer flex items-center justify-center group"
-          >
-            {/* SVG Circular Progress Ring */}
-            <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
-              <path
-                className="text-white/20"
-                strokeWidth="3"
-                stroke="currentColor"
-                fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-              <path
-                className="text-emerald-400 transition-all duration-150 ease-out"
-                strokeDasharray={`${scrollPercent}, 100`}
-                strokeWidth="3.2"
-                strokeLinecap="round"
-                stroke="currentColor"
-                fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-            </svg>
-            <ArrowUp className="w-4 h-4 absolute text-white group-hover:-translate-y-0.5 transition-transform" />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {/* Floating Scroll to Top Action with Live Circular Progress (Self-Contained & Lag-Free) */}
+      <ScrollToTopButton />
     </div>
   );
 }

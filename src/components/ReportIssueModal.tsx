@@ -157,9 +157,10 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
           {!isSubmitting && (
             <button
               onClick={handleClose}
-              className="w-7 h-7 rounded bg-stone-100 text-stone-500 hover:text-stone-900 hover:bg-stone-200 flex items-center justify-center cursor-pointer transition-colors border border-stone-200"
+              className="w-9 h-9 rounded-lg bg-stone-100 text-stone-600 hover:text-stone-900 active:bg-stone-300 flex items-center justify-center cursor-pointer transition-colors border border-stone-200"
+              aria-label="Close modal"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           )}
         </div>

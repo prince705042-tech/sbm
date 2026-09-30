@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { 
   Compass, 
   AlertTriangle, 
@@ -12,7 +12,7 @@ import {
   Sparkles,
   Maximize2
 } from 'lucide-react';
-import { motion, useScroll, useTransform } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 // Permanently bundled original NIT Patna Sports Complex photo (249KB user original)
 import heroImage from '../assets/images/nit_patna_stadium.jpg';
 
@@ -38,21 +38,61 @@ export const SbmUrbanHero: React.FC<SbmUrbanHeroProps> = ({
   // Permanent deployment image — bundled with the app build
   const activeImage = heroImage;
   const heroRef = useRef<HTMLDivElement>(null);
+  const [activeSlide, setActiveSlide] = useState<0 | 1>(0);
 
-  // Smooth parallax scroll response for hero image
+  // Smooth parallax scroll response for background image
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ['start start', 'end start'],
   });
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '16%']);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
+
+  // Sync scroll position to slide transition (guarded to avoid redundant renders)
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on('change', (latest) => {
+      const nextSlide: 0 | 1 = latest > 0.18 ? 1 : 0;
+      setActiveSlide((prev) => (prev !== nextSlide ? nextSlide : prev));
+    });
+    return () => unsubscribe();
+  }, [scrollYProgress]);
+
+  // Handle direct wheel scroll over hero card
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.deltaY > 25 && activeSlide === 0) {
+      setActiveSlide(1);
+    } else if (e.deltaY < -25 && activeSlide === 1) {
+      setActiveSlide(0);
+    }
+  };
+
+  // Handle mobile touch swipe gestures (Slide 01 <-> Slide 02)
+  const touchStartY = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+    const diff = touchStartY.current - e.changedTouches[0].clientY;
+    if (diff > 45 && activeSlide === 0) {
+      setActiveSlide(1);
+    } else if (diff < -45 && activeSlide === 1) {
+      setActiveSlide(0);
+    }
+    touchStartY.current = null;
+  };
 
   return (
     <div className="w-full mb-6">
       {/* Main Hero Card Container with Permanent Bundled Original Photo */}
       <div 
         ref={heroRef}
-        className="relative rounded-2xl overflow-hidden border border-stone-300 shadow-md bg-stone-950 text-white min-h-[460px] flex flex-col justify-between"
+        onWheel={handleWheel}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-stone-300 shadow-xl bg-stone-950 text-white min-h-[490px] flex flex-col justify-between"
       >
         {/* Permanent Unedited Image with Smooth Parallax Scroll Effect */}
         <motion.div 
@@ -76,81 +116,214 @@ export const SbmUrbanHero: React.FC<SbmUrbanHeroProps> = ({
           </div>
         </div>
 
-        {/* Content Container (Selected Element) */}
-        <div className="relative z-10 px-4 sm:px-8 py-4 sm:py-6 max-w-2xl">
-          <div className="bg-stone-950/80 backdrop-blur-md rounded-2xl p-5 sm:p-7 border border-white/20 shadow-2xl space-y-4">
-            {/* Official Badge Kicker */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FF671F] text-white text-[10px] font-bold tracking-wider uppercase shadow-2xs">
-                <Sparkles className="w-3 h-3" />
-                {currentLang === 'hi' ? 'स्वच्छ भारत मिशन' : 'Swachh Bharat Mission'}
-              </span>
-              <span className="text-xs text-stone-300 hidden sm:inline">&bull;</span>
-              <span className="text-xs text-stone-300 font-medium">
-                {currentLang === 'hi' 
-                  ? 'राष्ट्रीय प्रौद्योगिकी संस्थान पटना' 
-                  : 'National Institute of Technology Patna'}
-              </span>
+        {/* Content Container (Selected Element) with Video-Style Vertical Sliding Effect */}
+        <div className="relative z-10 px-3 sm:px-8 py-3 sm:py-6 max-w-3xl">
+          <div className="bg-stone-950/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-white/25 shadow-2xl relative flex gap-4 sm:gap-6 items-center">
+            
+            {/* Left Main Sliding Content */}
+            <div className="flex-1 min-w-0">
+              <AnimatePresence mode="wait">
+                {activeSlide === 0 ? (
+                  <motion.div
+                    key="slide-1"
+                    initial={{ opacity: 0, y: 28 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -28 }}
+                    transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+                    className="space-y-4"
+                  >
+                    {/* Official Badge Kicker */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FF671F] text-white text-[10px] font-bold tracking-wider uppercase shadow-2xs">
+                        <Sparkles className="w-3 h-3" />
+                        {currentLang === 'hi' ? 'स्वच्छ भारत मिशन' : 'Swachh Bharat Mission'}
+                      </span>
+                      <span className="text-xs text-stone-300 hidden sm:inline">&bull;</span>
+                      <span className="text-xs text-stone-300 font-medium">
+                        {currentLang === 'hi' 
+                          ? 'राष्ट्रीय प्रौद्योगिकी संस्थान पटना' 
+                          : 'National Institute of Technology Patna'}
+                      </span>
+                    </div>
+
+                    {/* Headline */}
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold font-editorial tracking-tight text-white leading-tight">
+                      {currentLang === 'hi' ? (
+                        <>
+                          कचरा मुक्त परिसर — <span className="text-[#FF9E4A]">१००% स्रोत पृथक्करण</span> एवं सतत स्वच्छता
+                        </>
+                      ) : (
+                        <>
+                          Building a <span className="text-[#FF9E4A]">Garbage-Free Campus</span> through 100% Segregation at Source
+                        </>
+                      )}
+                    </h2>
+
+                    <p className="text-xs sm:text-sm text-stone-200 leading-relaxed">
+                      {currentLang === 'hi'
+                        ? 'आवासन और शहरी कार्य मंत्रालय (MoHUA) के दिशानिर्देशों के अनुरूप परिसर में गीले (हरा) व सूखे (नीला) कचरे का अलग-अलग संग्रहण, रियल-टाइम डस्टबिन मॉनिटरिंग एवं त्वरित स्वच्छता शिकायत निवारण।'
+                        : 'Empowering campus students, faculty and sanitary teams under MoHUA guidelines with geo-tagged dual dustbins (Green for Wet, Blue for Dry), live capacity monitoring, and rapid grievance redressal.'}
+                    </p>
+
+                    {/* Quick Actions Row */}
+                    <div className="pt-1 flex flex-wrap items-center gap-2 sm:gap-3">
+                      <button
+                        type="button"
+                        onClick={() => onNavigateTab('finder')}
+                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#046A38] hover:bg-[#03532c] text-white text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap hover:scale-105 active:scale-95"
+                      >
+                        <Compass className="w-4 h-4 text-emerald-300" />
+                        <span>{currentLang === 'hi' ? 'डस्टबिन खोजें' : 'Locate Dustbin'}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={onOpenReportModal}
+                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-stone-950 text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap hover:scale-105 active:scale-95"
+                      >
+                        <AlertTriangle className="w-4 h-4 text-stone-950" />
+                        <span>{currentLang === 'hi' ? 'शिकायत दर्ज करें' : 'File Grievance'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={onOpenPledgeModal}
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/15 hover:bg-white/25 text-white border border-white/20 text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
+                      >
+                        <Award className="w-4 h-4 text-amber-300" />
+                        <span>{currentLang === 'hi' ? 'शपथ लें' : 'Take Pledge'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={onOpenScanModal}
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-stone-200 border border-white/15 text-xs font-medium transition-all cursor-pointer whitespace-nowrap"
+                      >
+                        <QrCode className="w-4 h-4 text-stone-200" />
+                        <span>{currentLang === 'hi' ? 'स्कैन' : 'Scan QR'}</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="slide-2"
+                    initial={{ opacity: 0, y: 28 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -28 }}
+                    transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+                    className="space-y-4"
+                  >
+                    {/* Official Badge Kicker */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#046A38] text-white text-[10px] font-bold tracking-wider uppercase shadow-2xs">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-200" />
+                        {currentLang === 'hi' ? 'स्मार्ट मॉनिटरिंग' : 'Smart Monitoring'}
+                      </span>
+                      <span className="text-xs text-stone-300 hidden sm:inline">&bull;</span>
+                      <span className="text-xs text-stone-300 font-medium">
+                        {currentLang === 'hi' 
+                          ? 'त्वरित सफाई प्रतिक्रिया प्रणाली' 
+                          : 'Rapid Housekeeping SLA Redressal'}
+                      </span>
+                    </div>
+
+                    {/* Headline Slide 2 */}
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold font-editorial tracking-tight text-white leading-tight">
+                      {currentLang === 'hi' ? (
+                        <>
+                          रियल-टाइम अपशिष्ट स्तर एवं <span className="text-emerald-400">त्वरित कर्मचारी प्रतिनियुक्ति</span>
+                        </>
+                      ) : (
+                        <>
+                          Real-Time Waste Levels &amp; <span className="text-emerald-400">Rapid Housekeeping Redressal</span>
+                        </>
+                      )}
+                    </h2>
+
+                    <p className="text-xs sm:text-sm text-stone-200 leading-relaxed">
+                      {currentLang === 'hi'
+                        ? 'परिसर के सभी शैक्षणिक विभागों व छात्रावासों में स्थित डस्टबिन स्टेशनों की लाइव क्षमता ट्रैकिंग। 80% भराव होने पर स्वतः अलर्ट और 2 घंटे के भीतर सफाई समाधान।'
+                        : 'Live capacity tracking across all NIT Patna academic buildings and hostel zones. Automated housekeeping dispatch when bins reach 80% fill capacity with under 2-hour SLA resolution.'}
+                    </p>
+
+                    {/* Quick Actions Row Slide 2 */}
+                    <div className="pt-1 flex flex-wrap items-center gap-2 sm:gap-3">
+                      <button
+                        type="button"
+                        onClick={() => onNavigateTab('map')}
+                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap hover:scale-105 active:scale-95"
+                      >
+                        <MapPin className="w-4 h-4 text-emerald-200" />
+                        <span>{currentLang === 'hi' ? 'लाइव मैप देखें' : 'View Live Map'}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={onOpenScanModal}
+                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-stone-950 text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap hover:scale-105 active:scale-95"
+                      >
+                        <QrCode className="w-4 h-4 text-stone-950" />
+                        <span>{currentLang === 'hi' ? 'डस्टबिन QR स्कैन करें' : 'Scan Bin QR'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onNavigateTab('alerts')}
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/15 hover:bg-white/25 text-white border border-white/20 text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
+                      >
+                        <AlertTriangle className="w-4 h-4 text-amber-300" />
+                        <span>{currentLang === 'hi' ? 'सक्रिय अलर्ट्स' : 'Active Alerts'}</span>
+                        {activeAlertsCount > 0 && (
+                          <span className="w-4 h-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center font-bold">
+                            {activeAlertsCount}
+                          </span>
+                        )}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
-            {/* Headline */}
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold font-editorial tracking-tight text-white leading-tight">
-              {currentLang === 'hi' ? (
-                <>
-                  कचरा मुक्त परिसर — <span className="text-[#FF9E4A]">१००% स्रोत पृथक्करण</span> एवं सतत स्वच्छता
-                </>
-              ) : (
-                <>
-                  Building a <span className="text-[#FF9E4A]">Garbage-Free Campus</span> through 100% Segregation at Source
-                </>
-              )}
-            </h2>
-
-            <p className="text-xs sm:text-sm text-stone-200 leading-relaxed">
-              {currentLang === 'hi'
-                ? 'आवासन और शहरी कार्य मंत्रालय (MoHUA) के दिशानिर्देशों के अनुरूप परिसर में गीले (हरा) व सूखे (नीला) कचरे का अलग-अलग संग्रहण, रियल-टाइम डस्टबिन मॉनिटरिंग एवं त्वरित स्वच्छता शिकायत निवारण।'
-                : 'Empowering campus students, faculty and sanitary teams under MoHUA guidelines with geo-tagged dual dustbins (Green for Wet, Blue for Dry), live capacity monitoring, and rapid grievance redressal.'}
-            </p>
-
-            {/* Quick Actions Row */}
-            <div className="pt-1 flex flex-wrap items-center gap-2 sm:gap-3">
-              <button
+            {/* Right: Vertical Scroll Track Indicator (Exact Replica from Video) */}
+            <div className="flex flex-col items-center gap-1.5 shrink-0 select-none py-1 pl-1">
+              <button 
                 type="button"
-                onClick={() => onNavigateTab('finder')}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#046A38] hover:bg-[#03532c] text-white text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap"
+                onClick={() => setActiveSlide(0)}
+                aria-label="Slide 1"
+                className={`text-[10px] font-mono-code font-bold transition-colors cursor-pointer ${
+                  activeSlide === 0 ? 'text-amber-400 scale-110' : 'text-stone-500 hover:text-stone-300'
+                }`}
               >
-                <Compass className="w-4 h-4 text-emerald-300" />
-                <span>{currentLang === 'hi' ? 'डस्टबिन खोजें' : 'Locate Dustbin'}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                01
               </button>
 
-              <button
-                type="button"
-                onClick={onOpenReportModal}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-stone-950 text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap"
+              <div 
+                onClick={() => setActiveSlide(activeSlide === 0 ? 1 : 0)}
+                className="w-1.5 h-16 bg-white/20 rounded-full relative cursor-pointer overflow-hidden p-0.5"
+                title="Click or scroll to switch view"
               >
-                <AlertTriangle className="w-4 h-4 text-stone-950" />
-                <span>{currentLang === 'hi' ? 'शिकायत दर्ज करें' : 'File Grievance'}</span>
-              </button>
+                <motion.div 
+                  animate={{ y: activeSlide === 0 ? 0 : 36 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                  className="w-full h-6 rounded-full bg-gradient-to-b from-amber-400 via-emerald-300 to-emerald-400 shadow-md"
+                />
+              </div>
 
-              <button
+              <button 
                 type="button"
-                onClick={onOpenPledgeModal}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/15 hover:bg-white/25 text-white border border-white/20 text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
+                onClick={() => setActiveSlide(1)}
+                aria-label="Slide 2"
+                className={`text-[10px] font-mono-code font-bold transition-colors cursor-pointer ${
+                  activeSlide === 1 ? 'text-emerald-400 scale-110' : 'text-stone-500 hover:text-stone-300'
+                }`}
               >
-                <Award className="w-4 h-4 text-amber-300" />
-                <span>{currentLang === 'hi' ? 'शपथ लें' : 'Take Pledge'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={onOpenScanModal}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-stone-200 border border-white/15 text-xs font-medium transition-all cursor-pointer whitespace-nowrap"
-              >
-                <QrCode className="w-4 h-4 text-stone-200" />
-                <span>{currentLang === 'hi' ? 'स्कैन' : 'Scan QR'}</span>
+                02
               </button>
             </div>
+
           </div>
         </div>
 

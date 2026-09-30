@@ -679,6 +679,42 @@ export const CampusMap: React.FC<CampusMapProps> = ({
             </button>
           </div>
 
+          {/* On-Map Mobile Selected Bin Floating Quick Banner */}
+          {selectedBin && (() => {
+            const selectedRanked = rankedBins.find((b) => b.id === selectedBin.id);
+            return (
+              <div className="md:hidden absolute bottom-3 left-3 right-16 z-30 bg-white/95 backdrop-blur-md rounded-xl p-2.5 border border-stone-300 shadow-xl flex items-center justify-between gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <div 
+                  className="min-w-0 flex-1 cursor-pointer"
+                  onClick={() => {
+                    setSidebarTab('selected');
+                    const el = document.getElementById('tab-view-selected-bin');
+                    el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                  }}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${
+                      selectedBin.fillLevel >= 80 ? 'bg-rose-500' : selectedBin.fillLevel >= 60 ? 'bg-amber-500' : 'bg-emerald-500'
+                    }`} />
+                    <span className="text-xs font-bold text-stone-900 truncate">
+                      {getShortStationName(selectedBin)}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-stone-500 truncate mt-0.5 font-mono-code">
+                    ~{selectedRanked?.distanceMeters ?? 20}m ({selectedRanked?.walkingSeconds ?? 15}s) &bull; {selectedBin.fillLevel}% full
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onReportBin(selectedBin)}
+                  className="px-2.5 py-1 text-[10px] font-bold bg-amber-500 hover:bg-amber-600 active:scale-95 text-stone-950 rounded-lg shrink-0 shadow-xs cursor-pointer"
+                >
+                  Report
+                </button>
+              </div>
+            );
+          })()}
+
           {/* Mobile Gestures Guidance Chip */}
           <div className="absolute top-2.5 left-2.5 z-20 pointer-events-none flex items-center gap-1.5">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white text-[10px] text-stone-800 font-mono-code border border-stone-300 shadow-xs">

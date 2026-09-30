@@ -454,10 +454,11 @@ export const ScanBinModal: React.FC<ScanBinModalProps> = ({
 
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded bg-white hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors cursor-pointer border border-stone-200"
+            className="w-9 h-9 rounded-lg bg-white hover:bg-stone-200 active:bg-stone-300 text-stone-600 flex items-center justify-center transition-colors cursor-pointer border border-stone-200"
+            aria-label="Close"
             title="Close"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 

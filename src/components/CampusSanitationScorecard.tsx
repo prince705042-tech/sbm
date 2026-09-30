@@ -20,7 +20,7 @@ interface CampusSanitationScorecardProps {
   compact?: boolean;
 }
 
-export const CampusSanitationScorecard: React.FC<CampusSanitationScorecardProps> = ({
+export const CampusSanitationScorecard: React.FC<CampusSanitationScorecardProps> = React.memo(({
   bins,
   tickets,
   compact = false,
@@ -42,7 +42,7 @@ export const CampusSanitationScorecard: React.FC<CampusSanitationScorecardProps>
   const penalty = (alertBins * 1.8) + (activeTicketsCount * 0.9);
   const cleanlinessScore = Math.max(78, Math.min(99.4, Number((98.5 - penalty).toFixed(1))));
 
-  // Housekeeping shift countdown calculation
+  // Housekeeping shift countdown calculation (throttled to 10s to eliminate CPU wakeups and battery drain)
   useEffect(() => {
     const updateCountdown = () => {
       const now = new Date();
@@ -90,7 +90,7 @@ export const CampusSanitationScorecard: React.FC<CampusSanitationScorecardProps>
     };
 
     updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
+    const interval = setInterval(updateCountdown, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -347,4 +347,4 @@ export const CampusSanitationScorecard: React.FC<CampusSanitationScorecardProps>
       </AnimatePresence>
     </div>
   );
-};
+});
