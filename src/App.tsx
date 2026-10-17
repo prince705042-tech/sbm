@@ -40,7 +40,7 @@ import {
 export default function App() {
   // Persistence in localStorage
   // Version key to ensure updated campus locations load cleanly
-  const DATA_VERSION = 'v25_incubation_centre';
+  const DATA_VERSION = 'v35_longer_thinner_ece';
 
   const [bins, setBins] = useState<CampusBin[]>(() => {
     try {

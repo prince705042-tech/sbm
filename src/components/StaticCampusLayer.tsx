@@ -208,20 +208,32 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 <rect x="331" y="564" width="26" height="3" fill="#f8fafc" />
               </g>
 
-              {/* Zebra Crosswalk between Nano Building & CSE Dept */}
+              {/* Crosswalk between Nano Building & CSE Dept */}
               <g id="crosswalk-nano-cse" opacity="0.85">
                 <rect x="331" y="196" width="26" height="3" fill="#f8fafc" />
                 <rect x="331" y="202" width="26" height="3" fill="#f8fafc" />
                 <rect x="331" y="208" width="26" height="3" fill="#f8fafc" />
               </g>
 
-              {/* Road between Alak Nanda & ECE */}
-              <rect x="300" y="240" width="30" height="110" fill="#64748b" />
-
-              {/* Road around Play Ground */}
-              <rect x="358" y="348" width="190" height="20" fill="#64748b" stroke="#334155" strokeWidth="1" />
-              <rect x="548" y="348" width="22" height="160" fill="#64748b" stroke="#334155" strokeWidth="1" />
+              {/* Road to Amphitheatre & Sports Pavilion */}
+              <rect x="358" y="344" width="190" height="22" fill="#64748b" stroke="#334155" strokeWidth="1" />
+              <line x1="358" y1="355" x2="548" y2="355" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="6 4" />
+              <g>
+                <rect x="395" y="348" width="120" height="14" rx="3" fill="#1e293b" opacity="0.9" />
+                <text x="455" y="358.5" fill="#f8fafc" textAnchor="middle" className="text-[7.5px] font-bold tracking-wide">
+                  Road to Amphitheatre ➔
+                </text>
+              </g>
+              <rect x="548" y="344" width="22" height="164" fill="#64748b" stroke="#334155" strokeWidth="1" />
               <rect x="358" y="494" width="212" height="22" fill="#64748b" stroke="#334155" strokeWidth="1" />
+
+              {/* Crosswalk between Alaknanda Bhawan and Road to Amphitheatre */}
+              <g id="crosswalk-alaknanda-amphi" opacity="0.85">
+                <rect x="331" y="346" width="26" height="3" fill="#f8fafc" />
+                <rect x="331" y="352" width="26" height="3" fill="#f8fafc" />
+                <rect x="331" y="358" width="26" height="3" fill="#f8fafc" />
+                <rect x="331" y="364" width="26" height="3" fill="#f8fafc" />
+              </g>
 
               {/* Road leading to Parking */}
               <rect x="150" y="630" width="180" height="22" fill="#64748b" stroke="#334155" strokeWidth="1" />
@@ -300,144 +312,322 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 )}
               </g>
 
-              {/* Ganga Girls Hostel (West edge by river) */}
+              {/* Ganga Girls Hostel (West edge by river, rectangular block situated behind Alak Nanda Bhawan) */}
               <g 
                 id="zone-gangagirls"
                 onClick={() => handleZoneSelect('ganga-girls-hostel')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="156" y="168" width="86" height="68" rx="5" fill="#fbcfe8" stroke="#db2777" strokeWidth="2" />
-                <rect x="164" y="176" width="70" height="16" rx="2" fill="#ec4899" opacity="0.3" />
+                {/* Rectangular Hostel Block */}
+                <rect x="142" y="168" width="94" height="106" rx="4" fill="#fbcfe8" stroke="#db2777" strokeWidth="2" />
+                {/* Roof terrace pavilion */}
+                <rect x="148" y="174" width="82" height="16" rx="2" fill="#ec4899" opacity="0.3" />
+                {/* Inner courtyard / light well */}
+                <rect x="156" y="202" width="66" height="42" rx="3" fill="#f472b6" opacity="0.25" />
+                {/* Architectural balcony / floor lines */}
+                <line x1="148" y1="254" x2="230" y2="254" stroke="#db2777" strokeWidth="1" strokeDasharray="4 3" />
+                <line x1="148" y1="262" x2="230" y2="262" stroke="#db2777" strokeWidth="1" strokeDasharray="4 3" />
                 {showLabels && (
                   <g>
-                    <rect x="159" y="186.5" width="80" height="22" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="159" y="185" width="80" height="22" rx="4" fill="#1e40af" />
-                    <text x="199" y="200" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
+                    <rect x="146" y="210.5" width="86" height="26" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="146" y="209" width="86" height="26" rx="4" fill="#1e40af" />
+                    <text x="189" y="221" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
                       Ganga Girls Hostel
+                    </text>
+                    <text x="189" y="231" fill="#93c5fd" textAnchor="middle" className="text-[7.5px] font-bold">
+                      Girls Residence
                     </text>
                   </g>
                 )}
               </g>
 
-              {/* Nano Building (Health Centre) - Fully clear of central road */}
+              {/* Nano Building (Health Centre) - Made thinner */}
               <g 
                 id="zone-nano"
                 onClick={() => handleZoneSelect('nano-building')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="250" y="168" width="72" height="68" rx="4" fill="#fef3c7" stroke="#d97706" strokeWidth="2" />
-                <rect x="256" y="174" width="60" height="16" rx="2" fill="#b45309" opacity="0.25" />
-                {/* Entrance path leading east to central road sidewalk */}
-                <rect x="318" y="194" width="12" height="16" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+                <rect x="242" y="168" width="40" height="64" rx="4" fill="#fef3c7" stroke="#d97706" strokeWidth="2" />
+                <rect x="246" y="174" width="32" height="12" rx="2" fill="#b45309" opacity="0.25" />
+                {/* South exit pathway */}
+                <rect x="256" y="230" width="12" height="6" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.8" />
                 {showLabels && (
                   <g>
-                    <rect x="253" y="183.5" width="66" height="28" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="253" y="182" width="66" height="28" rx="4" fill="#1e40af" />
-                    <text x="286" y="195" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
-                      Nano Building
+                    <rect x="238" y="185.5" width="48" height="27" rx="3" fill="#000000" opacity="0.35" />
+                    <rect x="238" y="184" width="48" height="27" rx="3" fill="#1e40af" />
+                    <text x="262" y="196" fill="#ffffff" textAnchor="middle" className="text-[7.5px] font-black">
+                      Nano Bldg
                     </text>
-                    <text x="286" y="206" fill="#93c5fd" textAnchor="middle" className="text-[7.5px] font-bold">
-                      (Health Centre)
+                    <text x="262" y="206" fill="#93c5fd" textAnchor="middle" className="text-[6.5px] font-bold">
+                      (Health)
                     </text>
                   </g>
                 )}
               </g>
 
-              {/* ALAK NANDA BHAWAN */}
+              {/* Pathway between Nano Building & CSE Dept */}
+              <rect x="282" y="168" width="4" height="64" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.5" />
+
+              {/* CSE DEPARTMENT - Same size as Nano Building, situated right beside it */}
+              <g 
+                id="zone-cse"
+                onClick={() => handleZoneSelect('cse-dept')}
+                className="cursor-pointer transition-transform hover:opacity-95"
+              >
+                <rect x="286" y="168" width="40" height="64" rx="4" fill="#dbeafe" stroke="#2563eb" strokeWidth="2" />
+                <rect x="290" y="174" width="32" height="12" rx="2" fill="#1d4ed8" opacity="0.25" />
+                {/* Computing lab / server bays */}
+                <line x1="290" y1="216" x2="322" y2="216" stroke="#2563eb" strokeWidth="0.8" strokeDasharray="3 2" />
+                {/* Portico steps opening onto Central Spine Road sidewalk */}
+                <rect x="322" y="192" width="6" height="16" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+                {showLabels && (
+                  <g>
+                    <rect x="282" y="185.5" width="48" height="27" rx="3" fill="#000000" opacity="0.35" />
+                    <rect x="282" y="184" width="48" height="27" rx="3" fill="#1e40af" />
+                    <text x="306" y="196" fill="#ffffff" textAnchor="middle" className="text-[7.5px] font-black">
+                      CSE DEPT
+                    </text>
+                    <text x="306" y="206" fill="#93c5fd" textAnchor="middle" className="text-[6.5px] font-bold">
+                      (Tech Labs)
+                    </text>
+                  </g>
+                )}
+              </g>
+
+              {/* BIG GAP: Open Green Campus Lawn & Pathway behind Central Workshop & Alak Nanda */}
+              <g id="gap-nano-alaknanda">
+                {/* Green quad lawn extending behind Central Workshop */}
+                <rect x="140" y="278" width="184" height="10" fill="#15803d" opacity="0.35" />
+                <rect x="240" y="234" width="84" height="54" rx="4" fill="#15803d" opacity="0.35" />
+                {/* Connecting paved walkway from Nano Building down to Central Workshop */}
+                <rect x="260" y="232" width="14" height="58" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.8" />
+                {/* Connecting walkway from Ganga Girls Hostel south entrance */}
+                <rect x="182" y="274" width="14" height="66" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.8" />
+                {/* Cross-walkway between Ganga Girls and Nano Building */}
+                <rect x="236" y="200" width="14" height="12" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.8" />
+                {/* Campus decorative trees in the green quad */}
+                <use href="#campusTree" x="295" y="258" />
+                <use href="#campusTree" x="162" y="296" />
+              </g>
+
+              {/* CENTRAL WORKSHOP (Fabrication Labs) - Situated directly after/behind Alak Nanda Bhawan, slightly thicker block */}
+              <g 
+                id="zone-workshop"
+                onClick={() => handleZoneSelect('central-workshop')}
+                className="cursor-pointer transition-transform hover:opacity-95"
+              >
+                {/* Slightly thicker rectangular building body (44px height vs Alaknanda 28px) */}
+                <rect x="196" y="290" width="128" height="44" rx="3" fill="#fca5a5" stroke="#dc2626" strokeWidth="2" />
+                {/* Industrial sawtooth / pitched roof ridge lines */}
+                <line x1="198" y1="302" x2="322" y2="302" stroke="#b91c1c" strokeWidth="1.2" strokeDasharray="6 3" />
+                <line x1="198" y1="316" x2="322" y2="316" stroke="#b91c1c" strokeWidth="1.2" strokeDasharray="6 3" />
+                <line x1="198" y1="328" x2="322" y2="328" stroke="#b91c1c" strokeWidth="1.2" strokeDasharray="6 3" />
+                {/* Workshop structural bay dividers */}
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <line
+                    key={i}
+                    x1={208 + i * 14}
+                    y1="292"
+                    x2={208 + i * 14}
+                    y2="332"
+                    stroke="#b91c1c"
+                    strokeWidth="0.8"
+                    opacity="0.35"
+                  />
+                ))}
+                {/* Connecting breezeway / corridor to Alak Nanda Bhawan */}
+                <rect x="252" y="334" width="16" height="8" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+                {showLabels && (
+                  <g>
+                    <rect x="206" y="303.5" width="108" height="25" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="206" y="302" width="108" height="25" rx="4" fill="#1e40af" />
+                    <text x="260" y="314" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black tracking-wide">
+                      CENTRAL WORKSHOP
+                    </text>
+                    <text x="260" y="323" fill="#93c5fd" textAnchor="middle" className="text-[7px] font-bold">
+                      Fabrication &amp; Labs Block
+                    </text>
+                  </g>
+                )}
+              </g>
+
+              {/* ALAK NANDA BHAWAN - Thin rectangular building situated directly in front of the road going to Amphitheatre */}
               <g 
                 id="zone-alaknanda"
                 onClick={() => handleZoneSelect('alaknanda-bhawan')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="176" y="248" width="124" height="98" rx="5" fill="#ffe4e6" stroke="#e11d48" strokeWidth="2" />
-                {/* Inner courtyard */}
-                <rect x="210" y="278" width="56" height="38" rx="3" fill="#15803d" stroke="#166534" strokeWidth="1" />
-                <use href="#campusTree" x="238" y="297" />
+                {/* Thin rectangular building body */}
+                <rect x="196" y="342" width="128" height="28" rx="3" fill="#f43f5e" stroke="#be123c" strokeWidth="2" />
+                {/* Metallic central roof ridge line as seen in aerial photo */}
+                <line x1="198" y1="356" x2="322" y2="356" stroke="#991b1b" strokeWidth="1.5" />
+                <line x1="198" y1="356" x2="322" y2="356" stroke="#fecdd3" strokeWidth="0.8" opacity="0.9" />
+                {/* Modular room / window bays along the thin rectangle */}
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <line
+                    key={i}
+                    x1={208 + i * 14}
+                    y1="344"
+                    x2={208 + i * 14}
+                    y2="368"
+                    stroke="#991b1b"
+                    strokeWidth="0.8"
+                    opacity="0.4"
+                  />
+                ))}
+                {/* Front entrance porch facing the Road to Amphitheatre */}
+                <rect x="320" y="348" width="8" height="16" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
                 {showLabels && (
                   <g>
-                    <rect x="194" y="255.5" width="88" height="26" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="194" y="254" width="88" height="26" rx="4" fill="#1e40af" />
-                    <text x="238" y="267" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
-                      ALAK NANDA
-                    </text>
-                    <text x="238" y="276" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
-                      BHAWAN
+                    <rect x="208" y="344.5" width="104" height="23" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="208" y="343" width="104" height="23" rx="4" fill="#1e40af" />
+                    <text x="260" y="358" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black tracking-wide">
+                      ALAK NANDA BHAWAN
                     </text>
                   </g>
                 )}
               </g>
 
-              {/* ECE DEPARTMENT */}
+              {/* ATTACHED EAST ACADEMIC & CULTURAL COMPLEX: ECE DEPT + AUDITORIUM + CWRS (Conjoined Blocks, Shifted Down) */}
+              
+              {/* Foundation shadows */}
+              <rect x="364" y="176" width="80" height="106" rx="4" fill="#0f172a" opacity="0.12" />
+              <rect x="442" y="186" width="96" height="84" rx="4" fill="#0f172a" opacity="0.12" />
+              <rect x="550" y="186" width="90" height="84" rx="4" fill="#0f172a" opacity="0.12" />
+
+              {/* 1. ECE DEPARTMENT - Made longer (height 102 along Central Spine Road) and thinner (width 78, not thick) */}
               <g 
                 id="zone-ece"
                 onClick={() => handleZoneSelect('ece-dept')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="364" y="248" width="96" height="98" rx="5" fill="#fef3c7" stroke="#d97706" strokeWidth="2" />
-                {/* Courtyard */}
-                <rect x="388" y="280" width="48" height="36" rx="3" fill="#15803d" />
-                <use href="#campusTree" x="412" y="298" />
+                {/* Elongated rectangular department block */}
+                <rect x="366" y="178" width="78" height="102" rx="3" fill="#fef3c7" stroke="#d97706" strokeWidth="2" />
+                {/* Microelectronics & VLSI wing (North wing) */}
+                <rect x="372" y="184" width="66" height="14" rx="2" fill="#d97706" opacity="0.25" />
+                {/* Portico steps opening onto Central Spine Road sidewalk */}
+                <rect x="359" y="218" width="7" height="24" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+                {/* Interior courtyard garden */}
+                <rect x="374" y="246" width="28" height="26" rx="2" fill="#15803d" />
+                <use href="#campusTree" x="388" y="259" />
+                {/* Electronics & Signal Processing research laboratory bays */}
+                <line x1="406" y1="248" x2="438" y2="248" stroke="#d97706" strokeWidth="1" strokeDasharray="3 2" opacity="0.6" />
+                <line x1="406" y1="256" x2="438" y2="256" stroke="#d97706" strokeWidth="1" strokeDasharray="3 2" opacity="0.6" />
+                <line x1="406" y1="264" x2="438" y2="264" stroke="#d97706" strokeWidth="1" strokeDasharray="3 2" opacity="0.6" />
                 {showLabels && (
                   <g>
-                    <rect x="373" y="255.5" width="78" height="26" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="373" y="254" width="78" height="26" rx="4" fill="#1e40af" />
-                    <text x="412" y="267" fill="#ffffff" textAnchor="middle" className="text-[9.5px] font-black">
-                      ECE
+                    <rect x="372" y="213.5" width="66" height="24" rx="3" fill="#000000" opacity="0.35" />
+                    <rect x="372" y="212" width="66" height="24" rx="3" fill="#1e40af" />
+                    <text x="405" y="223" fill="#ffffff" textAnchor="middle" className="text-[7.5px] font-black">
+                      ECE DEPT
                     </text>
-                    <text x="412" y="276" fill="#ffffff" textAnchor="middle" className="text-[8px] font-black">
-                      DEPARTMENT
+                    <text x="405" y="232" fill="#93c5fd" textAnchor="middle" className="text-[6.5px] font-bold">
+                      (Electronics)
                     </text>
                   </g>
                 )}
               </g>
 
-              {/* Auditorium CWRS */}
+              {/* Shared Architectural Joint Seam / Interconnected Corridor (ECE & Auditorium Attached) */}
+              <rect x="442" y="194" width="4" height="68" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.8" />
+              <line x1="444" y1="188" x2="444" y2="268" stroke="#475569" strokeWidth="1.5" strokeDasharray="3 2" />
+
+              {/* 2. MAIN AUDITORIUM (Convocation Hall) - Attached to ECE on west, with gap to CWRS on east */}
               <g 
                 id="zone-audi"
                 onClick={() => handleZoneSelect('auditorium-cwrs')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="456" y="226" width="118" height="88" rx="5" fill="#e0e7ff" stroke="#4338ca" strokeWidth="2" />
-                <rect x="466" y="234" width="98" height="20" rx="3" fill="#3730a3" opacity="0.3" />
+                <rect x="444" y="188" width="92" height="80" rx="3" fill="#e0e7ff" stroke="#4338ca" strokeWidth="2" />
+                {/* Raised stage / backstage block */}
+                <rect x="457" y="194" width="66" height="16" rx="2" fill="#3730a3" opacity="0.25" />
+                {/* Tiered auditorium seating rows */}
+                <line x1="458" y1="222" x2="522" y2="222" stroke="#4338ca" strokeWidth="1" strokeDasharray="4 2" />
+                <line x1="458" y1="230" x2="522" y2="230" stroke="#4338ca" strokeWidth="1" strokeDasharray="4 2" />
+                {/* South grand entrance portico facing lawn */}
+                <rect x="475" y="268" width="30" height="6" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
                 {showLabels && (
                   <g>
-                    <rect x="473" y="251.5" width="84" height="26" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="473" y="250" width="84" height="26" rx="4" fill="#1e40af" />
-                    <text x="515" y="264" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
-                      Auditorium
+                    <rect x="453" y="214.5" width="74" height="25" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="453" y="213" width="74" height="25" rx="4" fill="#1e40af" />
+                    <text x="490" y="225" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
+                      AUDITORIUM
                     </text>
-                    <text x="515" y="273" fill="#93c5fd" textAnchor="middle" className="text-[8px] font-bold">
-                      CWRS
+                    <text x="490" y="234" fill="#93c5fd" textAnchor="middle" className="text-[7px] font-bold">
+                      Convocation Hall
                     </text>
                   </g>
                 )}
               </g>
 
-              {/* AMPHITHEATRE (stepped semicircle) */}
+              {/* GAP BETWEEN AUDITORIUM AND CWRS (Landscaped Access Pathway & Walkway) */}
+              <rect x="536" y="188" width="16" height="80" rx="2" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.8" />
+              <line x1="544" y1="188" x2="544" y2="268" stroke="#94a3b8" strokeWidth="1" strokeDasharray="4 3" />
+
+              {/* 3. CWRS BUILDING (Centre for Water Resources Studies) - Separated by gap beside Auditorium */}
+              <g 
+                id="zone-cwrs"
+                onClick={() => handleZoneSelect('cwrs-building')}
+                className="cursor-pointer transition-transform hover:opacity-95"
+              >
+                <rect x="552" y="188" width="86" height="80" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="2" />
+                {/* Water resources & hydrology testing wing */}
+                <rect x="562" y="194" width="66" height="16" rx="2" fill="#0369a1" opacity="0.25" />
+                {/* Research laboratory channels */}
+                <line x1="563" y1="222" x2="627" y2="222" stroke="#0284c7" strokeWidth="1" strokeDasharray="4 2" />
+                <line x1="563" y1="230" x2="627" y2="230" stroke="#0284c7" strokeWidth="1" strokeDasharray="4 2" />
+                {/* South entrance portico */}
+                <rect x="580" y="268" width="30" height="6" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+                {showLabels && (
+                  <g>
+                    <rect x="558" y="214.5" width="74" height="25" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="558" y="213" width="74" height="25" rx="4" fill="#1e40af" />
+                    <text x="595" y="225" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
+                      CWRS BUILDING
+                    </text>
+                    <text x="595" y="234" fill="#93c5fd" textAnchor="middle" className="text-[7px] font-bold">
+                      Water Studies
+                    </text>
+                  </g>
+                )}
+              </g>
+
+              {/* AMPHITHEATRE (OAT - Open Air Theatre) - Positioned in green quad, cleanly separated from road */}
               <g 
                 id="zone-amphi"
                 onClick={() => handleZoneSelect('amphitheatre')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
+                {/* Amphitheatre seating tier semicircle */}
                 <path
-                  d="M465,324 A50,40 0 0,0 565,324 Z"
+                  d="M451,286 A39,32 0 0,0 529,286 Z"
                   fill="#bbf7d0"
                   stroke="#16a34a"
                   strokeWidth="2"
                 />
-                {/* Tier steps */}
-                <path d="M478,324 A38,30 0 0,0 552,324" fill="none" stroke="#15803d" strokeWidth="1.5" />
-                <path d="M492,324 A24,18 0 0,0 538,324" fill="none" stroke="#15803d" strokeWidth="1.5" />
+                {/* Stepped concentric seating tiers */}
+                <path d="M459,286 A31,25 0 0,0 521,286" fill="none" stroke="#15803d" strokeWidth="1.5" />
+                <path d="M467,286 A23,18 0 0,0 513,286" fill="none" stroke="#15803d" strokeWidth="1.5" />
+                <path d="M475,286 A15,11 0 0,0 505,286" fill="none" stroke="#15803d" strokeWidth="1.5" />
+                {/* Central circular performance stage */}
+                <circle cx="490" cy="286" r="7" fill="#86efac" stroke="#15803d" strokeWidth="1.2" />
+
                 {showLabels && (
                   <g>
-                    <rect x="477" y="329.5" width="76" height="18" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="477" y="328" width="76" height="18" rx="4" fill="#1e40af" />
-                    <text x="515" y="341" fill="#ffffff" textAnchor="middle" className="text-[8px] font-black tracking-wider">
+                    <rect x="452" y="295.5" width="76" height="18" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="452" y="294" width="76" height="18" rx="4" fill="#1e40af" />
+                    <text x="490" y="306.5" fill="#ffffff" textAnchor="middle" className="text-[8px] font-black tracking-wider">
                       AMPHITHEATRE
                     </text>
                   </g>
                 )}
               </g>
+
+              {/* Approach walkway connecting Road to Amphitheatre (clean separation from road at y=344) */}
+              <rect x="483" y="318" width="14" height="26" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.8" />
+              {/* Green buffer lawn trees between Amphitheatre and Road */}
+              <use href="#campusTree" x="446" y="328" />
+              <use href="#campusTree" x="534" y="328" />
 
               {/* I.T. Lab */}
               <g 
@@ -445,15 +635,15 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 onClick={() => handleZoneSelect('it-lab')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="170" y="374" width="56" height="70" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
+                <rect x="170" y="386" width="56" height="62" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
                 {showLabels && (
                   <g>
-                    <rect x="174" y="395.5" width="48" height="24" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="174" y="394" width="48" height="24" rx="4" fill="#1e40af" />
-                    <text x="198" y="407" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
+                    <rect x="174" y="405.5" width="48" height="24" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="174" y="404" width="48" height="24" rx="4" fill="#1e40af" />
+                    <text x="198" y="417" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
                       I.T.
                     </text>
-                    <text x="198" y="416" fill="#ffffff" textAnchor="middle" className="text-[8px] font-black">
+                    <text x="198" y="426" fill="#ffffff" textAnchor="middle" className="text-[8px] font-black">
                       Lab
                     </text>
                   </g>
@@ -466,22 +656,22 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 onClick={() => handleZoneSelect('basketball-court')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="236" y="374" width="64" height="70" rx="4" fill="#0284c7" stroke="#0369a1" strokeWidth="2" />
+                <rect x="236" y="386" width="64" height="62" rx="4" fill="#0284c7" stroke="#0369a1" strokeWidth="2" />
                 {/* Court Orange Key Lines */}
-                <rect x="242" y="380" width="52" height="58" fill="#f97316" stroke="#ffffff" strokeWidth="1.2" />
-                <circle cx="268" cy="409" r="10" fill="none" stroke="#ffffff" strokeWidth="1.2" />
-                <line x1="242" y1="409" x2="294" y2="409" stroke="#ffffff" strokeWidth="1.2" />
+                <rect x="242" y="392" width="52" height="50" fill="#f97316" stroke="#ffffff" strokeWidth="1.2" />
+                <circle cx="268" cy="417" r="9" fill="none" stroke="#ffffff" strokeWidth="1.2" />
+                <line x1="242" y1="417" x2="294" y2="417" stroke="#ffffff" strokeWidth="1.2" />
                 {/* Hoops */}
-                <circle cx="268" cy="386" r="3" fill="#ffffff" />
-                <circle cx="268" cy="432" r="3" fill="#ffffff" />
+                <circle cx="268" cy="397" r="2.5" fill="#ffffff" />
+                <circle cx="268" cy="437" r="2.5" fill="#ffffff" />
                 {showLabels && (
                   <g>
-                    <rect x="244" y="397.5" width="48" height="26" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="244" y="396" width="48" height="26" rx="4" fill="#1e40af" />
-                    <text x="268" y="408" fill="#ffffff" textAnchor="middle" className="text-[8px] font-black">
+                    <rect x="244" y="407.5" width="48" height="26" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="244" y="406" width="48" height="26" rx="4" fill="#1e40af" />
+                    <text x="268" y="419" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
                       Basketball
                     </text>
-                    <text x="268" y="418" fill="#ffffff" textAnchor="middle" className="text-[8px] font-black">
+                    <text x="268" y="428" fill="#ffffff" textAnchor="middle" className="text-[7.5px] font-black">
                       Court
                     </text>
                   </g>
