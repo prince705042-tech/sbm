@@ -53,7 +53,7 @@ export const getShortStationName = (bin: CampusBin): string => {
     'bin-lib-1': 'Library Outside',
     'bin-cafeteria-1': 'Canteen Outside',
     'bin-maingate-1': 'Main Gate Outside',
-    'bin-physics-1': 'Physics Outside',
+    'bin-physics-1': 'Incubation Outside',
     'bin-chem-1': 'Chemistry Outside',
     'bin-kosi-ext-1': 'Kosi Ext Outside',
   };

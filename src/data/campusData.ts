@@ -198,11 +198,11 @@ export const CAMPUS_ZONES: CampusZoneInfo[] = [
   },
   {
     id: 'physics-dept',
-    name: 'PHYSICS DEPARTMENT',
-    shortName: 'Physics Dept',
+    name: 'INCUBATION CENTRE',
+    shortName: 'Incubation Centre',
     coords: { x: 52.2, y: 68.1, width: 20.0, height: 6.2 },
-    color: '#1d4ed8',
-    description: 'Solid state physics lab, optics darkroom, quantum mechanics lecture hall',
+    color: '#0284c7',
+    description: 'Startup innovation hub, student entrepreneurship cells, prototyping labs & mentorship workspace',
   },
   {
     id: 'chemistry-dept',
@@ -551,14 +551,14 @@ export const INITIAL_BINS: CampusBin[] = [
     reportedCount: 0,
   },
 
-  // 18. Physics Department (On Central Spine sidewalk outside Physics Dept porch)
+  // 18. Incubation Centre (On Central Spine sidewalk outside Incubation Centre porch)
   {
     id: 'bin-physics-1',
-    name: 'Physics Department Outside Station',
-    locationName: 'Physics Dept - Outside Central Spine Sidewalk',
+    name: 'Incubation Centre Outside Station',
+    locationName: 'Incubation Centre - Outside Central Spine Sidewalk',
     zone: 'physics-dept',
     floor: 'Outside Building Entrance (Sidewalk)',
-    landmark: 'On Central Spine sidewalk outside Physics Department main entrance porch',
+    landmark: 'On Central Spine sidewalk outside Incubation Centre main entrance porch',
     coords: { x: 51.1, y: 71.2 },
     types: ['dry', 'wet'],
     fillLevel: 32,

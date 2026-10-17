@@ -40,7 +40,7 @@ import {
 export default function App() {
   // Persistence in localStorage
   // Version key to ensure updated campus locations load cleanly
-  const DATA_VERSION = 'v24_outside_dustbins_sports_removed';
+  const DATA_VERSION = 'v25_incubation_centre';
 
   const [bins, setBins] = useState<CampusBin[]>(() => {
     try {

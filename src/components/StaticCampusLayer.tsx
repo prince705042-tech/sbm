@@ -750,7 +750,7 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
               <rect x="520" y="705" width="18" height="188" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
               <line x1="529" y1="710" x2="529" y2="888" stroke="#94a3b8" strokeWidth="1" strokeDasharray="6 4" />
 
-              {/* PHYSICS DEPARTMENT */}
+              {/* INCUBATION CENTRE (formerly Physics Department) */}
               <g 
                 id="zone-physics"
                 onClick={() => handleZoneSelect('physics-dept')}
@@ -760,13 +760,13 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 <rect x="384" y="715" width="128" height="12" rx="2" fill="#c2410c" opacity="0.25" />
                 {showLabels && (
                   <g>
-                    <rect x="402" y="725.5" width="92" height="26" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="402" y="724" width="92" height="26" rx="4" fill="#1e40af" />
+                    <rect x="396" y="725.5" width="104" height="26" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="396" y="724" width="104" height="26" rx="4" fill="#1e40af" />
                     <text x="448" y="736" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
-                      PHYSICS
+                      INCUBATION
                     </text>
-                    <text x="448" y="746" fill="#ffffff" textAnchor="middle" className="text-[8px] font-black">
-                      DEPARTMENT
+                    <text x="448" y="746" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
+                      CENTRE
                     </text>
                   </g>
                 )}
