@@ -40,7 +40,7 @@ import {
 export default function App() {
   // Persistence in localStorage
   // Version key to ensure updated campus locations load cleanly
-  const DATA_VERSION = 'v35_longer_thinner_ece';
+  const DATA_VERSION = 'v37_itlab_bigger_gap';
 
   const [bins, setBins] = useState<CampusBin[]>(() => {
     try {
@@ -381,6 +381,14 @@ export default function App() {
       unsubscribe();
     };
   }, []);
+
+  // Save current data version and bins to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('swachh_campus_version', DATA_VERSION);
+      localStorage.setItem('swachh_campus_bins', JSON.stringify(bins));
+    } catch {}
+  }, [bins]);
 
   // Admin Authentication Handlers
   const handleAdminLogin = (id: string, pass: string): boolean => {

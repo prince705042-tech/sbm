@@ -235,6 +235,26 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 <rect x="331" y="364" width="26" height="3" fill="#f8fafc" />
               </g>
 
+              {/* Road to I.T. Lab & Civil Dept (Connecting from Main Central Spine Road to I.T. Lab) */}
+              <rect x="218" y="432" width="113" height="22" fill="#64748b" stroke="#334155" strokeWidth="1" />
+              <line x1="220" y1="443" x2="330" y2="443" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="6 4" />
+              <line x1="220" y1="432" x2="329" y2="432" stroke="#94a3b8" strokeWidth="1" />
+              <line x1="220" y1="454" x2="329" y2="454" stroke="#94a3b8" strokeWidth="1" />
+              <g>
+                <rect x="228" y="436.5" width="94" height="13" rx="3" fill="#1e293b" opacity="0.9" />
+                <text x="275" y="446" fill="#f8fafc" textAnchor="middle" className="text-[7px] font-bold tracking-wide">
+                  Road to I.T. Lab ➔
+                </text>
+              </g>
+
+              {/* Crosswalk on Main Road at I.T. Lab Road Junction */}
+              <g id="crosswalk-itlab-main" opacity="0.85">
+                <rect x="331" y="434" width="26" height="3" fill="#f8fafc" />
+                <rect x="331" y="440" width="26" height="3" fill="#f8fafc" />
+                <rect x="331" y="446" width="26" height="3" fill="#f8fafc" />
+                <rect x="331" y="452" width="26" height="3" fill="#f8fafc" />
+              </g>
+
               {/* Road leading to Parking */}
               <rect x="150" y="630" width="180" height="22" fill="#64748b" stroke="#334155" strokeWidth="1" />
               <line x1="150" y1="641" x2="330" y2="641" stroke="#ffffff" strokeWidth="1" strokeDasharray="6 4" />
@@ -629,25 +649,16 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
               <use href="#campusTree" x="446" y="328" />
               <use href="#campusTree" x="534" y="328" />
 
-              {/* I.T. Lab */}
-              <g 
-                id="zone-itlab"
-                onClick={() => handleZoneSelect('it-lab')}
-                className="cursor-pointer transition-transform hover:opacity-95"
-              >
-                <rect x="170" y="386" width="56" height="62" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
-                {showLabels && (
-                  <g>
-                    <rect x="174" y="405.5" width="48" height="24" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="174" y="404" width="48" height="24" rx="4" fill="#1e40af" />
-                    <text x="198" y="417" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
-                      I.T.
-                    </text>
-                    <text x="198" y="426" fill="#ffffff" textAnchor="middle" className="text-[8px] font-black">
-                      Lab
-                    </text>
-                  </g>
-                )}
+              {/* Alak Nanda Green Quad / Open Lawn (North of I.T. Lab) */}
+              <g id="zone-north-quad" className="opacity-95">
+                <rect x="146" y="370" width="74" height="38" rx="4" fill="#15803d" fillOpacity="0.18" stroke="#15803d" strokeWidth="1.2" strokeDasharray="4 3" />
+                {/* Connecting walkway from Alak Nanda south porch down towards I.T. Lab */}
+                <rect x="176" y="364" width="12" height="50" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.8" />
+                <use href="#campusTree" x="160" y="388" />
+                <use href="#campusTree" x="206" y="388" />
+                <text x="183" y="401" fill="#166534" textAnchor="middle" className="text-[7.5px] font-bold tracking-wide">
+                  Open Quad Lawn
+                </text>
               </g>
 
               {/* Basketball Court */}
@@ -656,37 +667,75 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 onClick={() => handleZoneSelect('basketball-court')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="236" y="386" width="64" height="62" rx="4" fill="#0284c7" stroke="#0369a1" strokeWidth="2" />
+                <rect x="236" y="374" width="64" height="52" rx="4" fill="#0284c7" stroke="#0369a1" strokeWidth="2" />
                 {/* Court Orange Key Lines */}
-                <rect x="242" y="392" width="52" height="50" fill="#f97316" stroke="#ffffff" strokeWidth="1.2" />
-                <circle cx="268" cy="417" r="9" fill="none" stroke="#ffffff" strokeWidth="1.2" />
-                <line x1="242" y1="417" x2="294" y2="417" stroke="#ffffff" strokeWidth="1.2" />
+                <rect x="242" y="378" width="52" height="44" fill="#f97316" stroke="#ffffff" strokeWidth="1.2" />
+                <circle cx="268" cy="400" r="8" fill="none" stroke="#ffffff" strokeWidth="1.2" />
+                <line x1="242" y1="400" x2="294" y2="400" stroke="#ffffff" strokeWidth="1.2" />
                 {/* Hoops */}
-                <circle cx="268" cy="397" r="2.5" fill="#ffffff" />
-                <circle cx="268" cy="437" r="2.5" fill="#ffffff" />
+                <circle cx="268" cy="382" r="2.2" fill="#ffffff" />
+                <circle cx="268" cy="418" r="2.2" fill="#ffffff" />
                 {showLabels && (
                   <g>
-                    <rect x="244" y="407.5" width="48" height="26" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="244" y="406" width="48" height="26" rx="4" fill="#1e40af" />
-                    <text x="268" y="419" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
+                    <rect x="244" y="392.5" width="48" height="25" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="244" y="391" width="48" height="25" rx="4" fill="#1e40af" />
+                    <text x="268" y="403" fill="#ffffff" textAnchor="middle" className="text-[8px] font-black">
                       Basketball
                     </text>
-                    <text x="268" y="428" fill="#ffffff" textAnchor="middle" className="text-[7.5px] font-black">
+                    <text x="268" y="412" fill="#ffffff" textAnchor="middle" className="text-[7px] font-black">
                       Court
                     </text>
                   </g>
                 )}
               </g>
 
-              {/* Open Sports Lawn & Seating Plaza (Replacing old Kosi Hostel block) */}
-              <g id="zone-sports-plaza" className="opacity-90">
-                <rect x="232" y="440" width="84" height="64" rx="6" fill="#16a34a" fillOpacity="0.15" stroke="#15803d" strokeWidth="1.5" strokeDasharray="4 3" />
-                <rect x="240" y="448" width="68" height="6" rx="2" fill="#94a3b8" />
-                <rect x="240" y="460" width="68" height="6" rx="2" fill="#94a3b8" />
-                <use href="#campusTree" x="248" y="484" />
-                <use href="#campusTree" x="300" y="484" />
-                <text x="274" y="482" fill="#166534" textAnchor="middle" className="text-[8px] font-black tracking-wide">
-                  Open Sports Lawn
+              {/* I.T. Lab (Enlarged Building Body with Clear Gap to Civil Dept) */}
+              <g 
+                id="zone-itlab"
+                onClick={() => handleZoneSelect('it-lab')}
+                className="cursor-pointer transition-transform hover:opacity-95"
+              >
+                {/* Building Main Body - Enlarged to width 74, height 60 */}
+                <rect x="146" y="412" width="74" height="60" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
+                {/* Lab architectural bays and window lines */}
+                <line x1="150" y1="426" x2="216" y2="426" stroke="#c2410c" strokeWidth="0.8" strokeDasharray="4 2" opacity="0.6" />
+                <line x1="150" y1="444" x2="216" y2="444" stroke="#c2410c" strokeWidth="0.8" strokeDasharray="4 2" opacity="0.6" />
+                <line x1="150" y1="462" x2="216" y2="462" stroke="#c2410c" strokeWidth="0.8" strokeDasharray="4 2" opacity="0.6" />
+                {/* East Portico Steps Opening directly onto Road to I.T. Lab */}
+                <rect x="218" y="433" width="7" height="20" rx="1.5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+                {showLabels && (
+                  <g>
+                    <rect x="153" y="429.5" width="60" height="27" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="153" y="428" width="60" height="27" rx="4" fill="#1e40af" stroke="#60a5fa" strokeWidth="0.8" />
+                    <text x="183" y="441" fill="#ffffff" textAnchor="middle" className="text-[10px] font-black">
+                      I.T. Lab
+                    </text>
+                    <text x="183" y="451" fill="#93c5fd" textAnchor="middle" className="text-[7.5px] font-bold">
+                      Tech &amp; Computing
+                    </text>
+                  </g>
+                )}
+              </g>
+
+              {/* Departmental Green Quad / Clear Gap Between I.T. Lab & Civil Dept */}
+              <g id="gap-itlab-civil" className="opacity-95">
+                <rect x="146" y="474" width="74" height="22" rx="3" fill="#15803d" fillOpacity="0.16" stroke="#15803d" strokeWidth="0.8" strokeDasharray="3 2" />
+                {/* Paved inter-departmental connecting walkway */}
+                <rect x="176" y="472" width="14" height="26" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.8" />
+                {/* Landscaped shade trees in the gap */}
+                <use href="#campusTree" x="158" y="485" />
+                <use href="#campusTree" x="208" y="485" />
+              </g>
+
+              {/* Campus Garden Lawn (South of Road to I.T. Lab, North of Main Building) */}
+              <g id="zone-mainbldg-north-garden" className="opacity-95">
+                <rect x="224" y="458" width="94" height="52" rx="4" fill="#16a34a" fillOpacity="0.16" stroke="#15803d" strokeWidth="1.2" strokeDasharray="4 3" />
+                <rect x="242" y="472" width="60" height="4" rx="1.5" fill="#94a3b8" />
+                <rect x="242" y="494" width="60" height="4" rx="1.5" fill="#94a3b8" />
+                <use href="#campusTree" x="238" y="484" />
+                <use href="#campusTree" x="306" y="484" />
+                <text x="272" y="486" fill="#166534" textAnchor="middle" className="text-[7.5px] font-bold tracking-wide">
+                  Campus Garden Lawn
                 </text>
               </g>
 
