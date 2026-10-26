@@ -130,45 +130,26 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 </g>
               </g>
 
-              {/* Ashok Rajpath (South Wide Highway across entire bottom) */}
-              <g id="ashok-rajpath-road">
-                <rect x="0" y="930" width="720" height="110" fill="#334155" stroke="#1e293b" strokeWidth="2" />
-                {/* White dividing barrier and lane lines */}
-                <line x1="0" y1="980" x2="720" y2="980" stroke="#f8fafc" strokeWidth="2.5" strokeDasharray="12 8" />
-                {/* Road crossings */}
-                <rect x="330" y="930" width="80" height="110" fill="#334155" />
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <rect key={i} x={340 + i * 8} y="940" width="4" height="22" fill="#f8fafc" opacity="0.8" />
-                ))}
-                {/* Street trees along Ashok Rajpath */}
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <use key={i} href="#campusTree" x={60 + i * 55} y="930" />
-                ))}
-                {/* Ashok Rajpath Label */}
-                <g>
-                    <rect x="310" y="996.5" width="120" height="24" rx="6" fill="#000000" opacity="0.35" />
-                    <rect x="310" y="995" width="120" height="24" rx="6" fill="#0f172a" stroke="#475569" strokeWidth="1" />
-                  <text x="370" y="1012" fill="#ffffff" textAnchor="middle" className="text-[12px] font-black tracking-wider">
-                    Ashok Rajpath
-                  </text>
-                </g>
+              {/* Removed Road (Hidden / Removed from Map View) */}
+              <g id="ashok-rajpath-road" style={{ display: 'none' }} aria-hidden="true">
+                <rect x="0" y="930" width="720" height="0" fill="none" opacity="0" pointerEvents="none" />
               </g>
 
               {/* ======================================================== */}
-              {/* 2. CAMPUS BOUNDARY & GREEN GROUNDS                       */}
+              {/* 2. CAMPUS BOUNDARY & GREEN GROUNDS (ENLARGED)             */}
               {/* ======================================================== */}
 
-              {/* Campus Grounds polygon */}
+              {/* Expanded Campus Grounds polygon encompassing whole campus from North to South */}
               <polygon
-                points="132,80 695,80 695,920 132,920"
+                points="132,6 702,6 702,1026 132,1026"
                 fill="url(#campusLawnGrad)"
                 stroke="#0f172a"
                 strokeWidth="2"
               />
 
-              {/* RED BOUNDARY WALL (as shown in map legend) */}
+              {/* ENLARGED RED BOUNDARY WALL PERIMETER */}
               <polyline
-                points="132,80 695,80 695,850 685,850 685,920 132,920 132,80"
+                points="132,6 702,6 702,1026 132,1026 132,6"
                 fill="none"
                 stroke="#dc2626"
                 strokeWidth="4"
@@ -259,9 +240,9 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
               <rect x="150" y="630" width="180" height="22" fill="#64748b" stroke="#334155" strokeWidth="1" />
               <line x1="150" y1="641" x2="330" y2="641" stroke="#ffffff" strokeWidth="1" strokeDasharray="6 4" />
 
-              {/* Road leading towards southern boundary */}
-              <rect x="330" y="830" width="28" height="85" fill="#64748b" stroke="#334155" strokeWidth="1.5" />
-              <line x1="344" y1="830" x2="344" y2="915" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="6 4" />
+              {/* Central Spine Promenade leading into expanded southern campus gardens */}
+              <rect x="330" y="830" width="28" height="175" fill="#64748b" stroke="#334155" strokeWidth="1.5" />
+              <line x1="344" y1="830" x2="344" y2="1005" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="6 4" />
 
               {/* ======================================================== */}
               {/* 4. CAMPUS BUILDINGS & STRUCTURES                         */}
@@ -981,125 +962,89 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 )}
               </g>
 
-              {/* Pathway connecting Central Road sidewalk to Physics & Chemistry Lab */}
-              <rect x="358" y="732" width="18" height="16" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
-              <rect x="358" y="812" width="18" height="16" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+              {/* Front Science Garden Quad (Former site of labs, now open lawn) */}
+              <g id="zone-science-garden-quad" className="opacity-95">
+                <rect x="368" y="708" width="164" height="150" rx="6" fill="#15803d" fillOpacity="0.18" stroke="#15803d" strokeWidth="1.2" strokeDasharray="4 3" />
+                {/* Connecting walkways from Central Spine Road across to building entrances */}
+                <rect x="358" y="740" width="184" height="14" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+                <rect x="358" y="814" width="184" height="14" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+                {/* Trees and quad landscaping */}
+                <use href="#campusTree" x="410" y="725" />
+                <use href="#campusTree" x="490" y="725" />
+                <use href="#campusTree" x="450" y="777" />
+                <use href="#campusTree" x="410" y="842" />
+                <use href="#campusTree" x="490" y="842" />
+                <text x="450" y="788" fill="#166534" textAnchor="middle" className="text-[8px] font-bold tracking-wider">
+                  Academic Green Quad
+                </text>
+              </g>
 
-              {/* Paved Avenue between Chemistry Lab and Kosi Ext */}
-              <rect x="520" y="705" width="18" height="188" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
-              <line x1="529" y1="710" x2="529" y2="888" stroke="#94a3b8" strokeWidth="1" strokeDasharray="6 4" />
-
-              {/* INCUBATION CENTRE (formerly Physics Department) */}
+              {/* INCUBATION CENTRE (Pushed all the way to the back eastern boundary) */}
               <g 
                 id="zone-physics"
                 onClick={() => handleZoneSelect('physics-dept')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="376" y="708" width="144" height="64" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
-                <rect x="384" y="715" width="128" height="12" rx="2" fill="#c2410c" opacity="0.25" />
+                <rect x="542" y="710" width="144" height="74" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
+                <rect x="550" y="717" width="128" height="12" rx="2" fill="#c2410c" opacity="0.25" />
+                {/* Entrance portico on west facade */}
+                <rect x="536" y="736" width="6" height="22" rx="1.5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
                 {showLabels && (
                   <g>
-                    <rect x="396" y="725.5" width="104" height="26" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="396" y="724" width="104" height="26" rx="4" fill="#1e40af" />
-                    <text x="448" y="736" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
+                    <rect x="562" y="728.5" width="104" height="26" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="562" y="727" width="104" height="26" rx="4" fill="#1e40af" stroke="#60a5fa" strokeWidth="1" />
+                    <text x="614" y="739" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
                       INCUBATION
                     </text>
-                    <text x="448" y="746" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
+                    <text x="614" y="749" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
                       CENTRE
                     </text>
                   </g>
                 )}
               </g>
 
-              {/* CHEMISTRY DEPARTMENT (LAB) - Situated beside Kosi Ext */}
+              {/* CHEMISTRY DEPARTMENT (LAB) - Pushed all the way to back, conjoined with ZERO GAP */}
               <g 
                 id="zone-chem"
                 onClick={() => handleZoneSelect('chemistry-dept')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="376" y="784" width="144" height="74" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
-                <rect x="384" y="791" width="128" height="12" rx="2" fill="#c2410c" opacity="0.25" />
+                {/* Starts directly at y=784 with zero gap from Incubation Centre */}
+                <rect x="542" y="784" width="144" height="74" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
+                <rect x="550" y="791" width="128" height="12" rx="2" fill="#c2410c" opacity="0.25" />
+                {/* Entrance portico on west facade */}
+                <rect x="536" y="810" width="6" height="22" rx="1.5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+                {/* Dividing architectural seam between Incubation and Chemistry Lab */}
+                <line x1="542" y1="784" x2="686" y2="784" stroke="#c2410c" strokeWidth="2" />
                 {/* Chemistry Lab benches & fume vents representation */}
-                <circle cx="396" cy="840" r="4" fill="#ea580c" opacity="0.3" />
-                <circle cx="410" cy="840" r="4" fill="#ea580c" opacity="0.3" />
-                <circle cx="486" cy="840" r="4" fill="#ea580c" opacity="0.3" />
-                <circle cx="500" cy="840" r="4" fill="#ea580c" opacity="0.3" />
+                <circle cx="562" cy="840" r="4" fill="#ea580c" opacity="0.3" />
+                <circle cx="576" cy="840" r="4" fill="#ea580c" opacity="0.3" />
+                <circle cx="652" cy="840" r="4" fill="#ea580c" opacity="0.3" />
+                <circle cx="666" cy="840" r="4" fill="#ea580c" opacity="0.3" />
                 {showLabels && (
                   <g>
-                    <rect x="392" y="801.5" width="112" height="32" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="392" y="800" width="112" height="32" rx="4" fill="#1e40af" stroke="#60a5fa" strokeWidth="1" />
-                    <text x="448" y="813" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
+                    <rect x="558" y="801.5" width="112" height="32" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="558" y="800" width="112" height="32" rx="4" fill="#1e40af" stroke="#60a5fa" strokeWidth="1" />
+                    <text x="614" y="813" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
                       CHEMISTRY LAB
                     </text>
-                    <text x="448" y="825" fill="#93c5fd" textAnchor="middle" className="text-[7.5px] font-bold">
-                      Beside Kosi Ext ➔
+                    <text x="614" y="825" fill="#93c5fd" textAnchor="middle" className="text-[7.5px] font-bold">
+                      Attached to Incubation
                     </text>
                   </g>
                 )}
               </g>
 
-              {/* KOSI EXTENSION HOSTEL (Residential Block beside Chemistry Lab) */}
-              <g 
-                id="zone-kosi-ext"
-                onClick={() => handleZoneSelect('kosi-ext')}
-                className="cursor-pointer transition-transform hover:opacity-95"
-              >
-                {/* Main Hostel structural block */}
-                <rect x="540" y="706" width="144" height="186" rx="6" fill="#fff1f2" stroke="#e11d48" strokeWidth="2.5" />
-
-                {/* North Residential Wing */}
-                <rect x="546" y="712" width="132" height="24" rx="3" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
-                {/* East Residential Wing along eastern boundary */}
-                <rect x="642" y="736" width="36" height="122" rx="3" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
-                {/* West Living & Entrance Wing facing Chemistry Lab */}
-                <rect x="546" y="736" width="36" height="122" rx="3" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
-                {/* South Wing along boundary wall */}
-                <rect x="546" y="858" width="132" height="28" rx="3" fill="#fecdd3" stroke="#f43f5e" strokeWidth="1" />
-
-                {/* Inner Quadrangle & Hostel Lawn */}
-                <rect x="584" y="738" width="56" height="118" rx="4" fill="#16a34a" stroke="#15803d" strokeWidth="1" />
-                {/* Quadrangle walkways & trees */}
-                <line x1="612" y1="738" x2="612" y2="856" stroke="#e2e8f0" strokeWidth="1.5" strokeDasharray="3 2" />
-                <line x1="584" y1="797" x2="640" y2="797" stroke="#e2e8f0" strokeWidth="1.5" strokeDasharray="3 2" />
-                <use href="#campusTree" x="597" y="765" />
-                <use href="#campusTree" x="625" y="825" />
-
-                {/* Entrance Porch Gate facing West Avenue */}
-                <rect x="540" y="784" width="8" height="24" rx="2" fill="#1e3a8a" />
-
-                {showLabels && (
-                  <>
-                    <g>
-                    <rect x="548" y="716.5" width="128" height="22" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="548" y="715" width="128" height="22" rx="4" fill="#be123c" stroke="#fecdd3" strokeWidth="1" />
-                      <text x="612" y="730" fill="#ffffff" textAnchor="middle" className="text-[9.5px] font-black tracking-wide">
-                        KOSI EXTENSION
-                      </text>
-                    </g>
-                    <g>
-                    <rect x="550" y="829.5" width="124" height="24" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="550" y="828" width="124" height="24" rx="4" fill="#1e3a8a" stroke="#60a5fa" strokeWidth="1" />
-                      <text x="612" y="841" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
-                        KOSI EXT HOSTEL
-                      </text>
-                      <text x="612" y="850" fill="#93c5fd" textAnchor="middle" className="text-[7px] font-bold">
-                        Student Residential Wing
-                      </text>
-                    </g>
-                  </>
-                )}
-              </g>
-
-              {/* Eastern Campus Boundary Wall (Running alongside Kosi Ext & Chem Lab) */}
+              {/* Eastern Campus Boundary Wall (Extended down to new southern boundary) */}
               <g id="east-campus-boundary-wall">
-                {/* Brick Boundary Wall Structure along East Edge */}
-                <rect x="686" y="700" width="12" height="224" rx="2" fill="#b91c1c" stroke="#7f1d1d" strokeWidth="1.5" />
+                {/* Brick Boundary Wall Structure along East Edge reaching down to y=1020 */}
+                <rect x="690" y="690" width="12" height="330" rx="2" fill="#b91c1c" stroke="#7f1d1d" strokeWidth="1.5" />
                 {/* Boundary Wall pillars */}
-                {Array.from({ length: 7 }).map((_, i) => (
-                  <rect key={i} x="684" y={710 + i * 32} width="16" height="6" rx="1.5" fill="#7f1d1d" />
+                {Array.from({ length: 11 }).map((_, i) => (
+                  <rect key={i} x="688" y={700 + i * 31} width="16" height="6" rx="1.5" fill="#7f1d1d" />
                 ))}
                 {showLabels && (
-                  <g transform="translate(685, 785) rotate(90)">
+                  <g transform="translate(689, 785) rotate(90)">
                     <rect x="-42" y="-10.5" width="84" height="18" rx="3" fill="#000000" opacity="0.35" />
                     <rect x="-42" y="-12" width="84" height="18" rx="3" fill="#991b1b" stroke="#fca5a5" strokeWidth="1" />
                     <text x="0" y="0" fill="#ffffff" textAnchor="middle" className="text-[7.5px] font-black tracking-widest">
@@ -1109,24 +1054,98 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 )}
               </g>
 
-              {/* Campus Southern Boundary Wall along Ashok Rajpath */}
-              <g id="ashok-rajpath-boundary-wall">
-                {/* Brick/Stone Boundary Wall Structure */}
-                <rect x="132" y="912" width="554" height="14" fill="#b91c1c" stroke="#7f1d1d" strokeWidth="1.5" />
-                {/* Boundary Wall pillars at intervals */}
-                {Array.from({ length: 14 }).map((_, i) => (
-                  <rect key={i} x={140 + i * 40} y="908" width="8" height="22" rx="1.5" fill="#7f1d1d" />
-                ))}
+              {/* Expanded Southern Campus Grounds & Relocated Kosi Extension */}
+              <g id="zone-expanded-south-grounds">
+                {/* West side lawn by Parking area */}
+                <rect x="142" y="850" width="176" height="155" rx="6" fill="#15803d" fillOpacity="0.2" stroke="#16a34a" strokeWidth="1" strokeDasharray="4 3" />
+                <use href="#campusTree" x="180" y="880" />
+                <use href="#campusTree" x="240" y="880" />
+                <use href="#campusTree" x="290" y="920" />
+                <use href="#campusTree" x="180" y="955" />
+                <use href="#campusTree" x="240" y="955" />
+                <text x="230" y="925" fill="#166534" textAnchor="middle" className="text-[8.5px] font-black tracking-wider">
+                  South Campus Grounds
+                </text>
+
+                {/* Southeast garden lawn bordering Kosi Extension */}
+                <rect x="526" y="890" width="158" height="115" rx="6" fill="#15803d" fillOpacity="0.2" stroke="#16a34a" strokeWidth="1" strokeDasharray="4 3" />
+                <use href="#campusTree" x="560" y="925" />
+                <use href="#campusTree" x="640" y="925" />
+                <use href="#campusTree" x="560" y="975" />
+                <use href="#campusTree" x="640" y="975" />
+                <text x="605" y="952" fill="#166534" textAnchor="middle" className="text-[8px] font-bold tracking-wide">
+                  Botanical Lawn Area
+                </text>
+              </g>
+
+              {/* KOSI EXTENSION HOSTEL (Relocated to South Campus Grounds Below Chemistry Lab) */}
+              <g 
+                id="zone-kosi-ext"
+                onClick={() => handleZoneSelect('kosi-ext')}
+                className="cursor-pointer transition-transform hover:opacity-95"
+              >
+                {/* Main Hostel structural block */}
+                <rect x="368" y="864" width="148" height="144" rx="6" fill="#fff1f2" stroke="#e11d48" strokeWidth="2.5" />
+
+                {/* North Residential Wing */}
+                <rect x="374" y="870" width="136" height="22" rx="3" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
+                {/* East Residential Wing */}
+                <rect x="478" y="892" width="32" height="88" rx="3" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
+                {/* West Residential Wing with Entrance facing Central Spine */}
+                <rect x="374" y="892" width="32" height="88" rx="3" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
+                {/* South Residential Wing along southern perimeter */}
+                <rect x="374" y="980" width="136" height="22" rx="3" fill="#fecdd3" stroke="#f43f5e" strokeWidth="1" />
+
+                {/* Inner Quadrangle & Hostel Courtyard Lawn */}
+                <rect x="410" y="896" width="64" height="80" rx="4" fill="#16a34a" stroke="#15803d" strokeWidth="1" />
+                {/* Quadrangle walkways & trees */}
+                <line x1="442" y1="896" x2="442" y2="976" stroke="#e2e8f0" strokeWidth="1.5" strokeDasharray="3 2" />
+                <line x1="410" y1="936" x2="474" y2="936" stroke="#e2e8f0" strokeWidth="1.5" strokeDasharray="3 2" />
+                <use href="#campusTree" x="424" y="916" />
+                <use href="#campusTree" x="460" y="956" />
+
+                {/* Entrance Porch Gate facing West (Central Spine Road) */}
+                <rect x="362" y="924" width="8" height="24" rx="2" fill="#1e3a8a" />
+
                 {showLabels && (
                   <>
                     <g>
-                    <rect x="250" y="889.5" width="100" height="18" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="250" y="888" width="100" height="18" rx="4" fill="#991b1b" stroke="#fca5a5" strokeWidth="1" />
-                      <text x="300" y="900" fill="#ffffff" textAnchor="middle" className="text-[8px] font-extrabold tracking-wider">
-                        Boundary Wall
+                      <rect x="378" y="873.5" width="128" height="20" rx="4" fill="#000000" opacity="0.35" />
+                      <rect x="378" y="872" width="128" height="20" rx="4" fill="#be123c" stroke="#fecdd3" strokeWidth="1" />
+                      <text x="442" y="885" fill="#ffffff" textAnchor="middle" className="text-[9.5px] font-black tracking-wide">
+                        KOSI EXTENSION
+                      </text>
+                    </g>
+                    <g>
+                      <rect x="380" y="942.5" width="124" height="24" rx="4" fill="#000000" opacity="0.35" />
+                      <rect x="380" y="941" width="124" height="24" rx="4" fill="#1e3a8a" stroke="#60a5fa" strokeWidth="1" />
+                      <text x="442" y="953" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
+                        KOSI EXT HOSTEL
+                      </text>
+                      <text x="442" y="962" fill="#93c5fd" textAnchor="middle" className="text-[7px] font-bold">
+                        Student Residential Wing
                       </text>
                     </g>
                   </>
+                )}
+              </g>
+
+              {/* Campus Southern Boundary Wall (Enlarged to New Southern Perimeter) */}
+              <g id="ashok-rajpath-boundary-wall">
+                {/* Brick/Stone Boundary Wall Structure along new bottom perimeter */}
+                <rect x="132" y="1018" width="570" height="14" fill="#b91c1c" stroke="#7f1d1d" strokeWidth="1.5" />
+                {/* Boundary Wall pillars at intervals */}
+                {Array.from({ length: 15 }).map((_, i) => (
+                  <rect key={i} x={140 + i * 38} y="1014" width="8" height="22" rx="1.5" fill="#7f1d1d" />
+                ))}
+                {showLabels && (
+                  <g>
+                    <rect x="250" y="995.5" width="124" height="18" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="250" y="994" width="124" height="18" rx="4" fill="#991b1b" stroke="#fca5a5" strokeWidth="1" />
+                    <text x="312" y="1006" fill="#ffffff" textAnchor="middle" className="text-[8px] font-extrabold tracking-wider">
+                      Campus Boundary Wall
+                    </text>
+                  </g>
                 )}
               </g>
 

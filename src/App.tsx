@@ -40,7 +40,7 @@ import {
 export default function App() {
   // Persistence in localStorage
   // Version key to ensure updated campus locations load cleanly
-  const DATA_VERSION = 'v37_itlab_bigger_gap';
+  const DATA_VERSION = 'v39_incubation_chem_back';
 
   const [bins, setBins] = useState<CampusBin[]>(() => {
     try {
