@@ -4,12 +4,16 @@ interface SbmUrbanTopBarProps {
   currentLang: 'en' | 'hi';
   onLangChange: (lang: 'en' | 'hi') => void;
   onFontSizeChange?: (size: 'small' | 'normal' | 'large') => void;
+  onOpenSecurityModal?: () => void;
+  onOpenContactModal?: () => void;
 }
 
 export const SbmUrbanTopBar: React.FC<SbmUrbanTopBarProps> = ({
   currentLang,
   onLangChange,
   onFontSizeChange,
+  onOpenSecurityModal,
+  onOpenContactModal,
 }) => {
   return (
     <div className="w-full text-stone-700 bg-stone-100 text-xs border-b border-stone-200/90 select-none">
@@ -39,8 +43,33 @@ export const SbmUrbanTopBar: React.FC<SbmUrbanTopBarProps> = ({
           </div>
         </div>
 
-        {/* Right: Accessibility Font Size & Language Switcher */}
-        <div className="flex items-center gap-3 shrink-0 text-stone-600">
+        {/* Right: Security Badge, Helpdesk, Font Size & Language Switcher */}
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 text-stone-600">
+          {/* HTTPS SSL Badge */}
+          {onOpenSecurityModal && (
+            <button
+              type="button"
+              onClick={onOpenSecurityModal}
+              className="hidden sm:inline-flex items-center gap-1 text-[10px] font-medium text-emerald-800 bg-emerald-100/70 hover:bg-emerald-200/80 px-2 py-0.5 rounded transition-colors cursor-pointer border border-emerald-300/60"
+              title="Verified 256-Bit SSL/TLS Encryption"
+            >
+              <span aria-hidden="true">🔒</span>
+              <span>HTTPS 256-Bit</span>
+            </button>
+          )}
+
+          {/* Quick Helpdesk Link */}
+          {onOpenContactModal && (
+            <button
+              type="button"
+              onClick={onOpenContactModal}
+              className="text-[11px] font-medium text-stone-600 hover:text-[#0A2540] transition-colors cursor-pointer"
+            >
+              {currentLang === 'hi' ? 'सहायता' : 'Helpdesk'}
+            </button>
+          )}
+
+          <div className="h-3 w-px bg-stone-300 hidden sm:block" aria-hidden="true" />
           <div className="hidden lg:flex items-center gap-1 text-[11px] text-stone-500 font-mono-code">
             <span className="mr-0.5 text-stone-400">Size:</span>
             <button 

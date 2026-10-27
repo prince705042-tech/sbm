@@ -75,3 +75,27 @@
   }
 }
 
+/* Safari & iOS Cross-Browser Optimizations */
+@media screen and (max-width: 640px) {
+  /* Prevent iOS Safari from automatically zooming into the page on form input focus */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Safari -webkit-backdrop-filter support */
+.backdrop-blur-xs,
+.backdrop-blur-sm,
+.backdrop-blur-md,
+.backdrop-blur {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* Safe area insets for notched iPhones and iPads */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+

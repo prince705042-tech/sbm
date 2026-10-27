@@ -20,6 +20,8 @@ interface SbmUrbanFooterProps {
   activeAlertsCount: number;
   onNavigateTab: (tab: AppRoute) => void;
   onOpenPledgeModal: () => void;
+  onOpenContactModal?: () => void;
+  onOpenSecurityModal?: () => void;
 }
 
 export const SbmUrbanFooter: React.FC<SbmUrbanFooterProps> = ({
@@ -31,6 +33,8 @@ export const SbmUrbanFooter: React.FC<SbmUrbanFooterProps> = ({
   activeAlertsCount,
   onNavigateTab,
   onOpenPledgeModal,
+  onOpenContactModal,
+  onOpenSecurityModal,
 }) => {
   return (
     <footer className="w-full bg-[#071A2E] text-stone-300 text-xs border-t border-stone-800 mt-12 relative z-10 select-none">
@@ -230,7 +234,7 @@ export const SbmUrbanFooter: React.FC<SbmUrbanFooterProps> = ({
           {/* Column 4: Contact & Nodal Cell */}
           <div className="space-y-3">
             <h3 className="font-semibold text-white text-xs font-mono-code uppercase tracking-wider border-b border-stone-800 pb-2">
-              {currentLang === 'hi' ? 'नोडल संपर्क' : 'Nodal Desk'}
+              {currentLang === 'hi' ? 'नोडल संपर्क एवं सहायता' : 'Nodal Helpdesk'}
             </h3>
             <div className="space-y-2.5 text-stone-400 text-xs">
               <div className="flex items-start gap-2">
@@ -240,22 +244,50 @@ export const SbmUrbanFooter: React.FC<SbmUrbanFooterProps> = ({
                 </span>
               </div>
               <div className="text-[11px] text-stone-400">
-                Email: estate@nitp.ac.in · Sanitation Hotline: Ext. 404
+                Official Email: <span className="text-emerald-400 font-mono-code">swachh@nitp.ac.in</span>
+              </div>
+              <div className="pt-1">
+                {onOpenContactModal && (
+                  <button
+                    type="button"
+                    onClick={onOpenContactModal}
+                    className="w-full py-2 px-3 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-700/50 text-emerald-300 hover:text-emerald-200 text-xs font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  >
+                    <span>{currentLang === 'hi' ? 'नागरिक सहायता / संदेश भेजें' : 'Contact Helpdesk / Send Query'}</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Legal Bar */}
+      {/* Bottom Legal & Security Bar */}
       <div className="border-t border-stone-800 bg-[#051322] py-4 px-4 sm:px-6 lg:px-8 text-[11px] text-stone-400">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
-          <div className="flex items-center gap-2 font-mono-code text-[11px]">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 font-mono-code text-[11px]">
             <span>National Institute of Technology Patna</span>
             <span aria-hidden="true">·</span>
-            <span>Swachh Bharat Mission Campus Portal</span>
+            <span>Swachh Bharat Mission Portal</span>
+            <span aria-hidden="true">·</span>
+            {onOpenSecurityModal ? (
+              <button
+                type="button"
+                onClick={onOpenSecurityModal}
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-800/60 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-900/60 transition-colors cursor-pointer"
+                title="View verified 256-Bit SSL certificate"
+              >
+                <Lock className="w-3 h-3 text-emerald-400" />
+                <span>256-Bit SSL Encrypted (HTTPS)</span>
+              </button>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-emerald-400">
+                <Lock className="w-3 h-3 text-emerald-400" />
+                <span>HTTPS Encrypted</span>
+              </span>
+            )}
           </div>
-          <div className="text-stone-400">
+          <div className="text-stone-400 text-[11px]">
             Compliant with Solid Waste Management Rules 2016 &amp; MoHUA Source Segregation Directives
           </div>
         </div>

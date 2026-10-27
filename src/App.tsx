@@ -21,6 +21,8 @@ import { SbmUrbanFooter } from './components/SbmUrbanFooter';
 import { TakePledgeModal } from './components/TakePledgeModal';
 import { PledgeCertificateModal } from './components/PledgeCertificateModal';
 import { CampusPledgeView } from './components/CampusPledgeView';
+import { ContactUsModal } from './components/ContactUsModal';
+import { SecurityCertificateModal } from './components/SecurityCertificateModal';
 import { Breadcrumbs } from './components/Breadcrumbs';
 import { NotFoundPage } from './components/NotFoundPage';
 import { ScrollToTopButton } from './components/ScrollToTopButton';

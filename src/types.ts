@@ -88,3 +88,16 @@ export interface CampusZoneInfo {
   color: string;
   description: string;
 }
+
+export interface ContactSubmission {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: 'student' | 'faculty' | 'staff' | 'resident' | 'visitor';
+  category: 'segregation' | 'maintenance' | 'green_initiative' | 'technical' | 'general';
+  subject: string;
+  message: string;
+  submittedAt: string;
+  status: 'new' | 'reviewed' | 'resolved';
+}

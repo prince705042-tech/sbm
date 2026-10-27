@@ -21,6 +21,7 @@ interface NavbarProps {
   onOpenAddBinModal?: () => void;
   onOpenScanModal?: () => void;
   onOpenPledgeModal?: () => void;
+  onOpenContactModal?: () => void;
   activeAlertsCount: number;
   totalBinsCount: number;
   isAdmin: boolean;
@@ -35,6 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAddBinModal,
   onOpenScanModal,
   onOpenPledgeModal,
+  onOpenContactModal,
   activeAlertsCount,
   totalBinsCount,
   isAdmin,
@@ -321,6 +323,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span>{currentLang === 'hi' ? 'डस्टबिन क्यूआर स्कैन' : 'Scan Bin QR Code'}</span>
                 </div>
                 <span className="text-[10px] font-mono-code text-stone-400">Camera / ID</span>
+              </button>
+            )}
+
+            {onOpenContactModal && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenContactModal();
+                }}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold text-stone-300 hover:bg-white/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="text-emerald-400 text-sm">✉️</span>
+                  <span>{currentLang === 'hi' ? 'नोडल सहायता / संपर्क' : 'Nodal Helpdesk & Contact'}</span>
+                </div>
+                <span className="text-[10px] font-mono-code text-stone-400">swachh@nitp.ac.in</span>
               </button>
             )}
           </motion.div>
