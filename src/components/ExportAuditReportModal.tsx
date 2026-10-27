@@ -98,7 +98,7 @@ export const ExportAuditReportModal: React.FC<ExportAuditReportModalProps> = ({
                 National Institute of Technology Patna
               </h2>
               <p className="text-xs text-stone-600">
-                Ashok Rajpath, Mahendru, Patna, Bihar — 800005
+                Ashok Rajpath, Mahendru, Patna, Bihar, PIN: 800005
               </p>
               <div className="mt-2 inline-block bg-[#134E3A] text-white px-3 py-0.5 rounded-xs text-[11px] font-bold uppercase tracking-wider font-mono-code">
                 Daily Swachh Bharat Mission Sanitation Audit Docket

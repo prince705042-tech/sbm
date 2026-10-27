@@ -1,0 +1,14 @@
+# robots.txt for Swachh Campus - NIT Patna Waste Bin Locator
+# Official domain: https://swachh.nitp.ac.in
+
+User-agent: *
+Allow: /
+Allow: /map
+Allow: /finder
+Allow: /guide
+Allow: /alerts
+Allow: /pledge
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://swachh.nitp.ac.in/sitemap.xml

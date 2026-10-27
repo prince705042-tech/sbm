@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Rounded Emblem Background -->
+  <rect width="64" height="64" rx="14" fill="#047857" />
+  
+  <!-- Subtle inner border -->
+  <rect x="2" y="2" width="60" height="60" rx="12" stroke="#10B981" stroke-width="2" fill="none" opacity="0.4" />
+
+  <!-- Iconic Gandhi Glasses (Swachh Bharat Emblem) -->
+  <!-- Left Lens -->
+  <circle cx="21" cy="32" r="11" stroke="#FFFFFF" stroke-width="3.5" fill="#065F46" />
+  <!-- Right Lens -->
+  <circle cx="43" cy="32" r="11" stroke="#FFFFFF" stroke-width="3.5" fill="#065F46" />
+  <!-- Bridge connecting the lenses -->
+  <path d="M32 30 C32 27 32 27 32 30" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" />
+  <path d="M29.5 28.5 C31 27 33 27 34.5 28.5" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" />
+  
+  <!-- Spectacle Temple Left and Right -->
+  <path d="M10 32 L4 29" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" />
+  <path d="M54 32 L60 29" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Hindi lettering clean micro accents: "स्वच्छ" on left lens, "भारत" on right lens (simplified legible strokes) -->
+  <text x="21" y="34.5" fill="#FFFFFF" font-size="6.5" font-family="'Noto Sans Devanagari', sans-serif" font-weight="700" text-anchor="middle">स्वच्छ</text>
+  <text x="43" y="34.5" fill="#FFFFFF" font-size="6.5" font-family="'Noto Sans Devanagari', sans-serif" font-weight="700" text-anchor="middle">भारत</text>
+
+  <!-- Tricolor Accent Bar below glasses -->
+  <rect x="18" y="47" width="28" height="2" rx="1" fill="#FF9933" />
+  <rect x="18" y="49.5" width="28" height="2" rx="1" fill="#FFFFFF" />
+  <rect x="18" y="52" width="28" height="2" rx="1" fill="#138808" />
+</svg>

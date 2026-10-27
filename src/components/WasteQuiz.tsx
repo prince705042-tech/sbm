@@ -6,7 +6,7 @@ import {
   Award, 
   RotateCcw, 
   ArrowRight, 
-  Sparkles,
+  GraduationCap,
   Leaf,
   Recycle,
   Zap,
@@ -206,7 +206,7 @@ export const WasteQuiz: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10px] font-bold bg-stone-100 text-stone-800 border border-stone-200 mb-1.5 font-mono-code uppercase tracking-wider">
-            <Sparkles className="w-3 h-3 text-[#134E3A]" />
+            <GraduationCap className="w-3.5 h-3.5 text-[#134E3A]" />
             <span>Interactive Protocol Assessment</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-bold text-stone-900 font-editorial">
@@ -348,8 +348,8 @@ export const WasteQuiz: React.FC = () => {
             </div>
 
             <div className="space-y-1">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-900 border border-emerald-200 font-mono-code">
-                <Sparkles className="w-3 h-3 text-[#134E3A]" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-900 border border-emerald-200 font-mono-code">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#134E3A]" />
                 Assessment Complete
               </span>
               <h4 className="text-2xl font-bold text-stone-900 font-editorial mt-2">

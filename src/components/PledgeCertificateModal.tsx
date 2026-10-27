@@ -7,7 +7,6 @@ import {
   Check, 
   ShieldCheck, 
   RotateCcw,
-  Sparkles,
   QrCode
 } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -44,7 +43,7 @@ export const PledgeCertificateModal: React.FC<PledgeCertificateModalProps> = ({
   };
 
   const handleShare = async () => {
-    const text = `🇮🇳 I have taken the official Swachhata Pledge under Swachh Bharat Mission!\n\n"I pledge to never litter and always segregate waste into Dry (Blue) & Wet (Green) dustbins to keep our campus 100% clean and green."\n\n— ${pledgeName || 'Campus Citizen'} (${pledgeDept || 'NIT Patna'})\n#SwachhBharatMission #CleanCampus`;
+    const text = `🇮🇳 I have taken the official Swachhata Pledge under Swachh Bharat Mission!\n\n"I pledge to never litter and always segregate waste into Dry (Blue) & Wet (Green) dustbins to keep our campus 100% clean and green."\n\n- ${pledgeName || 'Campus Citizen'} (${pledgeDept || 'NIT Patna'})\n#SwachhBharatMission #CleanCampus`;
     
     if (navigator.clipboard) {
       try {
@@ -78,7 +77,7 @@ export const PledgeCertificateModal: React.FC<PledgeCertificateModalProps> = ({
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-amber-300" />
             <span className="text-xs font-bold font-editorial">
-              {currentLang === 'hi' ? 'स्वच्छ भारत मिशन — आधिकारिक प्रमाण पत्र' : 'Swachh Bharat Mission Certification'}
+              {currentLang === 'hi' ? 'स्वच्छ भारत मिशन • आधिकारिक प्रमाण पत्र' : 'Swachh Bharat Mission Certification'}
             </span>
           </div>
 

@@ -11,7 +11,6 @@ import {
   AlertTriangle, 
   CheckCircle2, 
   Bookmark, 
-  Sparkles,
   Maximize2,
   Minimize2,
   FileText,
@@ -556,7 +555,7 @@ export const BookHandbook3D: React.FC<BookHandbook3DProps> = ({
                   {currentSpread === 4 && (
                     <div className="space-y-4 text-center">
                       <div className="w-12 h-12 rounded-full bg-emerald-100 text-[#134E3A] flex items-center justify-center mx-auto shadow-inner">
-                        <Sparkles className="w-6 h-6" />
+                        <Award className="w-6 h-6" />
                       </div>
                       <h3 className="text-lg font-bold font-editorial text-stone-900">
                         Official Citizen Cleanliness Oath

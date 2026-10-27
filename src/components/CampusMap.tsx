@@ -11,7 +11,7 @@ import {
   AlertTriangle,
   ZoomIn,
   ZoomOut,
-  Sparkles,
+  Info,
   Mail,
   Send,
   CheckCircle2,
@@ -366,7 +366,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 font-editorial tracking-tight">
-                NIT Patna Main Campus — Infrastructure &amp; Dustbin Directory
+                NIT Patna Main Campus · Infrastructure &amp; Dustbin Directory
               </h2>
               <span className="text-xs font-semibold px-2 py-0.5 rounded bg-stone-100 text-stone-700 border border-stone-200 font-mono-code">
                 {filteredBins.length} mapped
@@ -718,7 +718,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
           {/* Mobile Gestures Guidance Chip */}
           <div className="absolute top-2.5 left-2.5 z-20 pointer-events-none flex items-center gap-1.5">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white text-[10px] text-stone-800 font-mono-code border border-stone-300 shadow-xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
               <span>Pinch 2 fingers to zoom &bull; Drag to pan</span>
             </span>
           </div>
@@ -945,8 +945,8 @@ export const CampusMap: React.FC<CampusMapProps> = ({
               <span>📍 All Dustbins Located Outside Buildings (Entrances &amp; Walkways)</span>
             </div>
           </div>
-          <div className="flex items-center gap-1 text-slate-400 text-[11px]">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+          <div className="flex items-center gap-1.5 text-stone-500 text-[11px]">
+            <Info className="w-3.5 h-3.5 text-stone-400" />
             <span>Click any building or bin marker to explore</span>
           </div>
         </div>

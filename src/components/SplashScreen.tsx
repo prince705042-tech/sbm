@@ -79,7 +79,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
 
               <img
                 src={getAssetUrl('gandhi-splash.webp')}
-                alt="Mahatma Gandhi - Swachh Bharat Abhiyan"
+                alt="Mahatma Gandhi walking silhouette artwork representing the Swachh Bharat Abhiyan national cleanliness mission"
                 className="w-full h-full object-contain drop-shadow-md"
                 referrerPolicy="no-referrer"
               />

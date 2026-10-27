@@ -7,7 +7,7 @@ import {
   Lock,
   ShieldCheck,
   CheckCircle2,
-  Sparkles,
+  Loader2,
   Radio,
   ArrowRight,
   Check,
@@ -132,7 +132,7 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
               {isSubmitted ? (
                 <CheckCircle2 className="w-5 h-5 text-emerald-700" />
               ) : isSubmitting ? (
-                <Sparkles className="w-4 h-4 animate-spin text-amber-700" />
+                <Loader2 className="w-4 h-4 animate-spin text-amber-700" />
               ) : (
                 <AlertTriangle className="w-4 h-4 text-rose-700" />
               )}
@@ -181,7 +181,7 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
                 {submissionStep >= 3 ? (
                   <CheckCircle2 className="w-8 h-8 text-[#134E3A]" />
                 ) : (
-                  <Radio className="w-8 h-8 text-amber-600 animate-pulse" />
+                  <Loader2 className="w-8 h-8 text-amber-700 animate-spin" />
                 )}
               </div>
 

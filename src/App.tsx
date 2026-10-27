@@ -20,9 +20,13 @@ import { SbmUrbanHero } from './components/SbmUrbanHero';
 import { SbmUrbanFooter } from './components/SbmUrbanFooter';
 import { TakePledgeModal } from './components/TakePledgeModal';
 import { PledgeCertificateModal } from './components/PledgeCertificateModal';
+import { CampusPledgeView } from './components/CampusPledgeView';
+import { Breadcrumbs } from './components/Breadcrumbs';
+import { NotFoundPage } from './components/NotFoundPage';
 import { ScrollToTopButton } from './components/ScrollToTopButton';
 import { getAssetUrl } from './utils/assets';
-import { Sparkles, Heart, MapPin, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut, CheckCircle2, QrCode, ArrowUp } from 'lucide-react';
+import { AppRoute, ROUTE_METADATA, resolveCurrentRoute, applyRouteSEO } from './utils/seo';
+import { Heart, MapPin, Compass, BookOpen, Search, AlertCircle, ShieldCheck, Shield, Lock, LogOut, CheckCircle2, QrCode, ArrowUp, Award } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
@@ -153,7 +157,36 @@ export default function App() {
     }
   });
 
-  const [activeTab, setActiveTab] = useState<'map' | 'finder' | 'guide' | 'alerts'>('map');
+  const [activeTab, setActiveTab] = useState<AppRoute>(() => resolveCurrentRoute());
+
+  const handleNavigateRoute = (route: AppRoute) => {
+    setActiveTab(route);
+    const meta = ROUTE_METADATA[route] || ROUTE_METADATA.map;
+    if (typeof window !== 'undefined') {
+      const targetSlug = meta.slug === '/map' ? '/' : meta.slug;
+      if (window.location.pathname !== targetSlug) {
+        window.history.pushState(null, '', targetSlug);
+      }
+    }
+    applyRouteSEO(route);
+  };
+
+  // Sync routing and dynamic SEO on mount and browser back/forward navigation
+  useEffect(() => {
+    const initialRoute = resolveCurrentRoute();
+    setActiveTab(initialRoute);
+    applyRouteSEO(initialRoute);
+
+    const handlePopState = () => {
+      const r = resolveCurrentRoute();
+      setActiveTab(r);
+      applyRouteSEO(r);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const [userZone, setUserZone] = useState<BuildingZone>('sac-building');
   const [selectedBin, setSelectedBin] = useState<CampusBin | null>(INITIAL_BINS[0]);
   const [highlightedBinId, setHighlightedBinId] = useState<string | null>(null);
@@ -432,7 +465,7 @@ export default function App() {
       setIsAddBinModalOpen(true);
       showToast('🛡️ SBM Admin verified. You can now register a new dustbin station.');
     } else {
-      setActiveTab('alerts');
+      handleNavigateRoute('alerts');
     }
     setAdminLoginReason(null);
   };
@@ -441,7 +474,7 @@ export default function App() {
   const handleSelectBinAndShowMap = (bin: CampusBin) => {
     setSelectedBin(bin);
     setHighlightedBinId(bin.id);
-    setActiveTab('map');
+    handleNavigateRoute('map');
     showToast(`📍 Showing route to ${bin.name} on Campus Map`);
   };
 
@@ -463,7 +496,7 @@ export default function App() {
     };
     setBins((prev) => [newBin, ...prev]);
     setSelectedBin(newBin);
-    setActiveTab('map');
+    handleNavigateRoute('map');
     showToast(`✅ "${newBin.name}" successfully added to Campus Map!`);
   };
 
@@ -748,19 +781,18 @@ export default function App() {
         />
       )}
 
-      {/* Official Swachh Bharat Abhiyan Background Artwork */}
+      {/* Official Swachh Bharat Abhiyan Background Artwork (Quiet Watermark for WCAG AA Contrast) */}
       {bgStyle !== 'minimal' && (
         <div 
           className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none" 
           aria-hidden="true"
           style={{ transform: 'translateZ(0)' }}
         >
-          {/* Spectacles & Tricolor Artwork - Edge-to-Edge Cover & Deep Rich Darker Colors */}
           <div 
             className={`absolute inset-0 bg-cover bg-center bg-no-repeat ${
               bgStyle === 'vibrant' 
-                ? 'opacity-75' 
-                : 'opacity-50'
+                ? 'opacity-15' 
+                : 'opacity-[0.05]'
             }`}
             style={{
               backgroundImage: `url('${getAssetUrl('swachh-bharat-bg.webp')}')`,
@@ -801,14 +833,14 @@ export default function App() {
       {/* Main SBM Urban Navy Navigation Bar */}
       <Navbar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleNavigateRoute}
         onOpenReportModal={() => {
           setTargetBinForReport(selectedBin);
           setIsReportModalOpen(true);
         }}
         onOpenAddBinModal={handleTriggerAddBin}
         onOpenScanModal={() => setIsScanBinModalOpen(true)}
-        onOpenPledgeModal={handleOpenPledge}
+        onOpenPledgeModal={() => handleNavigateRoute('pledge')}
         activeAlertsCount={activeAlertsCount}
         totalBinsCount={bins.length}
         isAdmin={isAdmin}
@@ -818,6 +850,9 @@ export default function App() {
 
       {/* Main View Container */}
       <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 lg:px-8 py-4 sm:py-7 pb-24 md:pb-10 min-w-0">
+        {/* Institutional Breadcrumbs Navigation */}
+        <Breadcrumbs currentRoute={activeTab} onNavigate={handleNavigateRoute} />
+
         <AnimatePresence mode="wait">
           {activeTab === 'map' && (
             <motion.div
@@ -828,15 +863,31 @@ export default function App() {
               transition={{ duration: 0.22, ease: 'easeOut' }}
               className="space-y-4"
             >
+              {/* Distinct Page Heading */}
+              <div className="border-b border-stone-200/80 pb-3 mb-2">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded tracking-wide uppercase">
+                    {ROUTE_METADATA.map.badge}
+                  </span>
+                  <span className="text-xs text-stone-500 font-mono">Ashok Rajpath, NIT Patna</span>
+                </div>
+                <h1 className="text-xl sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
+                  {ROUTE_METADATA.map.heading}
+                </h1>
+                <p className="text-xs sm:text-sm text-stone-600 mt-1 max-w-3xl">
+                  {ROUTE_METADATA.map.subheading}
+                </p>
+              </div>
+
               <SbmUrbanHero
                 currentLang={currentLang}
-                onNavigateTab={setActiveTab}
+                onNavigateTab={handleNavigateRoute}
                 onOpenReportModal={() => {
                   setTargetBinForReport(selectedBin);
                   setIsReportModalOpen(true);
                 }}
                 onOpenScanModal={() => setIsScanBinModalOpen(true)}
-                onOpenPledgeModal={handleOpenPledge}
+                onOpenPledgeModal={() => handleNavigateRoute('pledge')}
                 totalBinsCount={bins.length}
                 activeAlertsCount={activeAlertsCount}
               />
@@ -879,6 +930,22 @@ export default function App() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.22, ease: 'easeOut' }}
             >
+              {/* Distinct Page Heading */}
+              <div className="border-b border-stone-200/80 pb-3 mb-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[11px] font-semibold text-blue-800 bg-blue-50 border border-blue-200/80 px-2 py-0.5 rounded tracking-wide uppercase">
+                    {ROUTE_METADATA.finder.badge}
+                  </span>
+                  <span className="text-xs text-stone-500 font-mono">Real-Time Distance Engine</span>
+                </div>
+                <h1 className="text-xl sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
+                  {ROUTE_METADATA.finder.heading}
+                </h1>
+                <p className="text-xs sm:text-sm text-stone-600 mt-1 max-w-3xl">
+                  {ROUTE_METADATA.finder.subheading}
+                </p>
+              </div>
+
               <NearestBinFinder
                 bins={bins}
                 userZone={userZone}
@@ -898,13 +965,29 @@ export default function App() {
               transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
               style={{ transformOrigin: 'left center', perspective: 1200 }}
             >
+              {/* Distinct Page Heading */}
+              <div className="border-b border-stone-200/80 pb-3 mb-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded tracking-wide uppercase">
+                    {ROUTE_METADATA.guide.badge}
+                  </span>
+                  <span className="text-xs text-stone-500 font-mono">MoHUA SBM Urban Directives</span>
+                </div>
+                <h1 className="text-xl sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
+                  {ROUTE_METADATA.guide.heading}
+                </h1>
+                <p className="text-xs sm:text-sm text-stone-600 mt-1 max-w-3xl">
+                  {ROUTE_METADATA.guide.subheading}
+                </p>
+              </div>
+
               <WasteSegregationGuide
                 bins={bins}
-                onNavigateToFinder={(wasteType) => {
-                  setActiveTab('finder');
+                onNavigateToFinder={() => {
+                  handleNavigateRoute('finder');
                 }}
                 onNavigateToMap={(binId) => {
-                  setActiveTab('map');
+                  handleNavigateRoute('map');
                   if (binId) {
                     const target = bins.find((b) => b.id === binId);
                     if (target) {
@@ -929,6 +1012,22 @@ export default function App() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.22, ease: 'easeOut' }}
             >
+              {/* Distinct Page Heading */}
+              <div className="border-b border-stone-200/80 pb-3 mb-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded tracking-wide uppercase">
+                    {ROUTE_METADATA.alerts.badge}
+                  </span>
+                  <span className="text-xs text-stone-500 font-mono">Civic Grievance Board</span>
+                </div>
+                <h1 className="text-xl sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
+                  {ROUTE_METADATA.alerts.heading}
+                </h1>
+                <p className="text-xs sm:text-sm text-stone-600 mt-1 max-w-3xl">
+                  {ROUTE_METADATA.alerts.subheading}
+                </p>
+              </div>
+
               <CampusAlertsView
                 tickets={tickets}
                 bins={bins}
@@ -959,81 +1058,133 @@ export default function App() {
               />
             </motion.div>
           )}
+
+          {activeTab === 'pledge' && (
+            <motion.div
+              key="tab-pledge"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+            >
+              {/* Distinct Page Heading */}
+              <div className="border-b border-stone-200/80 pb-3 mb-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded tracking-wide uppercase">
+                    {ROUTE_METADATA.pledge.badge}
+                  </span>
+                  <span className="text-xs text-stone-500 font-mono">National Swachhata Campaign</span>
+                </div>
+                <h1 className="text-xl sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
+                  {ROUTE_METADATA.pledge.heading}
+                </h1>
+                <p className="text-xs sm:text-sm text-stone-600 mt-1 max-w-3xl">
+                  {ROUTE_METADATA.pledge.subheading}
+                </p>
+              </div>
+
+              <CampusPledgeView
+                pledgeRecord={pledgeRecord}
+                onTakePledge={handlePledgeCompleted}
+                onResetPledge={handleResetPledge}
+              />
+            </motion.div>
+          )}
+
+          {activeTab === 'not_found' && (
+            <motion.div
+              key="tab-not-found"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+            >
+              <NotFoundPage
+                onNavigate={handleNavigateRoute}
+                onSearchCampusZone={(term) => {
+                  handleNavigateRoute('map');
+                  showToast(`🔍 Located zone: ${term}`);
+                }}
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
       </main>
 
-      {/* Mobile Sticky Bottom Navigation Bar (Optimized for Student Thumb Access) */}
+      {/* Mobile Bottom Navigation Bar (Clean ergonomic thumb access) */}
       <nav 
         id="mobile-bottom-navbar" 
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200/90 px-2 pt-1 pb-2 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] flex items-center justify-around select-none"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-stone-200 px-2 py-1.5 shadow-sm flex items-center justify-around select-none"
+        aria-label="Mobile Navigation"
       >
         {/* Tab 1: Map */}
         <button
           id="btn-mobile-nav-map"
-          onClick={() => setActiveTab('map')}
-          className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors cursor-pointer min-h-[44px] ${
-            activeTab === 'map' ? 'text-[#046A38] font-bold' : 'text-stone-500 hover:text-stone-800'
+          type="button"
+          onClick={() => handleNavigateRoute('map')}
+          className={`flex-1 flex flex-col items-center justify-center py-1 rounded transition-colors cursor-pointer min-h-[44px] ${
+            activeTab === 'map' ? 'text-[#046A38] font-semibold' : 'text-stone-500 hover:text-stone-900'
           }`}
         >
-          <MapPin className={`w-5 h-5 ${activeTab === 'map' ? 'text-[#046A38]' : 'text-stone-400'}`} />
-          <span className="text-[10px] mt-0.5 tracking-tight font-medium">Map</span>
+          <MapPin className={`w-4 h-4 ${activeTab === 'map' ? 'text-[#046A38]' : 'text-stone-400'}`} />
+          <span className="text-[10px] mt-1 font-medium">Map</span>
         </button>
 
         {/* Tab 2: Nearest */}
         <button
           id="btn-mobile-nav-finder"
-          onClick={() => setActiveTab('finder')}
-          className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors cursor-pointer min-h-[44px] ${
-            activeTab === 'finder' ? 'text-[#046A38] font-bold' : 'text-stone-500 hover:text-stone-800'
+          type="button"
+          onClick={() => handleNavigateRoute('finder')}
+          className={`flex-1 flex flex-col items-center justify-center py-1 rounded transition-colors cursor-pointer min-h-[44px] ${
+            activeTab === 'finder' ? 'text-[#046A38] font-semibold' : 'text-stone-500 hover:text-stone-900'
           }`}
         >
-          <Search className={`w-5 h-5 ${activeTab === 'finder' ? 'text-[#046A38]' : 'text-stone-400'}`} />
-          <span className="text-[10px] mt-0.5 tracking-tight font-medium">Nearest</span>
+          <Compass className={`w-4 h-4 ${activeTab === 'finder' ? 'text-[#046A38]' : 'text-stone-400'}`} />
+          <span className="text-[10px] mt-1 font-medium">Nearest</span>
         </button>
 
-        {/* Center Prominent Action: Quick QR Scanner FAB */}
-        <div className="flex-1 flex items-center justify-center -mt-5">
-          <button
-            id="btn-mobile-nav-scan"
-            type="button"
-            onClick={() => setIsScanBinModalOpen(true)}
-            className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#0A2540] to-[#134E3A] text-white flex flex-col items-center justify-center shadow-lg border-2 border-white ring-2 ring-emerald-500/30 active:scale-95 transition-transform cursor-pointer"
-            title="Scan Station QR / Lookup"
-          >
-            <QrCode className="w-5 h-5 text-amber-300" />
-            <span className="text-[8px] font-bold leading-none mt-0.5 uppercase tracking-wider">Scan</span>
-          </button>
-        </div>
+        {/* Tab 3: Quick Scan Station */}
+        <button
+          id="btn-mobile-nav-scan"
+          type="button"
+          onClick={() => setIsScanBinModalOpen(true)}
+          className="flex-1 flex flex-col items-center justify-center py-1 rounded text-stone-600 hover:text-stone-900 transition-colors cursor-pointer min-h-[44px]"
+        >
+          <QrCode className="w-4 h-4 text-emerald-700" />
+          <span className="text-[10px] mt-1 font-medium">Scan QR</span>
+        </button>
 
-        {/* Tab 3: Guide */}
+        {/* Tab 4: Guide */}
         <button
           id="btn-mobile-nav-guide"
-          onClick={() => setActiveTab('guide')}
-          className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors cursor-pointer min-h-[44px] ${
-            activeTab === 'guide' ? 'text-[#046A38] font-bold' : 'text-stone-500 hover:text-stone-800'
+          type="button"
+          onClick={() => handleNavigateRoute('guide')}
+          className={`flex-1 flex flex-col items-center justify-center py-1 rounded transition-colors cursor-pointer min-h-[44px] ${
+            activeTab === 'guide' ? 'text-[#046A38] font-semibold' : 'text-stone-500 hover:text-stone-900'
           }`}
         >
-          <Sparkles className={`w-5 h-5 ${activeTab === 'guide' ? 'text-[#046A38]' : 'text-stone-400'}`} />
-          <span className="text-[10px] mt-0.5 tracking-tight font-medium">Guide</span>
+          <BookOpen className={`w-4 h-4 ${activeTab === 'guide' ? 'text-[#046A38]' : 'text-stone-400'}`} />
+          <span className="text-[10px] mt-1 font-medium">Manual</span>
         </button>
 
-        {/* Tab 4: Grievance / Alerts (Open to all students & admins) */}
+        {/* Tab 5: Grievances / Desk */}
         <button
           id="btn-mobile-nav-alerts"
-          onClick={() => setActiveTab('alerts')}
-          className={`flex-1 relative flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors cursor-pointer min-h-[44px] ${
-            activeTab === 'alerts' ? 'text-[#046A38] font-bold' : 'text-stone-500 hover:text-stone-800'
+          type="button"
+          onClick={() => handleNavigateRoute('alerts')}
+          className={`flex-1 relative flex flex-col items-center justify-center py-1 rounded transition-colors cursor-pointer min-h-[44px] ${
+            activeTab === 'alerts' ? 'text-[#046A38] font-semibold' : 'text-stone-500 hover:text-stone-900'
           }`}
         >
           <div className="relative">
-            <ShieldCheck className={`w-5 h-5 ${activeTab === 'alerts' ? 'text-[#046A38]' : 'text-stone-400'}`} />
+            <ShieldCheck className={`w-4 h-4 ${activeTab === 'alerts' ? 'text-[#046A38]' : 'text-stone-400'}`} />
             {activeAlertsCount > 0 && (
-              <span className="absolute -top-1 -right-2.5 min-w-[16px] h-4 px-1 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center font-mono-code shadow-xs">
+              <span className="absolute -top-1 -right-2.5 min-w-[15px] h-3.5 px-1 rounded-full bg-rose-600 text-white text-[8px] font-bold flex items-center justify-center font-mono-code tabular-nums">
                 {activeAlertsCount}
               </span>
             )}
           </div>
-          <span className="text-[10px] mt-0.5 tracking-tight font-medium">
+          <span className="text-[10px] mt-1 font-medium">
             {isAdmin ? 'Admin' : 'Grievance'}
           </span>
         </button>
@@ -1158,12 +1309,12 @@ export default function App() {
         }}
         onAdminLogoutClick={handleAdminLogout}
         onOpenDashboardClick={() => {
-          setActiveTab('alerts');
+          handleNavigateRoute('alerts');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         activeAlertsCount={activeAlertsCount}
-        onNavigateTab={setActiveTab}
-        onOpenPledgeModal={handleOpenPledge}
+        onNavigateTab={handleNavigateRoute}
+        onOpenPledgeModal={() => handleNavigateRoute('pledge')}
       />
 
       {/* Floating Scroll to Top Action with Live Circular Progress (Self-Contained & Lag-Free) */}

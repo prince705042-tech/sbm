@@ -4,7 +4,6 @@ import {
   Award, 
   CheckSquare, 
   Square, 
-  Sparkles, 
   ArrowRight,
   ShieldCheck,
   Check

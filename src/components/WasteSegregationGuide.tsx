@@ -4,7 +4,6 @@ import { WasteItem, CampusBin } from '../types';
 import { 
   Search, 
   Trash2, 
-  Sparkles, 
   CheckCircle2, 
   HelpCircle, 
   Leaf, 

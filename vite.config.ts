@@ -59,13 +59,24 @@ export default defineConfig(() => {
       ],
     },
     build: {
-      chunkSizeWarningLimit: 1000,
+      sourcemap: false,
+      minify: 'esbuild',
+      chunkSizeWarningLimit: 800,
       rollupOptions: {
         output: {
-          manualChunks: {
-            vendor: ['react', 'react-dom'],
-            icons: ['lucide-react'],
-            motion: ['motion'],
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('@supabase')) {
+                return 'vendor-supabase';
+              }
+              if (id.includes('lucide-react')) {
+                return 'vendor-icons';
+              }
+              if (id.includes('lenis') || id.includes('jsqr')) {
+                return 'vendor-utils';
+              }
+              return 'vendor-framework';
+            }
           },
         },
       },

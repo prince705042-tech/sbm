@@ -1,0 +1,48 @@
+# Swachh Campus - NIT Patna Waste Bin Locator & Sanitation Management
+> Official Digital Portal under Swachh Bharat Mission (Urban), Ministry of Housing and Urban Affairs (MoHUA), Government of India.
+> Operational Institution: National Institute of Technology Patna (NIT Patna), Ashok Rajpath, Patna, Bihar - 800005, India.
+
+## Institutional Purpose
+Swachh Campus is a digital campus utility facilitating 100% source segregation of municipal solid waste across the Ashok Rajpath campus of NIT Patna. It provides interactive geospatial bin location, nearest dustbin distance routing, real-time overflow complaint logging, offline-first sync with Supabase PostgreSQL, and official Swachhata pledge certification.
+
+## Canonical Domain & Route Slugs
+- Primary Portal: https://swachh.nitp.ac.in/
+- Interactive Campus Map: https://swachh.nitp.ac.in/map
+- Nearest Dustbin Finder: https://swachh.nitp.ac.in/finder
+- Segregation Handbook & 3D Rules: https://swachh.nitp.ac.in/guide
+- Sanitation Grievances & Command Desk: https://swachh.nitp.ac.in/alerts
+- Official Swachhata Pledge: https://swachh.nitp.ac.in/pledge
+
+## Campus Location & Coordinates
+- Latitude: 25.6207° N
+- Longitude: 85.1727° E
+- Campus Area: Main Campus on the south bank of River Ganga, Ashok Rajpath, Mahendru, Patna 800005.
+
+## Waste Categorization Standards (MoHUA Compliance)
+1. Green Bin (Wet / Biodegradable Waste):
+   - Food leftovers, vegetable peels, canteen kitchen scraps, fruit waste, tea leaves, garden cuttings.
+   - Destination: Campus aerobic composting pits near Ganga Ghat perimeter.
+2. Blue Bin (Dry / Recyclable Waste):
+   - Paper, examination booklets, cardboard boxes, PET plastic bottles, beverage cans, clean packaging film.
+   - Destination: Material Recovery Facility (MRF) for recycling partnerships.
+3. Yellow / Sanitary Bin (Hazardous & Medical Waste):
+   - Chemistry laboratory chemical absorbent pads, dispensary gloves, sanitary napkins, biomedical swabs.
+   - Destination: Authorized municipal hazardous waste treatment incinerator.
+4. Red Bin (E-Waste):
+   - Damaged computer peripherals, PCB boards, discarded cables, depleted batteries.
+   - Destination: State Pollution Control Board authorized recycler.
+
+## Key Campus Sectors
+- Main Administrative Building & Director's Wing
+- Computer Science & Engineering / Electrical Building
+- Chemistry & Physics Department Block
+- Student Activity Centre (SAC) & Main Canteen
+- Kosi Hostel, Brahmaputra Hostel, and Ganga Ghat Promenade
+- New Incubation Centre & Campus Sports Pavilion
+
+## Civic Sanitation Reporting Flow
+1. Campus community members scan the QR placard on any dustbin or click "Report Bin Overflow".
+2. Incident is tagged with bin ID, issue category (Overflowing, Wrong Segregation, Damaged Bin, Unclean Area), and optional photo.
+3. Ticket synchronizes instantly with PostgreSQL / local storage.
+4. SBM Estate Sanitation Squad dispatches cleaning personnel within 30 minutes.
+5. On completion, ticket status changes to Resolved and bin fill reset to 5%.

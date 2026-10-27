@@ -13,7 +13,6 @@ import {
   Camera, 
   Trash2,
   Clock,
-  Sparkles,
   SwitchCamera,
   Zap,
   ZapOff,
@@ -566,8 +565,8 @@ export const ScanBinModal: React.FC<ScanBinModalProps> = ({
 
                 {/* Top Overlay Camera Status Bar */}
                 <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-20 pointer-events-auto">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-stone-900/80 border border-stone-700/80 text-[10px] text-emerald-400 font-mono-code backdrop-blur-xs">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-stone-900/85 border border-stone-700/80 text-[10px] text-emerald-400 font-mono-code">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                     <span>Camera Live &bull; Auto-detecting</span>
                   </div>
 

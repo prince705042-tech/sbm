@@ -5,11 +5,11 @@ import {
   LogOut, 
   MapPin, 
   ExternalLink, 
-  CheckCircle2, 
   Award,
-  Globe,
-  FileText
+  CheckCircle2
 } from 'lucide-react';
+
+import { AppRoute } from '../utils/seo';
 
 interface SbmUrbanFooterProps {
   currentLang: 'en' | 'hi';
@@ -18,7 +18,7 @@ interface SbmUrbanFooterProps {
   onAdminLogoutClick: () => void;
   onOpenDashboardClick: () => void;
   activeAlertsCount: number;
-  onNavigateTab: (tab: 'map' | 'finder' | 'guide' | 'alerts') => void;
+  onNavigateTab: (tab: AppRoute) => void;
   onOpenPledgeModal: () => void;
 }
 
@@ -34,10 +34,10 @@ export const SbmUrbanFooter: React.FC<SbmUrbanFooterProps> = ({
 }) => {
   return (
     <footer className="w-full bg-[#071A2E] text-stone-300 text-xs border-t border-stone-800 mt-12 relative z-10 select-none">
-      {/* National Tricolor Top Ribbon */}
-      <div className="h-1.5 w-full flex">
+      {/* National Tricolor Top Line */}
+      <div className="h-1 w-full flex" aria-hidden="true">
         <div className="flex-1 bg-[#FF671F]" />
-        <div className="flex-1 bg-[#FFFFFF]" />
+        <div className="flex-1 bg-white" />
         <div className="flex-1 bg-[#046A38]" />
       </div>
 
@@ -45,20 +45,18 @@ export const SbmUrbanFooter: React.FC<SbmUrbanFooterProps> = ({
       <div className="bg-[#0B2545] border-b border-stone-800/80 px-4 sm:px-6 lg:px-8 py-3.5">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3 text-center sm:text-left">
-            <div className="w-9 h-9 rounded-lg bg-[#046A38] text-white flex items-center justify-center shrink-0 shadow-xs border border-emerald-500/30">
-              <ShieldCheck className="w-5 h-5 text-emerald-300" />
+            <div className="w-9 h-9 rounded-lg bg-[#046A38] text-white flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5 text-emerald-200" />
             </div>
             <div>
-              <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
-                <span className="font-bold text-white text-xs">
-                  {currentLang === 'hi' 
-                    ? 'स्वच्छ भारत मिशन — नोडल पर्यवेक्षी कंसोल' 
-                    : 'Swachh Bharat Mission Campus Sanitation Registry & Supervisory Console'}
-                </span>
+              <div className="font-semibold text-white text-xs">
+                {currentLang === 'hi' 
+                  ? 'स्वच्छ भारत मिशन · नोडल पर्यवेक्षी कंसोल' 
+                  : 'Swachh Bharat Mission Campus Sanitation Registry & Supervisory Console'}
               </div>
               <p className="text-[11px] text-stone-400 mt-0.5">
                 {isAdmin
-                  ? (currentLang === 'hi' ? 'सत्यापित एडमिनिस्ट्रेटर लॉग-इन सक्रिय। हाउसकीपिंग टिकट प्रेषण एवं डस्टबिन प्रबंधन सक्षम।' : 'Authenticated as SBM Administrator. Housekeeping dispatch tickets and bin registry management active.')
+                  ? (currentLang === 'hi' ? 'सत्यापित एडमिनिस्ट्रेटर सत्र सक्रिय। हाउसकीपिंग टिकट प्रेषण एवं डस्टबिन प्रबंधन सक्षम।' : 'Authenticated as SBM Administrator. Housekeeping dispatch tickets and bin registry management active.')
                   : (currentLang === 'hi' ? 'स्वच्छ भारत मिशन पर्यवेक्षकों, वार्डन एवं स्वच्छता अधीक्षकों हेतु आरक्षित पोर्टल।' : 'Authorized access for SBM Nodal Supervisors, Estate Wardens, and Sanitary Inspectors.')}
               </p>
             </div>
@@ -70,12 +68,12 @@ export const SbmUrbanFooter: React.FC<SbmUrbanFooterProps> = ({
                 <button
                   type="button"
                   onClick={onOpenDashboardClick}
-                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#046A38] hover:bg-[#03532c] text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#046A38] hover:bg-[#03552d] text-white transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>{currentLang === 'hi' ? 'डैशबोर्ड खोलें' : 'Open Dashboard'}</span>
                   {activeAlertsCount > 0 && (
-                    <span className="w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center font-mono-code">
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold font-mono-code tabular-nums bg-rose-600 text-white">
                       {activeAlertsCount}
                     </span>
                   )}
@@ -83,7 +81,7 @@ export const SbmUrbanFooter: React.FC<SbmUrbanFooterProps> = ({
                 <button
                   type="button"
                   onClick={onAdminLogoutClick}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-rose-300 bg-rose-950/60 hover:bg-rose-900/60 border border-rose-800/60 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-rose-300 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/40 transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>{currentLang === 'hi' ? 'लॉग आउट' : 'Log Out'}</span>
@@ -93,7 +91,7 @@ export const SbmUrbanFooter: React.FC<SbmUrbanFooterProps> = ({
               <button
                 type="button"
                 onClick={onAdminLoginClick}
-                className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[#FF671F] hover:bg-[#e05814] transition-colors flex items-center gap-2 cursor-pointer shadow-sm"
+                className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-[#FF671F] hover:bg-[#e65a15] transition-colors flex items-center gap-2 cursor-pointer shadow-xs"
               >
                 <Lock className="w-3.5 h-3.5 text-white" />
                 <span>{currentLang === 'hi' ? 'अधिकारी लॉग-इन' : 'Officer Login'}</span>
@@ -103,88 +101,83 @@ export const SbmUrbanFooter: React.FC<SbmUrbanFooterProps> = ({
         </div>
       </div>
 
-      {/* 4-Column Directory (Mirroring sbmurban.org) */}
+      {/* 4-Column Directory */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Column 1: Citizen Interface */}
           <div className="space-y-3">
-            <h3 className="font-bold text-white text-sm font-editorial border-b border-stone-800 pb-1.5 flex items-center gap-2">
-              <span className="w-1.5 h-3.5 bg-[#FF671F] rounded-xs" />
-              {currentLang === 'hi' ? 'नागरिक इंटरफेस' : 'Citizen Interface'}
+            <h3 className="font-semibold text-white text-xs font-mono-code uppercase tracking-wider border-b border-stone-800 pb-2">
+              {currentLang === 'hi' ? 'नागरिक सेवाएँ' : 'Citizen Services'}
             </h3>
             <ul className="space-y-2 text-stone-400 text-xs">
               <li>
-                <button 
-                  onClick={() => onNavigateTab('finder')}
-                  className="hover:text-white transition-colors cursor-pointer text-left"
+                <a 
+                  href="/finder"
+                  onClick={(e) => { e.preventDefault(); onNavigateTab('finder'); }}
+                  className="hover:text-white transition-colors cursor-pointer text-left block"
                 >
                   {currentLang === 'hi' ? 'निकटतम डस्टबिन खोजें' : 'Locate Nearest Dustbin'}
-                </button>
+                </a>
               </li>
               <li>
-                <button 
-                  onClick={() => onNavigateTab('guide')}
-                  className="hover:text-white transition-colors cursor-pointer text-left"
+                <a 
+                  href="/guide"
+                  onClick={(e) => { e.preventDefault(); onNavigateTab('guide'); }}
+                  className="hover:text-white transition-colors cursor-pointer text-left block"
                 >
-                  {currentLang === 'hi' ? 'कचरा पृथक्करण गाइड (गीला/सूखा)' : 'Waste Segregation Guide'}
-                </button>
+                  {currentLang === 'hi' ? 'कचरा पृथक्करण गाइड' : 'Waste Segregation Manual'}
+                </a>
               </li>
               <li>
-                <button 
-                  onClick={() => onNavigateTab('map')}
-                  className="hover:text-white transition-colors cursor-pointer text-left"
+                <a 
+                  href="/map"
+                  onClick={(e) => { e.preventDefault(); onNavigateTab('map'); }}
+                  className="hover:text-white transition-colors cursor-pointer text-left block"
                 >
-                  {currentLang === 'hi' ? 'परिसर जीआईएस मानचित्र' : 'Campus GIS Dustbin Map'}
-                </button>
+                  {currentLang === 'hi' ? 'परिसर जीआईएस मानचित्र' : 'Campus Dustbin GIS Map'}
+                </a>
               </li>
               <li>
-                <button 
-                  onClick={onOpenPledgeModal}
-                  className="hover:text-white transition-colors cursor-pointer text-left flex items-center gap-1.5 text-amber-400"
+                <a 
+                  href="/pledge"
+                  onClick={(e) => { e.preventDefault(); onNavigateTab('pledge'); }}
+                  className="hover:text-amber-200 transition-colors cursor-pointer text-left flex items-center gap-1.5 text-amber-300"
                 >
                   <Award className="w-3.5 h-3.5" />
                   <span>{currentLang === 'hi' ? 'स्वच्छता प्रतिज्ञा एवं प्रमाण पत्र' : 'Swachhata Pledge & Certificate'}</span>
-                </button>
+                </a>
               </li>
             </ul>
           </div>
 
-          {/* Column 2: Dashboards & Ratings */}
+          {/* Column 2: Dashboards & Surveys */}
           <div className="space-y-3">
-            <h3 className="font-bold text-white text-sm font-editorial border-b border-stone-800 pb-1.5 flex items-center gap-2">
-              <span className="w-1.5 h-3.5 bg-[#046A38] rounded-xs" />
-              {currentLang === 'hi' ? 'डैशबोर्ड एवं रैंकिंग' : 'Dashboards & Surveys'}
+            <h3 className="font-semibold text-white text-xs font-mono-code uppercase tracking-wider border-b border-stone-800 pb-2">
+              {currentLang === 'hi' ? 'मूल्यांकन एवं मानक' : 'Standards & Audit'}
             </h3>
             <ul className="space-y-2 text-stone-400 text-xs">
-              <li>
-                <span className="flex items-center justify-between text-stone-300">
-                  <span>Swachh Survekshan 2026</span>
-                  <span className="text-[10px] font-mono-code text-emerald-400 bg-emerald-950 px-1.5 py-0.2 rounded">Active</span>
-                </span>
+              <li className="flex items-center justify-between text-stone-300">
+                <span>Swachh Survekshan 2026</span>
+                <span className="text-[10px] font-mono-code text-emerald-400">Active</span>
               </li>
-              <li>
-                <span className="flex items-center justify-between text-stone-300">
-                  <span>Garbage Free Campus (GFC)</span>
-                  <span className="text-[10px] font-mono-code text-amber-400">5-Star</span>
-                </span>
+              <li className="flex items-center justify-between text-stone-300">
+                <span>Garbage Free Campus (GFC)</span>
+                <span className="text-[10px] font-mono-code text-amber-300">5-Star</span>
               </li>
-              <li>
-                <span className="flex items-center justify-between text-stone-300">
-                  <span>Zero Waste Campus Protocol</span>
-                  <span className="text-[10px] font-mono-code text-emerald-400">Certified</span>
-                </span>
+              <li className="flex items-center justify-between text-stone-300">
+                <span>Zero Waste Protocol</span>
+                <span className="text-[10px] font-mono-code text-emerald-400">Certified</span>
               </li>
-              <li>
-                <span className="text-stone-400">Daily Clearance Protocol: 07:00 &amp; 15:30 IST</span>
+              <li className="text-stone-400 pt-1">
+                Scheduled Daily Sweeps: 07:00, 15:30, 20:00
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Important Government Portals */}
+          {/* Column 3: Important Official Portals */}
           <div className="space-y-3">
-            <h3 className="font-bold text-white text-sm font-editorial border-b border-stone-800 pb-1.5 flex items-center gap-2">
-              <span className="w-1.5 h-3.5 bg-blue-500 rounded-xs" />
-              {currentLang === 'hi' ? 'संबंधित सरकारी लिंक' : 'Official Portals'}
+            <h3 className="font-semibold text-white text-xs font-mono-code uppercase tracking-wider border-b border-stone-800 pb-2">
+              {currentLang === 'hi' ? 'आधिकारिक पोर्टल' : 'Official Portals'}
             </h3>
             <ul className="space-y-2 text-stone-400 text-xs">
               <li>
@@ -192,9 +185,9 @@ export const SbmUrbanFooter: React.FC<SbmUrbanFooterProps> = ({
                   href="https://sbmurban.org" 
                   target="_blank" 
                   rel="noreferrer noopener"
-                  className="hover:text-white transition-colors flex items-center gap-1"
+                  className="hover:text-white transition-colors flex items-center gap-1.5"
                 >
-                  <span>Swachh Bharat Mission</span>
+                  <span>Swachh Bharat Mission (MoHUA)</span>
                   <ExternalLink className="w-3 h-3 text-stone-500" />
                 </a>
               </li>
@@ -203,9 +196,20 @@ export const SbmUrbanFooter: React.FC<SbmUrbanFooterProps> = ({
                   href="https://mohua.gov.in" 
                   target="_blank" 
                   rel="noreferrer noopener"
-                  className="hover:text-white transition-colors flex items-center gap-1"
+                  className="hover:text-white transition-colors flex items-center gap-1.5"
                 >
-                  <span>Ministry of Housing Affairs</span>
+                  <span>Ministry of Housing &amp; Urban Affairs</span>
+                  <ExternalLink className="w-3 h-3 text-stone-500" />
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="https://www.nitp.ac.in" 
+                  target="_blank" 
+                  rel="noreferrer noopener"
+                  className="hover:text-white transition-colors flex items-center gap-1.5"
+                >
+                  <span>NIT Patna Official Website</span>
                   <ExternalLink className="w-3 h-3 text-stone-500" />
                 </a>
               </li>
@@ -214,46 +218,49 @@ export const SbmUrbanFooter: React.FC<SbmUrbanFooterProps> = ({
                   href="https://www.mygov.in" 
                   target="_blank" 
                   rel="noreferrer noopener"
-                  className="hover:text-white transition-colors flex items-center gap-1"
+                  className="hover:text-white transition-colors flex items-center gap-1.5"
                 >
-                  <span>MyGov India — Meri Sarkar</span>
+                  <span>MyGov India</span>
                   <ExternalLink className="w-3 h-3 text-stone-500" />
                 </a>
-              </li>
-              <li>
-                <span className="text-stone-400">Solid Waste Management Rules 2016</span>
               </li>
             </ul>
           </div>
 
           {/* Column 4: Contact & Nodal Cell */}
           <div className="space-y-3">
-            <h3 className="font-bold text-white text-sm font-editorial border-b border-stone-800 pb-1.5 flex items-center gap-2">
-              <span className="w-1.5 h-3.5 bg-amber-400 rounded-xs" />
-              {currentLang === 'hi' ? 'नोडल संपर्क एवं सहायता' : 'Nodal Helpdesk'}
+            <h3 className="font-semibold text-white text-xs font-mono-code uppercase tracking-wider border-b border-stone-800 pb-2">
+              {currentLang === 'hi' ? 'नोडल संपर्क' : 'Nodal Desk'}
             </h3>
-            <div className="space-y-2 text-stone-400 text-xs">
+            <div className="space-y-2.5 text-stone-400 text-xs">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-stone-400 shrink-0 mt-0.5" />
-                <span className="leading-tight">
-                  Swachh Bharat Mission Cell, NIT Patna, Ashok Rajpath, Patna, Bihar 800005
+                <span className="leading-relaxed">
+                  Swachh Bharat Mission Sanitation Desk, NIT Patna, Ashok Rajpath, Patna, Bihar 800005
                 </span>
+              </div>
+              <div className="text-[11px] text-stone-400">
+                Email: estate@nitp.ac.in · Sanitation Hotline: Ext. 404
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Official Bottom Legal & GIGW Compliance Bar */}
-      <div className="border-t border-stone-800/80 bg-[#051322] py-4 px-4 sm:px-6 lg:px-8 text-[11px] text-stone-500">
+      {/* Bottom Legal Bar */}
+      <div className="border-t border-stone-800 bg-[#051322] py-4 px-4 sm:px-6 lg:px-8 text-[11px] text-stone-400">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
-          <div className="flex items-center gap-3 text-stone-400 font-mono-code text-[10px]">
-            <span>Version 2.5 (Swachh Bharat Mission)</span>
-            <span>&bull;</span>
-            <span>NIC / NITP Digital SBM Portal</span>
+          <div className="flex items-center gap-2 font-mono-code text-[11px]">
+            <span>National Institute of Technology Patna</span>
+            <span aria-hidden="true">·</span>
+            <span>Swachh Bharat Mission Campus Portal</span>
+          </div>
+          <div className="text-stone-400">
+            Compliant with Solid Waste Management Rules 2016 &amp; MoHUA Source Segregation Directives
           </div>
         </div>
       </div>
     </footer>
   );
 };
+

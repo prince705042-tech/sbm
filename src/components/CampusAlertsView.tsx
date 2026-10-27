@@ -261,21 +261,21 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Top Admin Status & Banner */}
-      <div className="bg-[#1C1917] rounded-lg p-5 sm:p-6 text-stone-100 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-stone-800">
+      <div className="bg-[#0A2540] rounded-xl p-5 sm:p-6 text-white shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-stone-800">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded bg-stone-800 text-emerald-400 border border-stone-700 flex items-center justify-center shrink-0">
-            <ShieldCheck className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-lg bg-white/10 text-emerald-400 border border-white/15 flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-5 h-5 text-emerald-300" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-bold font-editorial text-white tracking-tight">
                 Sanitation Control &amp; Dispatch Console
               </h2>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-[#134E3A] text-emerald-100 border border-emerald-700 px-2 py-0.5 rounded font-mono-code">
-                Staff Active
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300 font-mono-code">
+                Staff Mode
               </span>
             </div>
-            <p className="text-xs text-stone-400 mt-0.5">
+            <p className="text-xs text-stone-300 mt-0.5">
               Live monitoring of crowdsourced waste reports, housekeeping dispatches, and campus dustbin infrastructure
             </p>
           </div>
