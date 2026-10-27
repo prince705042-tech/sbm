@@ -48,7 +48,7 @@ interface CampusAlertsViewProps {
   supabaseSyncStatus?: 'connected' | 'syncing' | 'error';
   lastSyncedAt?: string | null;
   onManualSync?: () => Promise<void> | void;
-  onAdminLogin: (id: string, pass: string) => boolean;
+  onAdminLogin: (id: string, pass: string) => boolean | Promise<boolean>;
   onAdminLogout: () => void;
   onResolveTicket: (ticketId: string) => void;
   onDispatchCleaning: (ticketId: string) => void;
@@ -251,13 +251,15 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
     }
   }, [highlightedTicketId]);
 
-  const handleInlineLogin = (e: React.FormEvent) => {
+  const handleInlineLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError(null);
 
-    const success = onAdminLogin(adminIdInput.trim(), passwordInput.trim());
+    const success = await onAdminLogin(adminIdInput.trim(), passwordInput.trim());
     if (!success) {
       setLoginError('Invalid Admin ID or Password. Access is restricted to authorized personnel.');
+    } else {
+      setPasswordInput('');
     }
   };
 
@@ -905,7 +907,7 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
         </div>
       )}
       </div>
-      ) : (
+      ) : adminTab === 'bins' ? (
         /* Campus Dustbin Registry View */
         <div className="bg-white rounded-lg p-5 sm:p-6 border border-stone-200 shadow-2xs space-y-5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-stone-100">
@@ -1093,6 +1095,8 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
                   </div>
                 </div>
               ))}
+            </div>
+          )}
         </div>
       ) : adminTab === 'inquiries' ? (
         /* Citizen Inquiries & Helpdesk Tab */
@@ -1232,7 +1236,7 @@ export const CampusAlertsView: React.FC<CampusAlertsViewProps> = ({
 
                       <div className="flex items-center gap-1.5">
                         <a
-                          href={`mailto:${inq.email}?subject=Re:%20${encodeURIComponent(inq.subject)}&body=Dear%20${encodeURIComponent(inq.name)},%0A%0AWith%20reference%20to%20your%20inquiry%20regarding%20Swachh%20Campus%20NIT%20Patna%20(Ref:%20${inq.id}):%0A%0A`}
+                          href={`mailto:${encodeURIComponent(inq.email.replace(/[^\w.@+-]/g, ''))}?subject=Re:%20${encodeURIComponent(inq.subject.slice(0, 100))}&body=Dear%20${encodeURIComponent(inq.name.slice(0, 60))},%0A%0AWith%20reference%20to%20your%20inquiry%20regarding%20Swachh%20Campus%20NIT%20Patna%20(Ref:%20${encodeURIComponent(inq.id)}):%0A%0A`}
                           className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-800 text-[11px] font-semibold transition-colors flex items-center gap-1"
                         >
                           <Mail className="w-3 h-3 text-[#046A38]" />

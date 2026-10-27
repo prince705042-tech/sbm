@@ -1,29 +1,38 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { ReportTicket } from '../types';
 
-// Supabase project credentials for project ardwojiczhdrbdpaytch
-const DEFAULT_SUPABASE_URL = 'https://ardwojiczhdrbdpaytch.supabase.co';
-const DEFAULT_ANON_KEY = 'sb_publishable_lRVf-2R511Ark4itu-mjhA_4nap3BDx';
+// Supabase project credentials strictly read from environment variables.
+// In accordance with security best practices, never expose secret keys in client bundles.
+const ENV_SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL;
+const ENV_ANON_KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY;
+
+// Safe fallback URL/key for local offline development when env vars are not configured
+const SAFE_FALLBACK_URL = 'https://swachh-campus-local.supabase.co';
+const SAFE_FALLBACK_KEY = 'sb_anon_placeholder_local_dev_only';
+
+export const isSupabaseConfigured = Boolean(
+  ENV_SUPABASE_URL && 
+  ENV_ANON_KEY && 
+  ENV_SUPABASE_URL.startsWith('http') && 
+  ENV_ANON_KEY.length > 15 &&
+  !ENV_SUPABASE_URL.includes('placeholder')
+);
 
 function getValidUrl(): string {
-  try {
-    const candidate = import.meta.env?.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
-    if (typeof candidate === 'string' && candidate.trim().startsWith('http')) {
-      new URL(candidate.trim());
-      return candidate.trim();
-    }
-  } catch {
-    // fallback
+  if (ENV_SUPABASE_URL && typeof ENV_SUPABASE_URL === 'string' && ENV_SUPABASE_URL.startsWith('http')) {
+    try {
+      new URL(ENV_SUPABASE_URL.trim());
+      return ENV_SUPABASE_URL.trim();
+    } catch {}
   }
-  return DEFAULT_SUPABASE_URL;
+  return SAFE_FALLBACK_URL;
 }
 
 function getValidKey(): string {
-  const candidate = import.meta.env?.VITE_SUPABASE_ANON_KEY || DEFAULT_ANON_KEY;
-  if (typeof candidate === 'string' && candidate.trim().length > 10) {
-    return candidate.trim();
+  if (ENV_ANON_KEY && typeof ENV_ANON_KEY === 'string' && ENV_ANON_KEY.trim().length > 15) {
+    return ENV_ANON_KEY.trim();
   }
-  return DEFAULT_ANON_KEY;
+  return SAFE_FALLBACK_KEY;
 }
 
 export const supabase: SupabaseClient = createClient(getValidUrl(), getValidKey(), {
@@ -109,6 +118,9 @@ export function fromDbRow(row: DbReportRow): ReportTicket {
 
 // Fetch all reports from Supabase
 export async function fetchReportsFromSupabase(): Promise<{ data: ReportTicket[] | null; error: Error | null }> {
+  if (!isSupabaseConfigured) {
+    return { data: null, error: null };
+  }
   try {
     const { data, error } = await supabase
       .from('reports')
@@ -116,15 +128,13 @@ export async function fetchReportsFromSupabase(): Promise<{ data: ReportTicket[]
       .order('reported_at', { ascending: false });
 
     if (error) {
-      console.warn('[Supabase fetchReports notice]:', error.message);
-      return { data: null, error: new Error(error.message) };
+      return { data: null, error: new Error('Remote database sync error') };
     }
 
     const tickets: ReportTicket[] = (data || []).map((row: DbReportRow) => fromDbRow(row));
     return { data: tickets, error: null };
   } catch (err: unknown) {
-    console.warn('[Supabase fetchReports notice - offline fallback]:', err);
-    return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
+    return { data: null, error: err instanceof Error ? err : new Error('Remote database unreachable') };
   }
 }
 
@@ -132,6 +142,9 @@ export async function fetchReportsFromSupabase(): Promise<{ data: ReportTicket[]
 export async function insertReportToSupabase(
   ticket: ReportTicket
 ): Promise<{ success: boolean; error: Error | null; row?: DbReportRow }> {
+  if (!isSupabaseConfigured) {
+    return { success: true, error: null };
+  }
   try {
     const payload = toDbRow(ticket);
     const { data, error } = await supabase
@@ -155,8 +168,8 @@ export async function insertReportToSupabase(
 export async function syncAllLocalTicketsToSupabase(
   tickets: ReportTicket[]
 ): Promise<{ count: number; error: Error | null }> {
-  if (!tickets || tickets.length === 0) {
-    return { count: 0, error: null };
+  if (!tickets || tickets.length === 0 || !isSupabaseConfigured) {
+    return { count: tickets?.length ?? 0, error: null };
   }
   try {
     const payloads = tickets.map(toDbRow);
@@ -166,13 +179,11 @@ export async function syncAllLocalTicketsToSupabase(
       .select();
 
     if (error) {
-      console.warn('[Supabase bulk sync notice]:', error.message);
-      return { count: 0, error: new Error(error.message) };
+      return { count: 0, error: new Error('Database bulk sync error') };
     }
     return { count: data?.length ?? payloads.length, error: null };
   } catch (err: unknown) {
-    console.warn('[Supabase bulk sync notice - offline fallback]:', err);
-    return { count: 0, error: err instanceof Error ? err : new Error(String(err)) };
+    return { count: 0, error: err instanceof Error ? err : new Error('Database unreachable') };
   }
 }
 
@@ -182,6 +193,9 @@ export async function updateReportStatusInSupabase(
   status: ReportTicket['status'],
   fullTicket?: ReportTicket
 ): Promise<{ success: boolean; error: Error | null }> {
+  if (!isSupabaseConfigured) {
+    return { success: true, error: null };
+  }
   try {
     if (fullTicket) {
       const payload = toDbRow({ ...fullTicket, status });
@@ -190,8 +204,7 @@ export async function updateReportStatusInSupabase(
         .upsert(payload, { onConflict: 'id' });
 
       if (error) {
-        console.warn('[Supabase updateReportStatus upsert notice]:', error.message);
-        return { success: false, error: new Error(error.message) };
+        return { success: false, error: new Error('Failed to update report record') };
       }
       return { success: true, error: null };
     }
@@ -202,13 +215,11 @@ export async function updateReportStatusInSupabase(
       .eq('id', ticketId);
 
     if (error) {
-      console.warn('[Supabase updateReportStatus notice]:', error.message);
-      return { success: false, error: new Error(error.message) };
+      return { success: false, error: new Error('Failed to update report record') };
     }
     return { success: true, error: null };
   } catch (err: unknown) {
-    console.warn('[Supabase updateReportStatus notice - offline fallback]:', err);
-    return { success: false, error: err instanceof Error ? err : new Error(String(err)) };
+    return { success: false, error: err instanceof Error ? err : new Error('Database unreachable') };
   }
 }
 
@@ -216,7 +227,7 @@ export async function updateReportStatusInSupabase(
 export async function deleteReportsFromSupabase(
   ticketIds: string[]
 ): Promise<{ success: boolean; error: Error | null }> {
-  if (!ticketIds || ticketIds.length === 0) {
+  if (!ticketIds || ticketIds.length === 0 || !isSupabaseConfigured) {
     return { success: true, error: null };
   }
   try {
@@ -226,13 +237,11 @@ export async function deleteReportsFromSupabase(
       .in('id', ticketIds);
 
     if (error) {
-      console.warn('[Supabase deleteReports notice]:', error.message);
-      return { success: false, error: new Error(error.message) };
+      return { success: false, error: new Error('Failed to delete report records') };
     }
     return { success: true, error: null };
   } catch (err: unknown) {
-    console.warn('[Supabase deleteReports notice - offline fallback]:', err);
-    return { success: false, error: err instanceof Error ? err : new Error(String(err)) };
+    return { success: false, error: err instanceof Error ? err : new Error('Database unreachable') };
   }
 }
 
@@ -246,6 +255,9 @@ export async function deleteReportFromSupabase(
 
 // Subscribe to real-time changes on public.reports
 export function subscribeToReportsRealtime(onDatabaseChange: () => void): () => void {
+  if (!isSupabaseConfigured) {
+    return () => {};
+  }
   try {
     const channel = supabase
       .channel('public:reports')

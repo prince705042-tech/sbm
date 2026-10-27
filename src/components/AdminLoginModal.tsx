@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { X, Shield, Lock, User, Eye, EyeOff, AlertCircle, PlusCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+import { 
+  verifyAdminCredentials, 
+  createAdminSession, 
+  checkRateLimit, 
+  recordRateLimitAttempt, 
+  resetRateLimit 
+} from '../utils/security';
+
 interface AdminLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -20,31 +28,50 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
 
   if (!isOpen) return null;
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+
+    // Rate limiting check
+    const rateStatus = checkRateLimit('admin_auth_attempts', 5, 300000, 60000);
+    if (!rateStatus.allowed) {
+      setLockoutSeconds(rateStatus.retryAfterSeconds);
+      setErrorMessage(`Too many failed attempts. Security cooldown active: please wait ${rateStatus.retryAfterSeconds}s.`);
+      return;
+    }
+
     setIsLoading(true);
 
-    const cleanId = adminId.trim().toUpperCase();
-    const cleanPassword = password.trim();
+    try {
+      // Cryptographically verify against salted hash
+      const isValid = await verifyAdminCredentials(adminId, password);
 
-    // Check credentials:
-    // Admin ID: SBM (case-insensitive)
-    // Password: SBM@2612047
-    if (cleanId === 'SBM' && cleanPassword === 'SBM@2612047') {
-      setTimeout(() => {
+      if (isValid) {
+        // Reset rate limiter on successful auth
+        resetRateLimit('admin_auth_attempts');
+        await createAdminSession();
         setIsLoading(false);
+        setPassword('');
         onLoginSuccess();
         onClose();
-      }, 400);
-    } else {
-      setTimeout(() => {
+      } else {
+        recordRateLimitAttempt('admin_auth_attempts', 300000, 5, 60000);
+        const nextStatus = checkRateLimit('admin_auth_attempts', 5, 300000, 60000);
         setIsLoading(false);
-        setErrorMessage('Invalid Admin ID or Password. Access is restricted to authorized personnel.');
-      }, 300);
+        if (!nextStatus.allowed) {
+          setLockoutSeconds(nextStatus.retryAfterSeconds);
+          setErrorMessage(`Access locked due to multiple failed attempts. Retry in ${nextStatus.retryAfterSeconds}s.`);
+        } else {
+          setErrorMessage(`Invalid Admin ID or Password. (${nextStatus.remainingAttempts} attempt${nextStatus.remainingAttempts === 1 ? '' : 's'} remaining)`);
+        }
+      }
+    } catch {
+      setIsLoading(false);
+      setErrorMessage('Authentication service error. Please try again.');
     }
   };
 

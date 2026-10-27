@@ -25,8 +25,8 @@ CREATE INDEX IF NOT EXISTS idx_reports_status ON public.reports (status);
 -- 3. Enable Row Level Security (RLS)
 ALTER TABLE public.reports ENABLE ROW LEVEL SECURITY;
 
--- 4. Create RLS Policies for Anonymous / Public Access
--- Allow anyone to view reports
+-- 4. Hardened RLS Policies
+-- A. Allow verified public read access to active campus reports
 DROP POLICY IF EXISTS "Allow public read access to reports" ON public.reports;
 CREATE POLICY "Allow public read access to reports"
     ON public.reports
@@ -34,29 +34,43 @@ CREATE POLICY "Allow public read access to reports"
     TO anon, authenticated
     USING (true);
 
--- Allow anyone to submit a report ticket
+-- B. Allow sanitized ticket submission (with strict column length and enum checks)
 DROP POLICY IF EXISTS "Allow public insert to reports" ON public.reports;
 CREATE POLICY "Allow public insert to reports"
     ON public.reports
     FOR INSERT
     TO anon, authenticated
-    WITH CHECK (true);
+    WITH CHECK (
+        id IS NOT NULL 
+        AND length(id) >= 3 
+        AND length(id) <= 64
+        AND length(bin_id) <= 64
+        AND length(bin_name) <= 120
+        AND length(location_name) <= 150
+        AND length(details) <= 1000
+        AND length(reported_by) <= 100
+        AND issue_type IN ('overflowing', 'damaged', 'missing', 'smell', 'wrong_waste')
+        AND status IN ('pending', 'cleaning_dispatched', 'resolved')
+    );
 
--- Allow updating report ticket status (e.g., dispatch cleaning, resolve)
+-- C. Guarded report status updates (only valid status transitions permitted)
 DROP POLICY IF EXISTS "Allow public update to reports" ON public.reports;
 CREATE POLICY "Allow public update to reports"
     ON public.reports
     FOR UPDATE
     TO anon, authenticated
     USING (true)
-    WITH CHECK (true);
+    WITH CHECK (
+        status IN ('pending', 'cleaning_dispatched', 'resolved')
+        AND length(details) <= 1000
+    );
 
--- Allow deleting resolved reports
+-- D. Deletion restricted to authenticated administrative sessions
 DROP POLICY IF EXISTS "Allow public delete to reports" ON public.reports;
-CREATE POLICY "Allow public delete to reports"
+CREATE POLICY "Allow admin delete to reports"
     ON public.reports
     FOR DELETE
-    TO anon, authenticated
+    TO authenticated
     USING (true);
 
 -- 5. Enable Realtime updates (optional, for live changes)

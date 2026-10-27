@@ -16,6 +16,13 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ContactSubmission } from '../types';
+import { 
+  sanitizeText, 
+  sanitizeEmail, 
+  sanitizePhone, 
+  checkRateLimit, 
+  recordRateLimitAttempt 
+} from '../utils/security';
 
 interface ContactUsModalProps {
   isOpen: boolean;
@@ -48,11 +55,12 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({
 
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!name.trim()) errs.name = 'Full name is required.';
-    if (!email.trim()) {
-      errs.email = 'Email address is required.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      errs.email = 'Please provide a valid email format (e.g., student@nitp.ac.in).';
+    const cleanName = sanitizeText(name, 80);
+    const cleanEmail = sanitizeEmail(email);
+
+    if (!cleanName) errs.name = 'Full name is required (max 80 chars).';
+    if (!cleanEmail) {
+      errs.email = 'Please provide a valid, safe email format (e.g., student@nitp.ac.in).';
     }
     if (phone.trim() && !/^[0-9+\s-]{8,15}$/.test(phone.trim())) {
       errs.phone = 'Please enter a valid phone number or leave blank.';
@@ -69,18 +77,26 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({
     e.preventDefault();
     if (!validate()) return;
 
+    // Rate limiting (max 2 inquiries per 60 seconds)
+    const rateStatus = checkRateLimit('citizen_inquiry_submission', 2, 60000, 30000);
+    if (!rateStatus.allowed) {
+      setErrors({ message: `Inquiry submission limit reached. Please wait ${rateStatus.retryAfterSeconds}s before submitting again.` });
+      return;
+    }
+    recordRateLimitAttempt('citizen_inquiry_submission', 60000, 2, 30000);
+
     setIsSubmitting(true);
 
     const trackingId = `NITP-SBM-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     const submission: ContactSubmission = {
       id: trackingId,
-      name: name.trim(),
-      email: email.trim(),
-      phone: phone.trim() || undefined,
+      name: sanitizeText(name, 80),
+      email: sanitizeEmail(email),
+      phone: sanitizePhone(phone) || undefined,
       role,
       category,
-      subject: subject.trim(),
-      message: message.trim(),
+      subject: sanitizeText(subject, 150),
+      message: sanitizeText(message, 1500),
       submittedAt: new Date().toISOString(),
       status: 'new',
     };

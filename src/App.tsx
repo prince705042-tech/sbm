@@ -42,6 +42,16 @@ import {
   subscribeToReportsRealtime,
   toValidIsoDate,
 } from './lib/supabase';
+import {
+  verifyAdminCredentials,
+  createAdminSession,
+  validateAdminSession,
+  clearAdminSession,
+  checkRateLimit,
+  recordRateLimitAttempt,
+  resetRateLimit,
+  sanitizeText,
+} from './utils/security';
 
 export default function App() {
   // Persistence in localStorage
@@ -148,20 +158,28 @@ export default function App() {
     return fallbackTickets.filter((t) => !deletedSet.has(t.id));
   });
 
-  // Admin authentication state
-  // Starts logged out by default; authorized personnel log in via the Footer Admin Login
-  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
-    try {
-      const saved = localStorage.getItem('swachh_campus_admin_auth');
-      return saved !== null ? saved === 'true' : false;
-    } catch {
-      return false;
-    }
-  });
+  // Admin authentication state: validated cryptographically against session token
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+
+  // Validate cryptographic session on mount and ensure no stale forged auth
+  useEffect(() => {
+    validateAdminSession().then((isValid) => {
+      setIsAdmin(isValid);
+      if (!isValid) {
+        clearAdminSession();
+      }
+    });
+  }, []);
 
   const [activeTab, setActiveTab] = useState<AppRoute>(() => resolveCurrentRoute());
 
   const handleNavigateRoute = (route: AppRoute) => {
+    // If routing to alerts administrative portal, re-verify signed session
+    if (route === 'alerts') {
+      validateAdminSession().then((isValid) => {
+        setIsAdmin(isValid);
+      });
+    }
     setActiveTab(route);
     const meta = ROUTE_METADATA[route] || ROUTE_METADATA.map;
     if (typeof window !== 'undefined') {
@@ -183,6 +201,9 @@ export default function App() {
       const r = resolveCurrentRoute();
       setActiveTab(r);
       applyRouteSEO(r);
+      if (r === 'alerts') {
+        validateAdminSession().then((isValid) => setIsAdmin(isValid));
+      }
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -425,44 +446,62 @@ export default function App() {
     } catch {}
   }, [bins]);
 
-  // Admin Authentication Handlers
-  const handleAdminLogin = (id: string, pass: string): boolean => {
-    if (id.trim().toUpperCase() === 'SBM' && pass.trim() === 'SBM@2612047') {
-      setIsAdmin(true);
-      try {
-        localStorage.setItem('swachh_campus_admin_auth', 'true');
-      } catch {}
-      showToast('🛡️ Welcome SBM Administrator! Admin privileges active.');
-      return true;
+  // Admin Authentication Handlers with cryptographic verification & brute force defense
+  const handleAdminLogin = async (id: string, pass: string): Promise<boolean> => {
+    // Rate limit login attempts
+    const rateStatus = checkRateLimit('admin_auth_attempts', 5, 300000, 60000);
+    if (!rateStatus.allowed) {
+      showToast(`⚠️ Too many failed attempts. Security cooldown active: please wait ${rateStatus.retryAfterSeconds}s.`);
+      return false;
     }
-    return false;
+
+    try {
+      const isValid = await verifyAdminCredentials(id, pass);
+      if (isValid) {
+        resetRateLimit('admin_auth_attempts');
+        await createAdminSession();
+        setIsAdmin(true);
+        showToast('🛡️ Welcome SBM Administrator! Ephemeral cryptographic session active.');
+        return true;
+      } else {
+        recordRateLimitAttempt('admin_auth_attempts', 300000, 5, 60000);
+        const nextStatus = checkRateLimit('admin_auth_attempts', 5, 300000, 60000);
+        if (!nextStatus.allowed) {
+          showToast(`⚠️ Account locked for ${nextStatus.retryAfterSeconds}s due to failed attempts.`);
+        } else {
+          showToast(`⚠️ Invalid credentials (${nextStatus.remainingAttempts} attempt${nextStatus.remainingAttempts === 1 ? '' : 's'} remaining).`);
+        }
+        return false;
+      }
+    } catch {
+      showToast('⚠️ Authentication verification error.');
+      return false;
+    }
   };
 
   const handleAdminLogout = () => {
     setIsAdmin(false);
-    try {
-      localStorage.removeItem('swachh_campus_admin_auth');
-    } catch {}
-    showToast('🔒 Logged out from SBM Admin Portal.');
+    clearAdminSession();
+    showToast('🔒 Logged out from SBM Admin Portal. Signed session terminated.');
   };
 
   // Only Admin can open the Add Bin flow
-  const handleTriggerAddBin = () => {
-    if (isAdmin) {
+  const handleTriggerAddBin = async () => {
+    const isSessionValid = await validateAdminSession();
+    if (isAdmin && isSessionValid) {
       setIsAddBinModalOpen(true);
     } else {
+      setIsAdmin(false);
+      clearAdminSession();
       setAdminLoginReason('add_bin');
       setIsAdminLoginModalOpen(true);
     }
   };
 
   // Callback on successful admin modal login
-  const handleAdminLoginSuccess = () => {
+  const handleAdminLoginSuccess = async () => {
     setIsAdmin(true);
-    try {
-      localStorage.setItem('swachh_campus_admin_auth', 'true');
-    } catch {}
-    showToast('🛡️ Welcome SBM Administrator! Admin privileges active.');
+    showToast('🛡️ Welcome SBM Administrator! Admin privileges verified.');
     if (adminLoginReason === 'add_bin') {
       setIsAddBinModalOpen(true);
       showToast('🛡️ SBM Admin verified. You can now register a new dustbin station.');
@@ -485,14 +524,20 @@ export default function App() {
     setIsReportModalOpen(true);
   };
 
-  const handleAddNewBin = (newBinData: Omit<CampusBin, 'id' | 'reportedCount'>) => {
-    if (!isAdmin) {
-      showToast('⚠️ Unauthorized. Only SBM Administrators can add bins.');
+  const handleAddNewBin = async (newBinData: Omit<CampusBin, 'id' | 'reportedCount'>) => {
+    const isSessionValid = await validateAdminSession();
+    if (!isAdmin || !isSessionValid) {
+      setIsAdmin(false);
+      clearAdminSession();
+      showToast('⚠️ Unauthorized or session expired. Please re-authenticate as Admin.');
       return;
     }
 
     const newBin: CampusBin = {
       ...newBinData,
+      name: sanitizeText(newBinData.name, 100),
+      locationName: sanitizeText(newBinData.locationName, 120),
+      landmark: sanitizeText(newBinData.landmark, 150),
       id: `bin-${Date.now()}`,
       reportedCount: 0,
     };
@@ -503,10 +548,22 @@ export default function App() {
   };
 
   const handleSubmitReport = (data: Omit<ReportTicket, 'id' | 'reportedAt' | 'status'>): string => {
+    // Rate limit citizen report submissions (max 4 reports per 60 seconds)
+    const rateStatus = checkRateLimit('citizen_report_submission', 4, 60000, 30000);
+    if (!rateStatus.allowed) {
+      showToast(`⚠️ Submission rate limit reached. Please wait ${rateStatus.retryAfterSeconds}s before reporting again.`);
+      return '';
+    }
+    recordRateLimitAttempt('citizen_report_submission', 60000, 4, 30000);
+
     const newTicketId = `t-${Date.now()}`;
     const isoTimestamp = new Date().toISOString();
     const newTicket: ReportTicket = {
       ...data,
+      details: sanitizeText(data.details, 800),
+      reportedBy: sanitizeText(data.reportedBy, 80),
+      binName: sanitizeText(data.binName, 100),
+      locationName: sanitizeText(data.locationName, 120),
       id: newTicketId,
       reportedAt: isoTimestamp,
       status: 'pending',

@@ -13,6 +13,7 @@ import {
   Check,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { sanitizeText } from '../utils/security';
 
 interface ReportIssueModalProps {
   isOpen: boolean;
@@ -64,13 +65,16 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
     setSubmissionStep(1);
 
     // Call submit handler to register in App state and push to Supabase
+    const cleanDetails = sanitizeText(details, 500);
+    const cleanReporter = sanitizeText(reporterName, 80);
+
     const ticketIdResult = onSubmitReport({
       binId: targetBin.id,
       binName: targetBin.name,
       locationName: targetBin.locationName,
       issueType,
-      details: details.trim() || `${issueType.replace('_', ' ')} observed at this location.`,
-      reportedBy: reporterName.trim() || (isAdmin ? 'SBM Administrator' : 'Campus Student'),
+      details: cleanDetails || `${issueType.replace('_', ' ')} observed at this location.`,
+      reportedBy: cleanReporter || (isAdmin ? 'SBM Administrator' : 'Campus Student'),
     });
 
     if (typeof ticketIdResult === 'string') {
