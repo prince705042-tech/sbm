@@ -56,7 +56,7 @@ import {
 export default function App() {
   // Persistence in localStorage
   // Version key to ensure updated campus locations load cleanly
-  const DATA_VERSION = 'v39_incubation_chem_back';
+  const DATA_VERSION = 'v46_kosi_bhagmati_riverfront';
 
   const [bins, setBins] = useState<CampusBin[]>(() => {
     try {
@@ -67,8 +67,9 @@ export default function App() {
           const parsed: CampusBin[] = JSON.parse(saved);
           // Deduplicate keys in case old data was saved and filter removed bins
           const seen = new Set<string>();
+          const removedBinIds = new Set(['bin-gandhighat-1', 'bin-kosi-ext-2', 'bin-sports-1', 'bin-physics-1', 'bin-chem-1', 'bin-kosi-ext-1']);
           return parsed
-            .filter((b) => b.id !== 'bin-gandhighat-1' && b.id !== 'bin-kosi-ext-2' && b.id !== 'bin-sports-1')
+            .filter((b) => !removedBinIds.has(b.id))
             .map((b, idx) => {
               if (seen.has(b.id)) {
                 const uniqueId = `${b.id}-${idx}`;
@@ -123,14 +124,14 @@ export default function App() {
     const fallbackTickets: ReportTicket[] = [
       {
         id: 't-1',
-        binId: 'bin-chem-1',
-        binName: 'Chemistry Lab Segregation Station',
-        locationName: 'Chemistry Department - Organic Lab Wing',
+        binId: 'bin-main-1',
+        binName: 'Main Building Outside Twin Station',
+        locationName: 'Main Building - Outside Central Entrance Plaza',
         issueType: 'overflowing',
-        details: 'Lab rough paper and test wrappers full near prep room entrance.',
+        details: 'Visitor wrappers full near central portico entrance.',
         reportedAt: '25 mins ago',
         status: 'cleaning_dispatched',
-        reportedBy: 'Chemistry Lab In-Charge',
+        reportedBy: 'Administrative Staff',
       },
       {
         id: 't-2',

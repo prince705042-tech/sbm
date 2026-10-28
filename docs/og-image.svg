@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#064E3B" />
+      <stop offset="60%" stop-color="#065F46" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="saffron" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF9933" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)" />
+
+  <!-- Tricolor Accent Top Stripe -->
+  <rect x="0" y="0" width="1200" height="10" fill="#FF9933" />
+  <rect x="0" y="10" width="1200" height="6" fill="#FFFFFF" />
+  <rect x="0" y="16" width="1200" height="10" fill="#138808" />
+
+  <!-- Decorative geometric border grid -->
+  <rect x="40" y="56" width="1120" height="534" rx="20" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-opacity="0.15" />
+
+  <!-- Department & Institution Pill -->
+  <rect x="80" y="96" width="460" height="42" rx="8" fill="#FFFFFF" fill-opacity="0.12" stroke="#FFFFFF" stroke-opacity="0.2" />
+  <text x="100" y="123" fill="#D1FAE5" font-family="'Public Sans', sans-serif" font-size="16" font-weight="600" letter-spacing="1">
+    SWACHH BHARAT MISSION · NIT PATNA
+  </text>
+
+  <!-- Main Title -->
+  <text x="80" y="210" fill="#FFFFFF" font-family="'Fraunces', serif" font-size="56" font-weight="700">
+    Swachh Campus Portal
+  </text>
+  <text x="80" y="270" fill="#A7F3D0" font-family="'Public Sans', sans-serif" font-size="28" font-weight="500">
+    Smart Waste Bin Locator &amp; Sanitation Grievance Desk
+  </text>
+
+  <!-- Key Pillars / Features -->
+  <g transform="translate(80, 330)">
+    <!-- Box 1 -->
+    <rect x="0" y="0" width="310" height="110" rx="12" fill="#044E39" stroke="#10B981" stroke-width="1.5" />
+    <text x="24" y="44" fill="#34D399" font-family="'Public Sans', sans-serif" font-size="14" font-weight="700" letter-spacing="0.5">GEOSPATIAL LOCATOR</text>
+    <text x="24" y="78" fill="#FFFFFF" font-family="'Public Sans', sans-serif" font-size="18" font-weight="600">18+ Color-Coded Stations</text>
+
+    <!-- Box 2 -->
+    <rect x="330" y="0" width="310" height="110" rx="12" fill="#044E39" stroke="#10B981" stroke-width="1.5" />
+    <text x="354" y="44" fill="#60A5FA" font-family="'Public Sans', sans-serif" font-size="14" font-weight="700" letter-spacing="0.5">SOURCE SEGREGATION</text>
+    <text x="354" y="78" fill="#FFFFFF" font-family="'Public Sans', sans-serif" font-size="18" font-weight="600">MoHUA Wet &amp; Dry Rules</text>
+
+    <!-- Box 3 -->
+    <rect x="660" y="0" width="310" height="110" rx="12" fill="#044E39" stroke="#10B981" stroke-width="1.5" />
+    <text x="684" y="44" fill="#FBBF24" font-family="'Public Sans', sans-serif" font-size="14" font-weight="700" letter-spacing="0.5">REAL-TIME DISPATCH</text>
+    <text x="684" y="78" fill="#FFFFFF" font-family="'Public Sans', sans-serif" font-size="18" font-weight="600">30-Min Cleaning Response</text>
+  </g>
+
+  <!-- Big Gandhi Glasses Badge on Right -->
+  <g transform="translate(870, 110)">
+    <circle cx="90" cy="90" r="80" fill="#064E3B" stroke="#10B981" stroke-width="3" />
+    <!-- Left Glass -->
+    <circle cx="56" cy="90" r="28" stroke="#FFFFFF" stroke-width="5" fill="#047857" />
+    <!-- Right Glass -->
+    <circle cx="124" cy="90" r="28" stroke="#FFFFFF" stroke-width="5" fill="#047857" />
+    <!-- Bridge -->
+    <path d="M84 84 C88 80 92 80 96 84" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" fill="none" />
+    <text x="56" y="95" fill="#FFFFFF" font-size="15" font-family="'Noto Sans Devanagari', sans-serif" font-weight="700" text-anchor="middle">स्वच्छ</text>
+    <text x="124" y="95" fill="#FFFFFF" font-size="15" font-family="'Noto Sans Devanagari', sans-serif" font-weight="700" text-anchor="middle">भारत</text>
+  </g>
+
+  <!-- Footer Banner -->
+  <text x="80" y="520" fill="#E2E8F0" font-family="'Public Sans', sans-serif" font-size="16">
+    National Institute of Technology Patna · Ashok Rajpath, Patna, Bihar 800005 · swachh.nitp.ac.in
+  </text>
+</svg>

@@ -735,7 +735,7 @@ export const CampusMap: React.FC<CampusMapProps> = ({
             }}
           >
             <svg
-              viewBox="0 0 720 1040"
+              viewBox="0 0 720 700"
               className="w-full h-auto block"
               style={{ shapeRendering: 'geometricPrecision' }}
             >

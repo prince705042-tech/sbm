@@ -79,11 +79,11 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
               {/* 1. SURROUNDING GEOGRAPHY: GANGA RIVER & ASHOK RAJPATH     */}
               {/* ======================================================== */}
 
-              {/* Base Canvas */}
-              <rect width="720" height="1040" fill="#1e293b" />
+              {/* Base Canvas (Adjusted to compact 700 height) */}
+              <rect width="720" height="700" fill="#1e293b" />
 
               {/* Ganga River (West side, x: 0 to 125) */}
-              <rect x="0" y="0" width="125" height="1040" fill="url(#gangaRiverGrad)" />
+              <rect x="0" y="0" width="125" height="700" fill="url(#gangaRiverGrad)" />
 
               {/* River Animated/Static Waves & Details */}
               <use href="#riverWave" x="20" y="80" />
@@ -92,21 +92,17 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
               <use href="#riverWave" x="65" y="380" />
               <use href="#riverWave" x="25" y="510" />
               <use href="#riverWave" x="60" y="660" />
-              <use href="#riverWave" x="20" y="820" />
-              <use href="#riverWave" x="55" y="940" />
 
               {/* Boats on Ganga River */}
               <use href="#gangaBoat" x="45" y="230" />
               <use href="#gangaBoat" x="70" y="550" />
-              <use href="#gangaBoat" x="35" y="880" />
 
               {/* Ganga River Label (vertical) */}
-              <g transform="translate(32, 430) rotate(-90)">
+              <g transform="translate(32, 350) rotate(-90)">
                 <text fill="#ffffff" textAnchor="middle" className="text-[15px] font-black tracking-widest drop-shadow-md">
                   Ganga River  ~~~
                 </text>
               </g>
-
 
               {/* Gandhi Ghat Promenade & River Stairs (Middle West) */}
               <g 
@@ -114,12 +110,12 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 onClick={() => handleZoneSelect('gandhi-ghat')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="105" y="440" width="28" height="420" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+                <rect x="105" y="440" width="28" height="230" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
                 {/* Ghat Stairs */}
-                {Array.from({ length: 18 }).map((_, i) => (
-                  <line key={i} x1="105" y1={450 + i * 22} x2="133" y2={450 + i * 22} stroke="#64748b" strokeWidth="1" />
+                {Array.from({ length: 11 }).map((_, i) => (
+                  <line key={i} x1="105" y1={450 + i * 20} x2="133" y2={450 + i * 20} stroke="#64748b" strokeWidth="1" />
                 ))}
-                <g transform="translate(118, 680) rotate(-90)">
+                <g transform="translate(118, 555) rotate(-90)">
                   <g>
                     <rect x="-42" y="-8.5" width="84" height="20" rx="5" fill="#000000" opacity="0.35" />
                     <rect x="-42" y="-10" width="84" height="20" rx="5" fill="#f8fafc" stroke="#64748b" strokeWidth="1" />
@@ -132,24 +128,24 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
 
               {/* Removed Road (Hidden / Removed from Map View) */}
               <g id="ashok-rajpath-road" style={{ display: 'none' }} aria-hidden="true">
-                <rect x="0" y="930" width="720" height="0" fill="none" opacity="0" pointerEvents="none" />
+                <rect x="0" y="690" width="720" height="0" fill="none" opacity="0" pointerEvents="none" />
               </g>
 
               {/* ======================================================== */}
-              {/* 2. CAMPUS BOUNDARY & GREEN GROUNDS (ENLARGED)             */}
+              {/* 2. CAMPUS BOUNDARY & GREEN GROUNDS                       */}
               {/* ======================================================== */}
 
-              {/* Expanded Campus Grounds polygon encompassing whole campus from North to South */}
+              {/* Campus Grounds polygon encompassing active campus */}
               <polygon
-                points="132,6 702,6 702,1026 132,1026"
+                points="132,6 702,6 702,692 132,692"
                 fill="url(#campusLawnGrad)"
                 stroke="#0f172a"
                 strokeWidth="2"
               />
 
-              {/* ENLARGED RED BOUNDARY WALL PERIMETER */}
+              {/* RED BOUNDARY WALL PERIMETER */}
               <polyline
-                points="132,6 702,6 702,1026 132,1026 132,6"
+                points="132,6 702,6 702,692 132,692 132,6"
                 fill="none"
                 stroke="#dc2626"
                 strokeWidth="4"
@@ -172,14 +168,14 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 </text>
               </g>
 
-              {/* Main Vertical Spine Road (Clear 28px central roadway flanked by sidewalks) */}
-              <rect x="330" y="154" width="28" height="690" fill="#64748b" stroke="#334155" strokeWidth="1.5" />
+              {/* Main Vertical Spine Road (flanked by sidewalks) */}
+              <rect x="330" y="154" width="28" height="514" fill="#64748b" stroke="#334155" strokeWidth="1.5" />
               {/* White dashed center line */}
-              <line x1="344" y1="154" x2="344" y2="844" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="8 6" />
+              <line x1="344" y1="154" x2="344" y2="668" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="8 6" />
 
               {/* Concrete sidewalks with curb along both sides of Central Spine Road */}
-              <line x1="329" y1="154" x2="329" y2="844" stroke="#94a3b8" strokeWidth="1.5" />
-              <line x1="359" y1="154" x2="359" y2="844" stroke="#94a3b8" strokeWidth="1.5" />
+              <line x1="329" y1="154" x2="329" y2="668" stroke="#94a3b8" strokeWidth="1.5" />
+              <line x1="359" y1="154" x2="359" y2="668" stroke="#94a3b8" strokeWidth="1.5" />
 
               {/* Zebra Crosswalk between Main Building & Central Library */}
               <g id="crosswalk-main-library" opacity="0.85">
@@ -236,13 +232,6 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 <rect x="331" y="452" width="26" height="3" fill="#f8fafc" />
               </g>
 
-              {/* Road leading to Parking */}
-              <rect x="150" y="630" width="180" height="22" fill="#64748b" stroke="#334155" strokeWidth="1" />
-              <line x1="150" y1="641" x2="330" y2="641" stroke="#ffffff" strokeWidth="1" strokeDasharray="6 4" />
-
-              {/* Central Spine Promenade leading into expanded southern campus gardens */}
-              <rect x="330" y="830" width="28" height="175" fill="#64748b" stroke="#334155" strokeWidth="1.5" />
-              <line x1="344" y1="830" x2="344" y2="1005" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="6 4" />
 
               {/* ======================================================== */}
               {/* 4. CAMPUS BUILDINGS & STRUCTURES                         */}
@@ -269,21 +258,21 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 )}
               </g>
 
-              {/* Kosi Hostel (Interchanged to West side along Common Road) */}
+              {/* Kosi Hostel (Shifted flush to Ganga River boundary, directly in front of Ganga Girls Hostel) */}
               <g 
                 id="zone-kosi"
                 onClick={() => handleZoneSelect('kosi-hostel')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="280" y="64" width="180" height="60" rx="5" fill="#fff1f2" stroke="#e11d48" strokeWidth="2.5" />
-                <rect x="290" y="72" width="160" height="14" rx="2" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
-                <rect x="290" y="94" width="160" height="14" rx="2" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
-                <rect x="340" y="86" width="60" height="14" rx="2" fill="#16a34a" stroke="#15803d" strokeWidth="1" />
+                <rect x="136" y="64" width="180" height="60" rx="5" fill="#fff1f2" stroke="#e11d48" strokeWidth="2.5" />
+                <rect x="146" y="72" width="160" height="14" rx="2" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
+                <rect x="146" y="94" width="160" height="14" rx="2" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
+                <rect x="196" y="86" width="60" height="14" rx="2" fill="#16a34a" stroke="#15803d" strokeWidth="1" />
                 {showLabels && (
                   <g>
-                    <rect x="318" y="81.5" width="105" height="20" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="318" y="80" width="105" height="20" rx="4" fill="#1e40af" stroke="#60a5fa" strokeWidth="1" />
-                    <text x="370" y="94" fill="#ffffff" textAnchor="middle" className="text-[10px] font-black tracking-wide">
+                    <rect x="174" y="81.5" width="105" height="20" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="174" y="80" width="105" height="20" rx="4" fill="#1e40af" stroke="#60a5fa" strokeWidth="1" />
+                    <text x="226" y="94" fill="#ffffff" textAnchor="middle" className="text-[10px] font-black tracking-wide">
                       Kosi Hostel
                     </text>
                   </g>
@@ -291,22 +280,22 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
               </g>
 
               {/* Connecting Courtyard Walkway between Kosi & Bhagmati */}
-              <rect x="460" y="78" width="15" height="32" rx="2" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+              <rect x="316" y="78" width="15" height="32" rx="2" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
 
-              {/* Bhagmati Hostel (Interchanged to East side along Common Road) */}
+              {/* Bhagmati Hostel (Shifted alongside Kosi Hostel) */}
               <g 
                 id="zone-bhagmati"
                 onClick={() => handleZoneSelect('bhagmati-hostel')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="475" y="64" width="180" height="60" rx="5" fill="#ffe4e6" stroke="#e11d48" strokeWidth="2" />
-                <rect x="485" y="72" width="160" height="14" rx="2" fill="#f43f5e" opacity="0.25" />
-                <rect x="485" y="94" width="160" height="14" rx="2" fill="#f43f5e" opacity="0.25" />
+                <rect x="331" y="64" width="180" height="60" rx="5" fill="#ffe4e6" stroke="#e11d48" strokeWidth="2" />
+                <rect x="341" y="72" width="160" height="14" rx="2" fill="#f43f5e" opacity="0.25" />
+                <rect x="341" y="94" width="160" height="14" rx="2" fill="#f43f5e" opacity="0.25" />
                 {showLabels && (
                   <g>
-                    <rect x="512" y="81.5" width="105" height="20" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="512" y="80" width="105" height="20" rx="4" fill="#1e40af" />
-                    <text x="564" y="94" fill="#ffffff" textAnchor="middle" className="text-[10px] font-black">
+                    <rect x="368" y="81.5" width="105" height="20" rx="4" fill="#000000" opacity="0.35" />
+                    <rect x="368" y="80" width="105" height="20" rx="4" fill="#1e40af" />
+                    <text x="420" y="94" fill="#ffffff" textAnchor="middle" className="text-[10px] font-black">
                       Bhagmati Hostel
                     </text>
                   </g>
@@ -905,12 +894,17 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 onClick={() => handleZoneSelect('stationery')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="376" y="622" width="96" height="58" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="2" />
+                {/* Compact building footprint with generous setback & walkway gap */}
+                <rect x="398" y="614" width="64" height="38" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="2" />
+                {/* North walkway entrance step */}
+                <rect x="420" y="612" width="20" height="3" rx="1" fill="#0284c7" />
+                {/* Architectural ridge line */}
+                <line x1="404" y1="620" x2="456" y2="620" stroke="#38bdf8" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.6" />
                 {showLabels && (
                   <g>
-                    <rect x="394" y="640.5" width="60" height="20" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="394" y="639" width="60" height="20" rx="4" fill="#1e40af" />
-                    <text x="424" y="653" fill="#ffffff" textAnchor="middle" className="text-[9.5px] font-black">
+                    <rect x="403" y="625.5" width="54" height="17" rx="3.5" fill="#000000" opacity="0.35" />
+                    <rect x="403" y="624" width="54" height="17" rx="3.5" fill="#1e40af" />
+                    <text x="430" y="636" fill="#ffffff" textAnchor="middle" className="text-[8px] font-black">
                       Stationery
                     </text>
                   </g>
@@ -923,231 +917,23 @@ export const StaticCampusLayer: React.FC<StaticCampusLayerProps> = React.memo(({
                 onClick={() => handleZoneSelect('shop-2')}
                 className="cursor-pointer transition-transform hover:opacity-95"
               >
-                <rect x="548" y="632" width="70" height="58" rx="4" fill="#dcfce7" stroke="#16a34a" strokeWidth="2" />
+                {/* Compact building footprint pushed toward boundary */}
+                <rect x="540" y="628" width="66" height="40" rx="4" fill="#dcfce7" stroke="#16a34a" strokeWidth="2" />
+                {/* North walkway entrance step */}
+                <rect x="563" y="626" width="20" height="3" rx="1" fill="#16a34a" />
+                {/* Architectural roof line */}
+                <line x1="546" y1="635" x2="600" y2="635" stroke="#16a34a" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.6" />
                 {showLabels && (
                   <g>
-                    <rect x="561" y="649.5" width="44" height="20" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="561" y="648" width="44" height="20" rx="4" fill="#1e40af" />
-                    <text x="583" y="662" fill="#ffffff" textAnchor="middle" className="text-[9.5px] font-black">
+                    <rect x="551" y="640.5" width="44" height="17" rx="3.5" fill="#000000" opacity="0.35" />
+                    <rect x="551" y="639" width="44" height="17" rx="3.5" fill="#1e40af" />
+                    <text x="573" y="651" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
                       Shop 2
                     </text>
                   </g>
                 )}
               </g>
 
-              {/* Parking area (Large unified parking lot on west, clear of central road) */}
-              <g 
-                id="zone-parking"
-                onClick={() => handleZoneSelect('parking-area')}
-                className="cursor-pointer transition-transform hover:opacity-95"
-              >
-                <rect x="142" y="658" width="180" height="182" rx="6" fill="#1e293b" stroke="#475569" strokeWidth="2" />
-                {/* Parking lot bays pattern */}
-                <rect x="148" y="666" width="168" height="166" fill="url(#parkingLines)" />
-                {/* Tree avenues */}
-                <use href="#campusTree" x="175" y="700" />
-                <use href="#campusTree" x="175" y="750" />
-                <use href="#campusTree" x="175" y="800" />
-                <use href="#campusTree" x="235" y="700" />
-                <use href="#campusTree" x="235" y="750" />
-                <use href="#campusTree" x="235" y="800" />
-                {showLabels && (
-                  <g>
-                    <rect x="196" y="729.5" width="72" height="24" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="196" y="728" width="72" height="24" rx="4" fill="#1e40af" />
-                    <text x="232" y="744" fill="#ffffff" textAnchor="middle" className="text-[10px] font-black">
-                      Parking area
-                    </text>
-                  </g>
-                )}
-              </g>
-
-              {/* Front Science Garden Quad (Former site of labs, now open lawn) */}
-              <g id="zone-science-garden-quad" className="opacity-95">
-                <rect x="368" y="708" width="164" height="150" rx="6" fill="#15803d" fillOpacity="0.18" stroke="#15803d" strokeWidth="1.2" strokeDasharray="4 3" />
-                {/* Connecting walkways from Central Spine Road across to building entrances */}
-                <rect x="358" y="740" width="184" height="14" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
-                <rect x="358" y="814" width="184" height="14" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
-                {/* Trees and quad landscaping */}
-                <use href="#campusTree" x="410" y="725" />
-                <use href="#campusTree" x="490" y="725" />
-                <use href="#campusTree" x="450" y="777" />
-                <use href="#campusTree" x="410" y="842" />
-                <use href="#campusTree" x="490" y="842" />
-                <text x="450" y="788" fill="#166534" textAnchor="middle" className="text-[8px] font-bold tracking-wider">
-                  Academic Green Quad
-                </text>
-              </g>
-
-              {/* INCUBATION CENTRE (Pushed all the way to the back eastern boundary) */}
-              <g 
-                id="zone-physics"
-                onClick={() => handleZoneSelect('physics-dept')}
-                className="cursor-pointer transition-transform hover:opacity-95"
-              >
-                <rect x="542" y="710" width="144" height="74" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
-                <rect x="550" y="717" width="128" height="12" rx="2" fill="#c2410c" opacity="0.25" />
-                {/* Entrance portico on west facade */}
-                <rect x="536" y="736" width="6" height="22" rx="1.5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
-                {showLabels && (
-                  <g>
-                    <rect x="562" y="728.5" width="104" height="26" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="562" y="727" width="104" height="26" rx="4" fill="#1e40af" stroke="#60a5fa" strokeWidth="1" />
-                    <text x="614" y="739" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
-                      INCUBATION
-                    </text>
-                    <text x="614" y="749" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
-                      CENTRE
-                    </text>
-                  </g>
-                )}
-              </g>
-
-              {/* CHEMISTRY DEPARTMENT (LAB) - Pushed all the way to back, conjoined with ZERO GAP */}
-              <g 
-                id="zone-chem"
-                onClick={() => handleZoneSelect('chemistry-dept')}
-                className="cursor-pointer transition-transform hover:opacity-95"
-              >
-                {/* Starts directly at y=784 with zero gap from Incubation Centre */}
-                <rect x="542" y="784" width="144" height="74" rx="4" fill="#fed7aa" stroke="#ea580c" strokeWidth="2" />
-                <rect x="550" y="791" width="128" height="12" rx="2" fill="#c2410c" opacity="0.25" />
-                {/* Entrance portico on west facade */}
-                <rect x="536" y="810" width="6" height="22" rx="1.5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
-                {/* Dividing architectural seam between Incubation and Chemistry Lab */}
-                <line x1="542" y1="784" x2="686" y2="784" stroke="#c2410c" strokeWidth="2" />
-                {/* Chemistry Lab benches & fume vents representation */}
-                <circle cx="562" cy="840" r="4" fill="#ea580c" opacity="0.3" />
-                <circle cx="576" cy="840" r="4" fill="#ea580c" opacity="0.3" />
-                <circle cx="652" cy="840" r="4" fill="#ea580c" opacity="0.3" />
-                <circle cx="666" cy="840" r="4" fill="#ea580c" opacity="0.3" />
-                {showLabels && (
-                  <g>
-                    <rect x="558" y="801.5" width="112" height="32" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="558" y="800" width="112" height="32" rx="4" fill="#1e40af" stroke="#60a5fa" strokeWidth="1" />
-                    <text x="614" y="813" fill="#ffffff" textAnchor="middle" className="text-[9px] font-black">
-                      CHEMISTRY LAB
-                    </text>
-                    <text x="614" y="825" fill="#93c5fd" textAnchor="middle" className="text-[7.5px] font-bold">
-                      Attached to Incubation
-                    </text>
-                  </g>
-                )}
-              </g>
-
-              {/* Eastern Campus Boundary Wall (Extended down to new southern boundary) */}
-              <g id="east-campus-boundary-wall">
-                {/* Brick Boundary Wall Structure along East Edge reaching down to y=1020 */}
-                <rect x="690" y="690" width="12" height="330" rx="2" fill="#b91c1c" stroke="#7f1d1d" strokeWidth="1.5" />
-                {/* Boundary Wall pillars */}
-                {Array.from({ length: 11 }).map((_, i) => (
-                  <rect key={i} x="688" y={700 + i * 31} width="16" height="6" rx="1.5" fill="#7f1d1d" />
-                ))}
-                {showLabels && (
-                  <g transform="translate(689, 785) rotate(90)">
-                    <rect x="-42" y="-10.5" width="84" height="18" rx="3" fill="#000000" opacity="0.35" />
-                    <rect x="-42" y="-12" width="84" height="18" rx="3" fill="#991b1b" stroke="#fca5a5" strokeWidth="1" />
-                    <text x="0" y="0" fill="#ffffff" textAnchor="middle" className="text-[7.5px] font-black tracking-widest">
-                      BOUNDARY WALL
-                    </text>
-                  </g>
-                )}
-              </g>
-
-              {/* Expanded Southern Campus Grounds & Relocated Kosi Extension */}
-              <g id="zone-expanded-south-grounds">
-                {/* West side lawn by Parking area */}
-                <rect x="142" y="850" width="176" height="155" rx="6" fill="#15803d" fillOpacity="0.2" stroke="#16a34a" strokeWidth="1" strokeDasharray="4 3" />
-                <use href="#campusTree" x="180" y="880" />
-                <use href="#campusTree" x="240" y="880" />
-                <use href="#campusTree" x="290" y="920" />
-                <use href="#campusTree" x="180" y="955" />
-                <use href="#campusTree" x="240" y="955" />
-                <text x="230" y="925" fill="#166534" textAnchor="middle" className="text-[8.5px] font-black tracking-wider">
-                  South Campus Grounds
-                </text>
-
-                {/* Southeast garden lawn bordering Kosi Extension */}
-                <rect x="526" y="890" width="158" height="115" rx="6" fill="#15803d" fillOpacity="0.2" stroke="#16a34a" strokeWidth="1" strokeDasharray="4 3" />
-                <use href="#campusTree" x="560" y="925" />
-                <use href="#campusTree" x="640" y="925" />
-                <use href="#campusTree" x="560" y="975" />
-                <use href="#campusTree" x="640" y="975" />
-                <text x="605" y="952" fill="#166534" textAnchor="middle" className="text-[8px] font-bold tracking-wide">
-                  Botanical Lawn Area
-                </text>
-              </g>
-
-              {/* KOSI EXTENSION HOSTEL (Relocated to South Campus Grounds Below Chemistry Lab) */}
-              <g 
-                id="zone-kosi-ext"
-                onClick={() => handleZoneSelect('kosi-ext')}
-                className="cursor-pointer transition-transform hover:opacity-95"
-              >
-                {/* Main Hostel structural block */}
-                <rect x="368" y="864" width="148" height="144" rx="6" fill="#fff1f2" stroke="#e11d48" strokeWidth="2.5" />
-
-                {/* North Residential Wing */}
-                <rect x="374" y="870" width="136" height="22" rx="3" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
-                {/* East Residential Wing */}
-                <rect x="478" y="892" width="32" height="88" rx="3" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
-                {/* West Residential Wing with Entrance facing Central Spine */}
-                <rect x="374" y="892" width="32" height="88" rx="3" fill="#fda4af" stroke="#f43f5e" strokeWidth="1" />
-                {/* South Residential Wing along southern perimeter */}
-                <rect x="374" y="980" width="136" height="22" rx="3" fill="#fecdd3" stroke="#f43f5e" strokeWidth="1" />
-
-                {/* Inner Quadrangle & Hostel Courtyard Lawn */}
-                <rect x="410" y="896" width="64" height="80" rx="4" fill="#16a34a" stroke="#15803d" strokeWidth="1" />
-                {/* Quadrangle walkways & trees */}
-                <line x1="442" y1="896" x2="442" y2="976" stroke="#e2e8f0" strokeWidth="1.5" strokeDasharray="3 2" />
-                <line x1="410" y1="936" x2="474" y2="936" stroke="#e2e8f0" strokeWidth="1.5" strokeDasharray="3 2" />
-                <use href="#campusTree" x="424" y="916" />
-                <use href="#campusTree" x="460" y="956" />
-
-                {/* Entrance Porch Gate facing West (Central Spine Road) */}
-                <rect x="362" y="924" width="8" height="24" rx="2" fill="#1e3a8a" />
-
-                {showLabels && (
-                  <>
-                    <g>
-                      <rect x="378" y="873.5" width="128" height="20" rx="4" fill="#000000" opacity="0.35" />
-                      <rect x="378" y="872" width="128" height="20" rx="4" fill="#be123c" stroke="#fecdd3" strokeWidth="1" />
-                      <text x="442" y="885" fill="#ffffff" textAnchor="middle" className="text-[9.5px] font-black tracking-wide">
-                        KOSI EXTENSION
-                      </text>
-                    </g>
-                    <g>
-                      <rect x="380" y="942.5" width="124" height="24" rx="4" fill="#000000" opacity="0.35" />
-                      <rect x="380" y="941" width="124" height="24" rx="4" fill="#1e3a8a" stroke="#60a5fa" strokeWidth="1" />
-                      <text x="442" y="953" fill="#ffffff" textAnchor="middle" className="text-[8.5px] font-black">
-                        KOSI EXT HOSTEL
-                      </text>
-                      <text x="442" y="962" fill="#93c5fd" textAnchor="middle" className="text-[7px] font-bold">
-                        Student Residential Wing
-                      </text>
-                    </g>
-                  </>
-                )}
-              </g>
-
-              {/* Campus Southern Boundary Wall (Enlarged to New Southern Perimeter) */}
-              <g id="ashok-rajpath-boundary-wall">
-                {/* Brick/Stone Boundary Wall Structure along new bottom perimeter */}
-                <rect x="132" y="1018" width="570" height="14" fill="#b91c1c" stroke="#7f1d1d" strokeWidth="1.5" />
-                {/* Boundary Wall pillars at intervals */}
-                {Array.from({ length: 15 }).map((_, i) => (
-                  <rect key={i} x={140 + i * 38} y="1014" width="8" height="22" rx="1.5" fill="#7f1d1d" />
-                ))}
-                {showLabels && (
-                  <g>
-                    <rect x="250" y="995.5" width="124" height="18" rx="4" fill="#000000" opacity="0.35" />
-                    <rect x="250" y="994" width="124" height="18" rx="4" fill="#991b1b" stroke="#fca5a5" strokeWidth="1" />
-                    <text x="312" y="1006" fill="#ffffff" textAnchor="middle" className="text-[8px] font-extrabold tracking-wider">
-                      Campus Boundary Wall
-                    </text>
-                  </g>
-                )}
-              </g>
 
               {/* ======================================================== */}
               {/* 5. OFFICIAL NIT PATNA HEADER BADGE & LEGEND             */}
