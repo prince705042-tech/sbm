@@ -438,3 +438,57 @@ main.relative.z-10 button:not([aria-label="Close"]):focus-visible {
     margin-bottom: 14px;
   }
 }
+
+
+/* Campus map workspace: give the map priority and keep its tools legible */
+main.relative.z-10 > div.space-y-4 > .flex.flex-col.xl\:flex-row {
+  align-items: flex-start;
+  gap: 18px;
+}
+
+main.relative.z-10 .flex.flex-col.xl\:flex-row > .flex-1.bg-white.rounded-lg {
+  border: 1px solid #dce6dc;
+  border-radius: 18px;
+  padding: clamp(12px, 1.8vw, 22px);
+  box-shadow: 0 8px 28px rgba(20, 43, 37, .055);
+  min-width: 0;
+}
+
+main.relative.z-10 .flex.flex-col.xl\:flex-row > .flex-1.bg-white.rounded-lg > :first-child {
+  border-color: #e4ebe4;
+}
+
+main.relative.z-10 .flex.flex-col.xl\:flex-row .overflow-hidden.rounded-lg {
+  border-radius: 12px;
+}
+
+main.relative.z-10 .flex.flex-col.xl\:flex-row button {
+  min-height: 34px;
+}
+
+main.relative.z-10 .flex.flex-col.xl\:flex-row button:active {
+  transform: translateY(1px);
+}
+
+/* Locator result hierarchy */
+main.relative.z-10 .max-w-5xl.mx-auto.space-y-5 > .bg-white.rounded-xl {
+  border-radius: 16px;
+  box-shadow: 0 6px 22px rgba(20, 43, 37, .045);
+}
+
+main.relative.z-10 .max-w-5xl.mx-auto.space-y-5 > .bg-white.rounded-xl:first-child {
+  background: linear-gradient(135deg, #fff 0%, #f8fbf7 100%);
+}
+
+@media (min-width: 1280px) {
+  main.relative.z-10 > div.space-y-4 > .flex.flex-col.xl\:flex-row {
+    gap: 22px;
+  }
+}
+
+@media (max-width: 640px) {
+  main.relative.z-10 .flex.flex-col.xl\:flex-row > .flex-1.bg-white.rounded-lg {
+    padding: 10px;
+    border-radius: 14px;
+  }
+}
