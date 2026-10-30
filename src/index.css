@@ -99,3 +99,176 @@
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+
+
+/* --------------------------------------------------------------------------
+   SBM Campus UI refresh — restrained institutional design system
+   Keeps existing component structure, routes, map interactions and controls.
+   -------------------------------------------------------------------------- */
+:root {
+  --sbm-ink: #142b25;
+  --sbm-muted: #64736c;
+  --sbm-paper: #f6f7f3;
+  --sbm-surface: #ffffff;
+  --sbm-line: #e3e9e2;
+  --sbm-green: #176b4a;
+  --sbm-green-dark: #10563b;
+  --sbm-saffron: #e87932;
+  --sbm-radius: 16px;
+  --sbm-shadow: 0 12px 34px rgba(20, 43, 37, .07);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  background: var(--sbm-paper);
+}
+
+body {
+  color: var(--sbm-ink);
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(226, 237, 224, .52), transparent 34rem),
+    var(--sbm-paper);
+  letter-spacing: -0.012em;
+}
+
+::selection {
+  color: #fff;
+  background: var(--sbm-green);
+}
+
+button, a, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  transition:
+    background-color .18s ease,
+    border-color .18s ease,
+    color .18s ease,
+    box-shadow .18s ease,
+    transform .18s ease;
+}
+
+button:focus-visible, a:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible {
+  outline: 3px solid rgba(23, 107, 74, .38);
+  outline-offset: 3px;
+}
+
+/* Institutional header and primary navigation */
+nav.sticky {
+  background: rgba(10, 37, 32, .96);
+  border-bottom: 1px solid rgba(255, 255, 255, .10);
+  box-shadow: 0 5px 20px rgba(10, 30, 25, .10);
+  -webkit-backdrop-filter: saturate(140%) blur(12px);
+  backdrop-filter: saturate(140%) blur(12px);
+}
+
+nav.sticky a {
+  letter-spacing: .005em;
+}
+
+nav.sticky a:hover {
+  background: rgba(255, 255, 255, .055);
+}
+
+nav.sticky a[aria-current="page"] {
+  color: #fff;
+}
+
+/* Top institutional strip */
+.w-full.text-stone-700.bg-stone-100 {
+  background: #f0f3ed;
+  border-color: #e0e7df;
+}
+
+/* Hero: retain campus photography and existing calls to action */
+section[aria-label="Campus Sanitation Overview"] > div {
+  border-color: rgba(19, 55, 42, .18);
+  border-radius: 22px;
+  box-shadow: 0 22px 55px rgba(18, 39, 31, .15);
+}
+
+section[aria-label="Campus Sanitation Overview"] button {
+  min-height: 42px;
+}
+
+section[aria-label="Campus Sanitation Overview"] button:hover {
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .18);
+}
+
+/* Consistent, calm controls across forms and dialogs */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  border-color: #d8e1d9;
+  border-radius: 10px;
+  background-color: #fff;
+  color: var(--sbm-ink);
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):focus,
+select:focus,
+textarea:focus {
+  border-color: var(--sbm-green);
+  box-shadow: 0 0 0 3px rgba(23, 107, 74, .10);
+}
+
+/* Sharper page rhythm and more deliberate surfaces */
+main {
+  color: var(--sbm-ink);
+}
+
+hr {
+  border-color: var(--sbm-line);
+}
+
+img {
+  max-width: 100%;
+}
+
+:where(.rounded-xl, .rounded-2xl, .rounded-3xl) {
+  scroll-margin-top: 6rem;
+}
+
+/* Subtle scrollbar styling */
+* {
+  scrollbar-color: #b8c8bd transparent;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #c5d2c9;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #91a99a;
+  background-clip: padding-box;
+}
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  section[aria-label="Campus Sanitation Overview"] > div {
+    border-radius: 16px;
+  }
+}
