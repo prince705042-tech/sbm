@@ -272,3 +272,40 @@ img {
     border-radius: 16px;
   }
 }
+
+
+/* Header, bulletin and footer finish */
+div.w-full.bg-white.border-b.border-stone-200 {
+  background: rgba(255, 255, 255, .94);
+  border-color: var(--sbm-line);
+}
+
+div.w-full.bg-white.border-b.border-stone-200 > div:first-child {
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+
+div.w-full.bg-white.border-b.border-stone-200 h1 {
+  color: var(--sbm-ink);
+  letter-spacing: -.035em;
+}
+
+div.w-full.bg-white.border-b.border-stone-200 > div:last-child {
+  background: #f4f6f1;
+  border-color: var(--sbm-line);
+}
+
+footer.w-full.bg-\[\#071A2E\] {
+  background: #102b24;
+  border-color: rgba(255, 255, 255, .12);
+}
+
+footer.w-full.bg-\[\#071A2E\] h3 {
+  letter-spacing: .08em;
+}
+
+@media (min-width: 768px) {
+  nav.sticky > div {
+    max-width: 1320px;
+  }
+}
